@@ -1,6 +1,7 @@
 """ Functions related to OS files and strings used for general purposes. """
 import os
 import pathlib
+import time
 
 from modules.logger_config import initialize_logger
 
@@ -25,15 +26,10 @@ def get_list_unhidden_directories(directory_path):
     return list_directories
 
 
-def create_test_directory_structure(directory_path):
+def create_test_directory_folders_structure(list_datasets):
     logger = initialize_logger()
 
     tester_catalog_folder = str(pathlib.Path().resolve()) + "\catalog"
-
-    list_datasets = get_list_unhidden_directories(directory_path)
-
-    for dataset in list_datasets:
-        print(dataset)
 
     for dataset in list_datasets:
         dataset_folder = tester_catalog_folder + "\\" + dataset
@@ -42,4 +38,5 @@ def create_test_directory_structure(directory_path):
 
     # Create dataset folders in tester_catalog_folder
 
-    logger.info(f"Test directory structure successfully created in {tester_catalog_folder}")
+    logger.info(f"Tester directory structure successfully created in {tester_catalog_folder}. "
+                f"The test catalog contains {len(list_datasets)} datasets.")
