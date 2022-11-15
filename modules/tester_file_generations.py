@@ -1,10 +1,16 @@
 """ Functions for extracting taxonomy from OntoUML serialization in OWL. """
 
-from rdflib import RDF, URIRef
+from rdflib import RDF, URIRef, Graph, RDFS, OWL
 
 from modules.logger_config import initialize_logger
 from modules.utils_rdf import load_graph_safely
 
+VOCABULARY_CLASS_URI = URIRef("https://purl.org/ontouml-models/vocabulary/Class")
+VOCABULARY_GENERALIZATION_URI = URIRef("https://purl.org/ontouml-models/vocabulary/Generalization")
+VOCABULARY_GENERAL_URI = URIRef("https://purl.org/ontouml-models/vocabulary/general")
+VOCABULARY_SPECIFIC_URI = URIRef("https://purl.org/ontouml-models/vocabulary/specific")
+VOCABULARY_NAME_URI = URIRef("https://purl.org/ontouml-models/vocabulary/name")
+VOCABULARY_STEREOTYPE_URI = URIRef("https://purl.org/ontouml-models/vocabulary/stereotype")
 
 class class_stereotype_data(object):
     """ Stereotype information related a specific class in the dataset's model. """
@@ -65,7 +71,7 @@ def get_gufo_stereotype(class_stereotype_original):
     return mapped_stereotype
 
 
-def generate_dataset_classes_data(owl_file_path):
+def generate_dataset_classes_stereotypes_data(owl_file_path):
     """
     1) Populates the class list for the dataset with the following information:
         - class_name, stereotype_original, stereotype_gufo.
@@ -80,20 +86,16 @@ def generate_dataset_classes_data(owl_file_path):
 
     source_graph = load_graph_safely(owl_file_path)
 
-    vocabulary_class_uri = URIRef("https://purl.org/ontouml-models/vocabulary/Class")
-    vocabulary_name_property_uri = URIRef("https://purl.org/ontouml-models/vocabulary/name")
-    vocabulary_stereotype_property_uri = URIRef("https://purl.org/ontouml-models/vocabulary/stereotype")
-
     list_classes_data = []
 
-    for owl_class in source_graph.subjects(RDF.type, vocabulary_class_uri):
+    for owl_class in source_graph.subjects(RDF.type, VOCABULARY_CLASS_URI):
         # Getting classes' names
-        class_name = source_graph.value(owl_class, vocabulary_name_property_uri)
+        class_name = source_graph.value(owl_class, VOCABULARY_NAME_URI)
         class_name = class_name.n3()[1:-(len(class_name.language) + 2)]
 
         if class_name != "string" and class_name != "int" and class_name != "char":
             # Getting classes' stereotypes
-            class_stereotype_original = source_graph.value(owl_class, vocabulary_stereotype_property_uri)
+            class_stereotype_original = source_graph.value(owl_class, VOCABULARY_STEREOTYPE_URI)
             if class_stereotype_original == None:
                 class_stereotype_original_string = "none"
                 class_stereotype_gufo = "none"
@@ -157,6 +159,54 @@ def generate_dataset_taxonomy(dataset, owl_file_path):
 # def saves_dataset_csv_classes_statistics():
 #     pass
 
+def create_taxonomy_graph(owl_file_path):
+    """ Extract the dataset model's taxonomy into a new graph. """
+
+    source_graph = load_graph_safely(owl_file_path)
+    taxonomy_graph = Graph()
+
+    base_uri = "http://taxonomy.com/"
+
+    for generalization in source_graph.subjects(RDF.type, VOCABULARY_GENERALIZATION_URI):
+        # Getting uri of the general and specific participants in the generalization
+        class_general = source_graph.value(generalization, VOCABULARY_GENERAL_URI)
+        class_specific = source_graph.value(generalization, VOCABULARY_SPECIFIC_URI)
+
+        # continue if general and specific are classes
+        type_of_general = source_graph.value(class_general, RDF.type)
+        type_of_specific = source_graph.value(class_specific, RDF.type)
+
+        if (type_of_general != VOCABULARY_CLASS_URI) or (type_of_specific != VOCABULARY_CLASS_URI):
+            continue
+
+        # Getting classes names
+        class_general_name = source_graph.value(class_general, VOCABULARY_NAME_URI)
+        class_specific_name = source_graph.value(class_specific, VOCABULARY_NAME_URI)
+
+        # Converting Literals to URIRef in the following format ("http://taxonomy.com/Class_Name")
+        class_general_name_string = class_general_name.n3()[1:-(len(class_general_name.language) + 2)]
+        class_specific_name_string = class_specific_name.n3()[1:-(len(class_specific_name.language) + 2)]
+
+        class_general_name_string = class_general_name_string.replace(" ","_")
+        class_specific_name_string = class_specific_name_string.replace(" ","_")
+        class_general_name_string = class_general_name_string.replace("\n", "_")
+        class_specific_name_string = class_specific_name_string.replace("\n", "_")
+        class_general_name_string = class_general_name_string.replace("\"\"", "_")
+        class_specific_name_string = class_specific_name_string.replace("\"\"", "_")
+
+        class_general_full_name = base_uri + class_general_name_string
+        class_specific_full_name = base_uri + class_specific_name_string
+        uriref_general = URIRef(class_general_full_name)
+        uriref_specific = URIRef(class_specific_full_name)
+
+        # Including classes and generalization into the new graph
+        taxonomy_graph.add((uriref_general, RDF.type, OWL.Class))
+        taxonomy_graph.add((uriref_specific, RDF.type, OWL.Class))
+        taxonomy_graph.add((uriref_specific, RDFS.subClassOf, uriref_general))
+
+    return taxonomy_graph
+
+
 def generate_catalog_data_files(catalog_path, list_datasets):
     """ Generates and saves in files data to be evaluated for each dataset in the catalog.
 
@@ -171,12 +221,8 @@ def generate_catalog_data_files(catalog_path, list_datasets):
 
         owl_file_path = catalog_path + "\\" + dataset + "\\" + "ontology.ttl"
 
-        dataset_classes_data = generate_dataset_classes_data(owl_file_path)
-        # dataset_classes_statistics = dataset_data()
-
-        for class_data in dataset_classes_data:
-            print(f"class_data.name = {class_data.name}")
-            print(f"class_data.stereotype_original = {class_data.stereotype_original}")
+        dataset_classes_stereotypes_data = generate_dataset_classes_stereotypes_data(owl_file_path)
+        taxonomy_graph = create_taxonomy_graph(owl_file_path)
 
         # generate_dataset_taxonomy(dataset, owl_file_path)
 

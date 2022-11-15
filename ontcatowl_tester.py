@@ -23,3 +23,8 @@ def run_ontcatowl_tester():
 
 if __name__ == '__main__':
     run_ontcatowl_tester()
+
+
+# VERIFY
+# Are there any classes with more than one stereotype?
+# Try to clean garbage classes for creating better statistics
