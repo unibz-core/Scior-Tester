@@ -14,7 +14,7 @@ def load_graph_safely(ontology_file):
 
     ontology_graph = Graph()
     try:
-        ontology_graph.parse(ontology_file)
+        ontology_graph.parse(ontology_file, encoding='utf-8')
     except OSError:
         logger.error(f"Could not load {ontology_file} file. Exiting program.")
         exit(1)
