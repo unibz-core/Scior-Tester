@@ -1,4 +1,8 @@
 """ Main module for the OntoCatOWL-Catalog Tester. """
+import pathlib
+from copy import deepcopy
+
+from rdflib import URIRef, RDF
 
 from modules.build.build_classes_stereotypes_information import collect_stereotypes_classes_information
 from modules.build.build_directories_structure import get_list_unhidden_directories, \
@@ -6,9 +10,11 @@ from modules.build.build_directories_structure import get_list_unhidden_director
 from modules.build.build_information_classes import saves_dataset_csv_classes_data
 from modules.build.build_taxonomy_classes_information import collect_taxonomy_information
 from modules.build.build_taxonomy_files import create_taxonomy_files
-from modules.input_arguments import treat_arguments
-from modules.logger_config import initialize_logger
+from modules.ontcatowl.ontcatowl import run_ontcatowl
 from modules.run.run_dictionaries import load_baseline_dictionary
+from modules.tester.input_arguments import treat_arguments
+from modules.tester.logger_config import initialize_logger
+from modules.tester.utils_rdf import load_graph_safely
 
 SOFTWARE_ACRONYM = "OntCatOWL Tester"
 SOFTWARE_NAME = "Tester for the Identification of Ontological Categories for OWL Ontologies"
@@ -50,17 +56,47 @@ def build_ontcatowl_tester(catalog_path):
 
 
 def run_ontcatowl_tester(catalog_path):
-
     list_datasets = get_list_unhidden_directories(catalog_path)
     list_datasets.sort()
+    list_datasets_paths = []
+    list_datasets_taxonomies = []
 
-    configurations_list = ["-ac", "-an"]
+    namespace_gufo = "http://purl.org/nemo/gufo#"
+    namespace_taxonomy = "http://taxonomy.model/"
 
+    global_configurations = {"is_automatic": True,
+                             "is_complete": False}
+
+    # Creating list of dataset paths and taxonomies
     for dataset in list_datasets:
+
+        logger.info(f"Starting OntCatOWL for {dataset}")
+
+        tester_catalog_folder = str(pathlib.Path().resolve()) + r"\catalog"
+        dataset_folder = tester_catalog_folder + "\\" + dataset
+        list_datasets_paths.append(dataset_folder)
+        dataset_taxonomy = dataset_folder + "\\" + "taxonomy.ttl"
+        list_datasets_taxonomies.append(dataset_taxonomy)
+
         input_classes_list = load_baseline_dictionary(dataset)
-        for configuration in configurations_list:
-            for input_class in input_classes_list:
-                pass
+        input_graph = load_graph_safely(dataset_taxonomy)
+
+        for input_class in input_classes_list:
+            working_graph = deepcopy(input_graph)
+            triple_subject = URIRef(namespace_taxonomy + input_class.class_name)
+            triple_predicate = RDF.type
+            triple_object = URIRef(namespace_gufo + input_class.class_stereotype)
+            working_graph.add((triple_subject, triple_predicate, triple_object))
+
+            ontology_dataclass_list, time_register, consolidated_statistics = run_ontcatowl(global_configurations,
+                                                                                            working_graph)
+
+            # save execution metadata csv (configs, input classes, stereotypes)
+            # generate_yaml_classes_output(ontology_dataclass_list)
+            # generate_times_csv_output(time_register)
+            # generate_statistics_csv_output(consolidated_statistics)
+
+            working_graph = None
 
 
 if __name__ == '__main__':

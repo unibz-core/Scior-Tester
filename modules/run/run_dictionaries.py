@@ -2,6 +2,7 @@
 import csv
 import pathlib
 
+
 class input_class(object):
     def __init__(self, class_name, class_stereotype):
         self.class_name = class_name
@@ -9,7 +10,6 @@ class input_class(object):
 
 
 def load_baseline_dictionary(dataset):
-
     list_input_classes = []
 
     tester_path = str(pathlib.Path().resolve())
@@ -23,6 +23,6 @@ def load_baseline_dictionary(dataset):
             if (index != 0) and (row[2] != "other"):
                 new_class = input_class(row[0], row[2])
                 list_input_classes.append(new_class)
-            index +=1
+            index += 1
 
     return list_input_classes

@@ -3,22 +3,22 @@
 import logging
 import os
 
-from modules.utils_general import get_date_time
+from modules.tester.utils_general import get_date_time
 
 
 def initialize_logger():
-    """ Initialize OntCatOWL Tester Logger. """
+    """ Initialize OntCatOWL Logger. """
 
     # Create a custom logger
-    new_logger = logging.getLogger("OntCatOWL Tester")
+    new_logger = logging.getLogger("OntCatOWL")
     new_logger.setLevel(logging.DEBUG)
 
-    # Creates a new logger only if OntCatOWLTester does not exist
-    if not logging.getLogger("OntCatOWL Tester").hasHandlers():
+    # Creates a new logger only if OntCatOWL does not exist
+    if not logging.getLogger("OntCatOWL").hasHandlers():
 
         # Creating CONSOLE handler
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
+        console_handler.setLevel(logging.ERROR)
 
         # If directory "/log" does not exist, create it
         log_dir = "logs/"
@@ -27,7 +27,7 @@ def initialize_logger():
 
         # Creating FILE handler
         file_handler = logging.FileHandler(f"{log_dir}{get_date_time()}.log")
-        file_handler.setLevel(logging.DEBUG)
+        file_handler.setLevel(logging.ERROR)
 
         # Create formatters and add it to handlers
         console_format = logging.Formatter('%(levelname)s - %(message)s')
