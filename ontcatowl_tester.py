@@ -11,8 +11,8 @@ from modules.build.build_information_classes import saves_dataset_csv_classes_da
 from modules.build.build_taxonomy_classes_information import collect_taxonomy_information
 from modules.build.build_taxonomy_files import create_taxonomy_files
 from modules.ontcatowl.ontcatowl import run_ontcatowl
-from modules.run.run_data_structures import load_baseline_dictionary, create_yaml_classes_output, remaps_to_gufo, \
-    generate_times_csv_output
+from modules.run.run_data_structures import load_baseline_dictionary, create_classes_yaml_output, remaps_to_gufo, \
+    create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
 from modules.tester.input_arguments import treat_arguments
 from modules.tester.logger_config import initialize_logger
 from modules.tester.utils_rdf import load_graph_safely
@@ -58,8 +58,11 @@ def build_ontcatowl_tester(catalog_path):
 
         current += 1
 
-
+# TODO (@pedropaulofb): FOR TESTS WHERE THERE ARE MORE THAN ONE INPUT, THE STATISTICS GENERATION MUST BE MODIFIED
 def run_ontcatowl_tester(catalog_path):
+
+    TEST_NUMBER = 1
+
     list_datasets = get_list_unhidden_directories(catalog_path)
     list_datasets.sort()
     list_datasets_paths = []
@@ -69,9 +72,9 @@ def run_ontcatowl_tester(catalog_path):
                              "is_complete": False}
 
     # Creating list of dataset paths and taxonomies
-    for dataset in list_datasets:
+    for dataset in list_datasets[0:2]:
 
-        logger.info(f"Starting OntCatOWL for {dataset}")
+        logger.info(f"Starting OntCatOWL for {dataset}\n")
 
         tester_catalog_folder = str(pathlib.Path().resolve()) + r"\catalog"
         dataset_folder = tester_catalog_folder + "\\" + dataset
@@ -82,7 +85,16 @@ def run_ontcatowl_tester(catalog_path):
         input_classes_list = load_baseline_dictionary(dataset)
         input_graph = load_graph_safely(dataset_taxonomy)
 
-        test_name = "test1_an"
+        if global_configurations["is_automatic"]:
+            l1 = "a"
+        else:
+            l1 = "i"
+        if global_configurations["is_complete"]:
+            l2 = "c"
+        else:
+            l2 = "n"
+
+        test_name = f"test_{TEST_NUMBER}_{l1}{l2}"
         test_results_folder = dataset_folder + "\\" + test_name
         create_test_results_folder(test_results_folder)
 
@@ -105,13 +117,20 @@ def run_ontcatowl_tester(catalog_path):
                                                                                             working_graph)
 
             # Creating resulting files
-            create_yaml_classes_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
-            # generate_times_csv_output(time_register)
-            # generate_statistics_csv_output(consolidated_statistics)
+            create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
+            create_times_csv_output(time_register, test_results_folder, execution_number, execution_name)
+            create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder, execution_number)
+            create_summary_csv_output(test_results_folder, execution_number, input_class)
 
-            logger.info(f"Test {execution_number}/{tests_total} for input class {input_class.class_name} executed.")
+            if execution_number == tests_total:
+                end = "\n"
+            else:
+                end = ""
+
+            logger.info(f"Test {execution_number}/{tests_total} for input class {input_class.class_name} executed.{end}")
             execution_number += 1
-        exit(2)
+
+
 
 
 if __name__ == '__main__':

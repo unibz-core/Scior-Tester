@@ -1,11 +1,10 @@
 """ Functions that returns the strings to be printed in the Final Results Report. """
 import os
 
-from modules.results_printer import generate_classes_table, generate_classifications_table, \
-    generate_times_table, generate_incompleteness_table
-from modules.utils_dataclass import generate_hash_ontology_dataclass_list
 from prettytable import MARKDOWN
 
+from modules.ontcatowl.modules.results_printer import generate_incompleteness_table, generate_classes_table, \
+    generate_classifications_table
 from modules.tester.logger_config import initialize_logger
 
 
