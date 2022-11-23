@@ -81,7 +81,61 @@ def create_classes_yaml_output(input_class, ontology_dataclass_list, test_result
         yaml.dump_all(ontology_dictionary_list, file, sort_keys=True)
 
 
-def remaps_to_gufo(gufo_lower_type):
+def get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclass_list):
+    final_list = "undeclared"
+    logger = initialize_logger()
+
+    for dataclass in ontology_dataclass_list:
+        if dataclass.uri == class_name_prefixed:
+            if class_gufo_stereotype in dataclass.is_type:
+                final_list = "is"
+            elif class_gufo_stereotype in dataclass.can_type:
+                final_list = "can"
+            elif class_gufo_stereotype in dataclass.not_type:
+                final_list = "not"
+            else:
+                logger.error("Not found in any list.")
+                exit(1)
+
+    return final_list
+
+
+def create_classes_results_csv_output(ontology_dataclass_list, dataset_folder, test_results_folder, execution_name):
+    classes_data_file = dataset_folder + "\\classes_data.csv"
+
+    final_row_list = []
+
+    # read classes informations
+    with open(classes_data_file) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+                class_name = row[0]
+                class_name_prefixed = NAMESPACE_TAXONOMY + class_name
+                class_gufo_lower = row[2]
+                class_gufo_stereotype = remaps_to_gufo(class_gufo_lower, True)
+                class_gufo_stereotype = "gufo:" + class_gufo_stereotype
+                final_list = get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclass_list)
+                final_row = [class_name, class_gufo_lower, final_list]
+                final_row_list.append(final_row)
+            line_count += 1
+
+    yaml_folder = test_results_folder + "\\results"
+
+    classes_output_filename = f"results_{execution_name}.csv"
+    classes_output_complete_path = yaml_folder + "\\" + classes_output_filename
+
+    csv_header = ["class_name", "class_original_stereotype", "stereotype_final_list"]
+
+    with open(classes_output_complete_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(csv_header)
+        for final_row in final_row_list:
+            writer.writerow(final_row)
+
+
+def remaps_to_gufo(gufo_lower_type, no_namespace=False):
     """ Receives a gufo_lower_type and returns a valid_gufo_type """
 
     logger = initialize_logger()
@@ -102,11 +156,22 @@ def remaps_to_gufo(gufo_lower_type):
         mapped_stereotype = "RoleMixin"
     elif gufo_lower_type == "subkind":
         mapped_stereotype = "SubKind"
+    elif gufo_lower_type == "sortal":
+        mapped_stereotype = "Sortal"
+    elif gufo_lower_type == "nonsortal":
+        mapped_stereotype = "NonSortal"
+    elif gufo_lower_type == "rigidtype":
+        mapped_stereotype = "RigidType"
+    elif gufo_lower_type == "nonrigidtype":
+        mapped_stereotype = "NonRigidType"
     else:
         logger.error("Unknown gufo_lower_type. Program aborted.")
         exit(1)
 
-    valid_gufo_type = NAMESPACE_GUFO + mapped_stereotype
+    if no_namespace:
+        valid_gufo_type = mapped_stereotype
+    else:
+        valid_gufo_type = NAMESPACE_GUFO + mapped_stereotype
 
     return valid_gufo_type
 

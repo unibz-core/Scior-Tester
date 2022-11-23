@@ -12,7 +12,7 @@ from modules.build.build_taxonomy_classes_information import collect_taxonomy_in
 from modules.build.build_taxonomy_files import create_taxonomy_files
 from modules.ontcatowl.ontcatowl import run_ontcatowl
 from modules.run.run_data_structures import load_baseline_dictionary, create_classes_yaml_output, remaps_to_gufo, \
-    create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
+    create_times_csv_output, create_statistics_csv_output, create_summary_csv_output, create_classes_results_csv_output
 from modules.tester.input_arguments import treat_arguments
 from modules.tester.logger_config import initialize_logger
 from modules.tester.utils_rdf import load_graph_safely
@@ -72,7 +72,7 @@ def run_ontcatowl_tester(catalog_path):
                              "is_complete": False}
 
     # Creating list of dataset paths and taxonomies
-    current_dataset_number = 27 # derave2019dpo is the 27. Continue from 28! Create condition.
+    current_dataset_number = 1
     total_dataset_number = len(list_datasets)
     for dataset in list_datasets:
 
@@ -120,6 +120,8 @@ def run_ontcatowl_tester(catalog_path):
                                                                                             working_graph)
 
             # Creating resulting files
+            create_classes_results_csv_output(ontology_dataclass_list, dataset_folder, test_results_folder, execution_name)
+
             create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
             create_times_csv_output(time_register, test_results_folder, execution_number, execution_name)
             create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder, execution_number)

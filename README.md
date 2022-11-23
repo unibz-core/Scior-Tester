@@ -60,3 +60,5 @@ that `conformsTo` exclusively with `ontouml`.
 ### Test 1
 
 Executed with a single class as input. Used all classes in all datasets. Executed first in an mode and then in ac.  
+
+The test only generates taxonomy.ttl for classes that are part of taxonomies. I.e., isolated classes are not considered when reading the original ontology.ttl file.
