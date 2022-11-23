@@ -53,3 +53,10 @@ that `conformsTo` exclusively with `ontouml`.
 
 - Unknown classifications
 - Known classifications
+
+
+## Tests
+
+### Test 1
+
+Executed with a single class as input. Used all classes in all datasets. Executed first in an mode and then in ac.  

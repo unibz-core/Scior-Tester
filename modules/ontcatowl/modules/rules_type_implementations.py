@@ -1,10 +1,9 @@
 """ Implementation of rules for types. """
-
+from modules.ontcatowl.modules.logger_config import initialize_logger
 from modules.ontcatowl.modules.user_interactions import print_class_types, set_interactively_class_as_gufo_type, \
     select_class_from_list
 from modules.ontcatowl.modules.utils_dataclass import external_move_to_is_list, get_list_gufo_classification, \
     external_move_list_to_is_list, return_dataclass_from_class_name, get_element_list
-from modules.tester.logger_config import initialize_logger
 from modules.tester.utils_graph import get_all_related_nodes, get_all_superclasses, get_subclasses, get_superclasses
 
 # Frequent GUFO types
