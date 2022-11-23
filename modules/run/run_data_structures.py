@@ -69,8 +69,6 @@ def create_classes_yaml_output(input_class, ontology_dataclass_list, test_result
     """ Receives an ontology_dataclass_list and saves its information in yaml format. """
 
     yaml_folder = test_results_folder + "\\results"
-    print(yaml_folder)
-    exit(3)
     if not os.path.exists(yaml_folder):
         os.makedirs(yaml_folder)
 
@@ -211,7 +209,7 @@ def create_csv_header():
     return csv_header
 
 
-def populate_csv_row(input_class_name, consolidated_statistics, execution_number, number_incomplete_classes):
+def populate_csv_row(consolidated_statistics, execution_number, number_incomplete_classes):
     csv_row = []
 
     ### GENERAL
@@ -296,8 +294,8 @@ def populate_csv_row(input_class_name, consolidated_statistics, execution_number
 
     return csv_row
 
-def calculate_incompleteness_values(ontology_dataclass_list):
 
+def calculate_incompleteness_values(ontology_dataclass_list):
     number_incomplete_classes = 0
     for dataclass in ontology_dataclass_list:
         if dataclass.incompleteness_info["is_incomplete"] == True:
@@ -306,8 +304,8 @@ def calculate_incompleteness_values(ontology_dataclass_list):
     return number_incomplete_classes
 
 
-def create_statistics_csv_output(input_class_name, ontology_dataclass_list, consolidated_statistics, test_results_folder, execution_number):
-
+def create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
+                                 execution_number):
     csv_header = create_csv_header()
     number_incomplete_classes = calculate_incompleteness_values(ontology_dataclass_list)
     csv_row = populate_csv_row(consolidated_statistics, execution_number, number_incomplete_classes)
@@ -327,8 +325,7 @@ def create_statistics_csv_output(input_class_name, ontology_dataclass_list, cons
 
 
 def create_summary_csv_output(test_results_folder, execution_number, input_class):
-
-    input_class_name = input_class.name
+    input_class_name = input_class.class_name
     input_class_stereotype = input_class.class_stereotype
 
     csv_header = ["execution_number", "input_class_name", "input_class_stereotype"]

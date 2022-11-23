@@ -39,7 +39,8 @@ def build_ontcatowl_tester(catalog_path):
 
     current = 1
 
-    for dataset in list_datasets[5:10]:
+    for dataset in list_datasets:
+
         logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset} ###\n")
 
         create_test_directory_folders_structure(dataset, catalog_size, current)
@@ -58,7 +59,6 @@ def build_ontcatowl_tester(catalog_path):
 
         current += 1
 
-# TODO (@pedropaulofb): FOR TESTS WHERE THERE ARE MORE THAN ONE INPUT, THE STATISTICS GENERATION MUST BE MODIFIED
 def run_ontcatowl_tester(catalog_path):
 
     TEST_NUMBER = 1
@@ -72,9 +72,12 @@ def run_ontcatowl_tester(catalog_path):
                              "is_complete": False}
 
     # Creating list of dataset paths and taxonomies
-    for dataset in list_datasets[0:2]:
+    current_dataset_number = 27 # derave2019dpo is the 27. Continue from 28! Create condition.
+    total_dataset_number = len(list_datasets)
+    for dataset in list_datasets:
 
-        logger.info(f"Starting OntCatOWL for {dataset}\n")
+        logger.info(f"Executing OntCatOWL for dataset {current_dataset_number}/{total_dataset_number}: {dataset}\n")
+        current_dataset_number += 1
 
         tester_catalog_folder = str(pathlib.Path().resolve()) + r"\catalog"
         dataset_folder = tester_catalog_folder + "\\" + dataset
