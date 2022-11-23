@@ -100,26 +100,18 @@ def get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclas
     return final_list
 
 
-def create_classes_results_csv_output(ontology_dataclass_list, dataset_folder, test_results_folder, execution_name):
+def create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder, test_results_folder, execution_name):
     classes_data_file = dataset_folder + "\\classes_data.csv"
 
     final_row_list = []
 
-    # read classes informations
-    with open(classes_data_file) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        for row in csv_reader:
-            if line_count != 0:
-                class_name = row[0]
-                class_name_prefixed = NAMESPACE_TAXONOMY + class_name
-                class_gufo_lower = row[2]
-                class_gufo_stereotype = remaps_to_gufo(class_gufo_lower, True)
-                class_gufo_stereotype = "gufo:" + class_gufo_stereotype
-                final_list = get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclass_list)
-                final_row = [class_name, class_gufo_lower, final_list]
-                final_row_list.append(final_row)
-            line_count += 1
+    for input_class in input_classes_list:
+        class_name_prefixed = NAMESPACE_TAXONOMY + input_class.class_name
+        class_gufo_stereotype = remaps_to_gufo(input_class.class_name, input_class.class_stereotype, True)
+        class_gufo_stereotype = "gufo:" + class_gufo_stereotype
+        final_list = get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclass_list)
+        final_row = [input_class.class_name, input_class.class_stereotype, final_list]
+        final_row_list.append(final_row)
 
     yaml_folder = test_results_folder + "\\results"
 
@@ -135,7 +127,7 @@ def create_classes_results_csv_output(ontology_dataclass_list, dataset_folder, t
             writer.writerow(final_row)
 
 
-def remaps_to_gufo(gufo_lower_type, no_namespace=False):
+def remaps_to_gufo(class_name, gufo_lower_type, no_namespace=False):
     """ Receives a gufo_lower_type and returns a valid_gufo_type """
 
     logger = initialize_logger()
@@ -165,7 +157,7 @@ def remaps_to_gufo(gufo_lower_type, no_namespace=False):
     elif gufo_lower_type == "nonrigidtype":
         mapped_stereotype = "NonRigidType"
     else:
-        logger.error("Unknown gufo_lower_type. Program aborted.")
+        logger.error(f"Unknown gufo_lower_type {gufo_lower_type} in class {class_name}. Program aborted.")
         exit(1)
 
     if no_namespace:

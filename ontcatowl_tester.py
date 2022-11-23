@@ -111,7 +111,7 @@ def run_ontcatowl_tester(catalog_path):
             working_graph = deepcopy(input_graph)
             triple_subject = URIRef(NAMESPACE_TAXONOMY + input_class.class_name)
             triple_predicate = RDF.type
-            class_gufo_type = remaps_to_gufo(input_class.class_stereotype)
+            class_gufo_type = remaps_to_gufo(input_class.class_name, input_class.class_stereotype)
             triple_object = URIRef(class_gufo_type)
             working_graph.add((triple_subject, triple_predicate, triple_object))
             working_graph.bind("gufo", "http://purl.org/nemo/gufo#")
@@ -120,9 +120,8 @@ def run_ontcatowl_tester(catalog_path):
                                                                                             working_graph)
 
             # Creating resulting files
-            create_classes_results_csv_output(ontology_dataclass_list, dataset_folder, test_results_folder, execution_name)
-
             create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
+            create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder, test_results_folder, execution_name)
             create_times_csv_output(time_register, test_results_folder, execution_number, execution_name)
             create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder, execution_number)
             create_summary_csv_output(test_results_folder, execution_number, input_class)
