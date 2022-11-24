@@ -24,7 +24,7 @@ def load_baseline_dictionary(dataset):
     dataset_path = tester_path + chr(92) + "catalog" + chr(92) + dataset + chr(92)
     csv_file_full_path = dataset_path + "classes_data.csv"
 
-    with open(csv_file_full_path) as csv_file:
+    with open(csv_file_full_path, encoding='utf-8') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         index = 0
         for row in csv_reader:
@@ -77,7 +77,7 @@ def create_classes_yaml_output(input_class, ontology_dataclass_list, test_result
 
     ontology_dictionary_list = convert_ontology_dataclass_list_to_dictionary_list(input_class, ontology_dataclass_list)
 
-    with open(classes_output_complete_path, 'w') as file:
+    with open(classes_output_complete_path, 'w', encoding='utf-8') as file:
         yaml.dump_all(ontology_dictionary_list, file, sort_keys=True)
 
 
@@ -100,7 +100,8 @@ def get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclas
     return final_list
 
 
-def create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder, test_results_folder, execution_name):
+def create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder, test_results_folder,
+                                      execution_name):
     classes_data_file = dataset_folder + "\\classes_data.csv"
 
     final_row_list = []
@@ -120,7 +121,7 @@ def create_classes_results_csv_output(input_classes_list, ontology_dataclass_lis
 
     csv_header = ["class_name", "class_original_stereotype", "stereotype_final_list"]
 
-    with open(classes_output_complete_path, 'w', newline='') as f:
+    with open(classes_output_complete_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(csv_header)
         for final_row in final_row_list:
@@ -175,12 +176,12 @@ def create_times_csv_output(time_register, test_results_folder, execution_number
     time_register["execution"] = execution_number
 
     if execution_number == 1:
-        with open(times_output_complete_path, 'w', newline='') as f:
+        with open(times_output_complete_path, 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=time_register.keys())
             writer.writeheader()
             writer.writerow(time_register)
     else:
-        with open(times_output_complete_path, 'a', newline='') as f:
+        with open(times_output_complete_path, 'a', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=time_register.keys())
             writer.writerow(time_register)
 
@@ -371,12 +372,12 @@ def create_statistics_csv_output(ontology_dataclass_list, consolidated_statistic
     statistics = test_results_folder + "\\" + statistics_output_filename
 
     if execution_number == 1:
-        with open(statistics, 'w', newline='') as f:
+        with open(statistics, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(csv_header)
             writer.writerow(csv_row)
     else:
-        with open(statistics, 'a', newline='') as f:
+        with open(statistics, 'a', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(csv_row)
 
@@ -392,11 +393,11 @@ def create_summary_csv_output(test_results_folder, execution_number, input_class
     statistics = test_results_folder + "\\" + statistics_output_filename
 
     if execution_number == 1:
-        with open(statistics, 'w', newline='') as f:
+        with open(statistics, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(csv_header)
             writer.writerow(csv_row)
     else:
-        with open(statistics, 'a', newline='') as f:
+        with open(statistics, 'a', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(csv_row)

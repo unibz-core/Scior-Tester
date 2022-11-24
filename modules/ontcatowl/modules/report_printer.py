@@ -60,7 +60,7 @@ def print_report_file(ontology_dataclass_list, start_date_time, end_date_time, e
 
     # Creating report file
 
-    with open(report_name, 'w') as f:
+    with open(report_name, 'w', encoding='utf-8') as f:
         f.write(report)
 
     logger.info(f"Report successfully printed. Access it in {os.path.abspath(report_name)}.")

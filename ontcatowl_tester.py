@@ -69,12 +69,17 @@ def run_ontcatowl_tester(catalog_path):
     list_datasets_taxonomies = []
 
     global_configurations = {"is_automatic": True,
-                             "is_complete": False}
+                             "is_complete": True}
 
     # Creating list of dataset paths and taxonomies
     current_dataset_number = 1
     total_dataset_number = len(list_datasets)
     for dataset in list_datasets:
+
+        execute = 66
+        if current_dataset_number != execute:
+            current_dataset_number += 1
+            continue
 
         logger.info(f"Executing OntCatOWL for dataset {current_dataset_number}/{total_dataset_number}: {dataset}\n")
         current_dataset_number += 1
@@ -105,8 +110,16 @@ def run_ontcatowl_tester(catalog_path):
         execution_number = 1
         tests_total = len(input_classes_list)
 
+        known_inconsistecies = ["Operadora_de_Meio_de_Pagamento", "Componente_de_GE", "Imposto_sobre_Resultado", "Imposto_sobre_Serviço"]
+        known_consistencies = []
+
         for input_class in input_classes_list:
             execution_name = test_name + "_exec" + str(execution_number)
+
+
+            if (input_class.class_name in known_inconsistecies) or (input_class.class_name in known_consistencies):
+                execution_number += 1
+                continue
 
             working_graph = deepcopy(input_graph)
             triple_subject = URIRef(NAMESPACE_TAXONOMY + input_class.class_name)
