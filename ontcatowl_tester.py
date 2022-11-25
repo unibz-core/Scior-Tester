@@ -9,7 +9,8 @@ from modules.build.build_directories_structure import get_list_unhidden_director
     create_test_directory_folders_structure, create_test_results_folder
 from modules.build.build_information_classes import saves_dataset_csv_classes_data
 from modules.build.build_taxonomy_classes_information import collect_taxonomy_information
-from modules.build.build_taxonomy_files import create_taxonomy_files
+from modules.build.build_taxonomy_files import create_taxonomy_ttl_file
+from modules.hash_functions import create_hash_sha256_register_file_csv
 from modules.ontcatowl.ontcatowl import run_ontcatowl
 from modules.run.run_data_structures import load_baseline_dictionary, create_classes_yaml_output, remaps_to_gufo, \
     create_times_csv_output, create_statistics_csv_output, create_summary_csv_output, create_classes_results_csv_output
@@ -19,7 +20,7 @@ from modules.tester.utils_rdf import load_graph_safely
 
 SOFTWARE_ACRONYM = "OntCatOWL Tester"
 SOFTWARE_NAME = "Tester for the Identification of Ontological Categories for OWL Ontologies"
-SOFTWARE_VERSION = "0.22.11.22"
+SOFTWARE_VERSION = "0.22.11.25"
 SOFTWARE_URL = "https://github.com/unibz-core/OntCatOWL-Tester"
 
 NAMESPACE_GUFO = "http://purl.org/nemo/gufo#"
@@ -36,17 +37,20 @@ def build_ontcatowl_tester(catalog_path):
     list_datasets.sort()
     catalog_size = len(list_datasets)
     logger.info(f"The catalog contains {catalog_size} datasets.\n")
+    create_hash_sha256_register_file_csv()
 
     current = 1
 
     for dataset in list_datasets:
-
         logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset} ###\n")
 
-        create_test_directory_folders_structure(dataset, catalog_size, current)
+        source_owl_file_path = catalog_path + "\\" + dataset + "\\" + "ontology.ttl"
+        dataset_folder_path = str(pathlib.Path().resolve()) + "\\catalog\\" + dataset
+
+        create_test_directory_folders_structure(dataset_folder_path, catalog_size, current)
 
         # Building taxonomies files and collecting information from classes
-        create_taxonomy_files(catalog_path, dataset, catalog_size, current)
+        create_taxonomy_ttl_file(catalog_path, dataset, catalog_size, current)
 
         # Builds dataset_classes_information and collects attributes name, prefixed_name, and all taxonomic information
         dataset_classes_information = collect_taxonomy_information(dataset, catalog_size, current)
@@ -55,12 +59,13 @@ def build_ontcatowl_tester(catalog_path):
         collect_stereotypes_classes_information(catalog_path, dataset_classes_information,
                                                 dataset, catalog_size, current)
 
-        saves_dataset_csv_classes_data(dataset_classes_information, dataset, catalog_size, current)
+        csv_file_full_path = saves_dataset_csv_classes_data(dataset_classes_information, dataset, catalog_size, current,
+                                                            source_owl_file_path)
 
         current += 1
 
-def run_ontcatowl_tester(catalog_path):
 
+def run_ontcatowl_tester(catalog_path):
     TEST_NUMBER = 1
 
     list_datasets = get_list_unhidden_directories(catalog_path)
@@ -110,12 +115,12 @@ def run_ontcatowl_tester(catalog_path):
         execution_number = 1
         tests_total = len(input_classes_list)
 
-        known_inconsistecies = ["Operadora_de_Meio_de_Pagamento", "Componente_de_GE", "Imposto_sobre_Resultado", "Imposto_sobre_Serviço"]
+        known_inconsistecies = ["Operadora_de_Meio_de_Pagamento", "Componente_de_GE", "Imposto_sobre_Resultado",
+                                "Imposto_sobre_Serviço"]
         known_consistencies = []
 
         for input_class in input_classes_list:
             execution_name = test_name + "_exec" + str(execution_number)
-
 
             if (input_class.class_name in known_inconsistecies) or (input_class.class_name in known_consistencies):
                 execution_number += 1
@@ -134,9 +139,11 @@ def run_ontcatowl_tester(catalog_path):
 
             # Creating resulting files
             create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
-            create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder, test_results_folder, execution_name)
+            create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder,
+                                              test_results_folder, execution_name)
             create_times_csv_output(time_register, test_results_folder, execution_number, execution_name)
-            create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder, execution_number)
+            create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
+                                         execution_number)
             create_summary_csv_output(test_results_folder, execution_number, input_class)
 
             if execution_number == tests_total:
@@ -144,10 +151,9 @@ def run_ontcatowl_tester(catalog_path):
             else:
                 end = ""
 
-            logger.info(f"Test {execution_number}/{tests_total} for input class {input_class.class_name} executed.{end}")
+            logger.info(
+                f"Test {execution_number}/{tests_total} for input class {input_class.class_name} executed.{end}")
             execution_number += 1
-
-
 
 
 if __name__ == '__main__':
