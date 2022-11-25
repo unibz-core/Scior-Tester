@@ -102,7 +102,6 @@ def get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclas
 
 def create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder, test_results_folder,
                                       execution_name):
-    classes_data_file = dataset_folder + "\\classes_data.csv"
 
     final_row_list = []
 
@@ -189,11 +188,11 @@ def create_times_csv_output(time_register, test_results_folder, execution_number
 def create_csv_header():
     csv_header = []
 
-    ### GENERAL
+    # GENERAL
 
     csv_header.append("execution")
 
-    ### CLASSES
+    # CLASSES
 
     # Classes values before
     csv_header.append("classes_b_total_classes_number")
@@ -217,7 +216,7 @@ def create_csv_header():
     csv_header.append("classes_a_pk_classes_types_p")
     csv_header.append("classes_a_tk_classes_types_p")
 
-    ### CLASSIFICATIONS
+    # CLASSIFICATIONS
 
     # Classifications values before
     csv_header.append("classif_b_total_classif_types_v")
@@ -239,7 +238,7 @@ def create_csv_header():
     csv_header.append("classif_a_unknown_classif_types_p")
     csv_header.append("classif_a_known_classif_types_p")
 
-    ### DIFFERENCES
+    # DIFFERENCES
 
     # Classes difference values: after - before
     csv_header.append("diff_tu_classes_types_v_d")
@@ -261,7 +260,7 @@ def create_csv_header():
     csv_header.append("diff_unknown_classif_types_p_d")
     csv_header.append("diff_known_classif_types_p_d")
 
-    ### INCOMPLETENESS
+    # INCOMPLETENESS
     csv_header.append("incomplete_classes_found")
 
     return csv_header
@@ -270,7 +269,7 @@ def create_csv_header():
 def populate_csv_row(consolidated_statistics, execution_number, number_incomplete_classes):
     csv_row = []
 
-    ### GENERAL
+    # GENERAL
 
     csv_row.append(execution_number)
 
@@ -279,7 +278,7 @@ def populate_csv_row(consolidated_statistics, execution_number, number_incomplet
     classif_b = consolidated_statistics.classif_stats_b
     classif_a = consolidated_statistics.classif_stats_a
 
-    ### CLASSES
+    # CLASSES
 
     # Classes values before
     csv_row.append(classes_b.total_classes_number)
@@ -303,7 +302,7 @@ def populate_csv_row(consolidated_statistics, execution_number, number_incomplet
     csv_row.append(classes_a.pk_classes_types_p)
     csv_row.append(classes_a.tk_classes_types_p)
 
-    ### CLASSIFICATIONS
+    # CLASSIFICATIONS
 
     # Classifications values before
     csv_row.append(classif_b.total_classif_types_v)
@@ -325,7 +324,7 @@ def populate_csv_row(consolidated_statistics, execution_number, number_incomplet
     csv_row.append(classif_a.unknown_classif_types_p)
     csv_row.append(classif_a.known_classif_types_p)
 
-    ### DIFFERENCES
+    # DIFFERENCES
 
     # Classes difference values: after - before
     csv_row.append(consolidated_statistics.tu_classes_types_v_d)
@@ -347,7 +346,7 @@ def populate_csv_row(consolidated_statistics, execution_number, number_incomplet
     csv_row.append(consolidated_statistics.unknown_classif_types_p_d)
     csv_row.append(consolidated_statistics.known_classif_types_p_d)
 
-    ### INCOMPLETENESS
+    # INCOMPLETENESS
     csv_row.append(number_incomplete_classes)
 
     return csv_row
@@ -356,7 +355,7 @@ def populate_csv_row(consolidated_statistics, execution_number, number_incomplet
 def calculate_incompleteness_values(ontology_dataclass_list):
     number_incomplete_classes = 0
     for dataclass in ontology_dataclass_list:
-        if dataclass.incompleteness_info["is_incomplete"] == True:
+        if dataclass.incompleteness_info["is_incomplete"]:
             number_incomplete_classes += 1
 
     return number_incomplete_classes

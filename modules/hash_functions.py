@@ -50,7 +50,8 @@ def create_hash_sha256_register_file_csv():
 def verify_hash_register_exist(generated_file_path):
     """ Checks if a generated file is already registered in the hash register and returns True or False.
 
-    Hash file registers are structured in a csv with columns: ["file_name", "file_hash", "source_file_name", "source_file_hash"]
+    Hash file registers are structured in a csv with columns:
+    ["file_name", "file_hash", "source_file_name", "source_file_hash"]
         - "file_path": path of the registered file
         - "file_hash": sha256 hash of the registered file
         - "file_path": path of the file from which the registered file was generated
