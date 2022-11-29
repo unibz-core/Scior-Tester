@@ -62,3 +62,16 @@ that `conformsTo` exclusively with `ontouml`.
 Executed with a single class as input. Used all classes in all datasets. Executed first in an mode and then in ac.  
 
 The test only generates taxonomy.ttl for classes that are part of taxonomies. I.e., isolated classes are not considered when reading the original ontology.ttl file.
+
+## Contributors
+
+- PhD. Pedro Paulo Favato Barcelos [[GitHub]](https://github.com/pedropaulofb) [[LinkedIn]](https://www.linkedin.com/in/pedro-paulo-favato-barcelos/)
+- PhD. Tiago Prince Sales [[GitHub]](https://github.com/tgoprince) [[LinkedIn]](https://www.linkedin.com/in/tiago-sales/)
+- MSc. Elena Romanenko [[GitHub]](https://github.com/mozzherina) [[LinkedIn]]()
+- Prof. PhD. Giancarlo Guizzardi [[LinkedIn]](https://www.linkedin.com/in/giancarlo-guizzardi-bb51aa75/)
+- Eng. MSc. Gal Engelberg [[LinkedIn]](https://www.linkedin.com/in/gal-engelberg/)
+- Prof. PhD. Dan Klein [[LinkedIn]](https://www.linkedin.com/in/~danklein/)
+
+## Acknowledgements
+
+This work is a collaboration with Accenture Israel Cybersecurity Labs.
