@@ -53,7 +53,7 @@ def build_ontcatowl_tester(catalog_path):
         create_test_directory_folders_structure(dataset_folder_path, catalog_size, current)
 
         # Building taxonomies files and collecting information from classes
-        create_taxonomy_ttl_file(catalog_path, dataset, catalog_size, current)
+        create_taxonomy_ttl_file(source_owl_file_path, dataset, catalog_size, current)
 
         # Builds dataset_classes_information and collects attributes name, prefixed_name, and all taxonomic information
         dataset_classes_information = collect_taxonomy_information(dataset, catalog_size, current)

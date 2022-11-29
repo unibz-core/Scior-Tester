@@ -40,14 +40,16 @@ def get_list_unhidden_directories(directory_path):
 def create_test_directory_folders_structure(dataset_folder, catalog_size, current):
     logger = initialize_logger()
 
-    if not os.path.exists(dataset_folder):
-        try:
-            # Create dataset folders in tester_catalog_folder
+    try:
+        # Create dataset folders in tester_catalog_folder
+        if not os.path.exists(dataset_folder):
             os.makedirs(dataset_folder)
             logger.info(f"Directory {current}/{catalog_size} created: {dataset_folder}.")
-        except OSError as error:
-            logger.error(f"Directory {dataset_folder} could not be created. Program aborted.\n"
-                         f"System error reported: {error}")
+        else:
+            logger.info(f"Directory {current}/{catalog_size} already exists: {dataset_folder}.")
+    except OSError as error:
+        logger.error(f"Directory {dataset_folder} could not be created. Program aborted.\n"
+                     f"System error reported: {error}")
 
 
 def create_test_results_folder(test_results_folder):
