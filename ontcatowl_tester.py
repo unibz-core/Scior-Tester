@@ -67,7 +67,7 @@ def build_ontcatowl_tester(catalog_path):
         collect_stereotypes_classes_information(catalog_path, dataset_classes_information,
                                                 dataset, catalog_size, current)
 
-        saves_dataset_csv_classes_data(dataset_classes_information, dataset, catalog_size, current,
+        saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder_path, catalog_size, current,
                                        source_owl_file_path)
 
         current += 1
