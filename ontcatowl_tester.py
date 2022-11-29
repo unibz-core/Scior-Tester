@@ -1,5 +1,6 @@
 """ Main module for the OntoCatOWL-Catalog Tester. """
 import pathlib
+import random
 from copy import deepcopy
 
 from rdflib import URIRef, RDF
@@ -12,8 +13,8 @@ from modules.build.build_taxonomy_classes_information import collect_taxonomy_in
 from modules.build.build_taxonomy_files import create_taxonomy_ttl_file
 from modules.hash_functions import create_hash_sha256_register_file_csv
 from modules.ontcatowl.ontcatowl import run_ontcatowl
-from modules.run.run_data_structures import load_baseline_dictionary, create_classes_yaml_output, remaps_to_gufo, \
-    create_times_csv_output, create_statistics_csv_output, create_summary_csv_output, create_classes_results_csv_output
+from modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_classes_yaml_output, \
+    create_classes_results_csv_output, create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
 from modules.tester.input_arguments import treat_arguments
 from modules.tester.logger_config import initialize_logger
 from modules.tester.utils_rdf import load_graph_safely
@@ -60,12 +61,13 @@ def build_ontcatowl_tester(catalog_path):
                                                 dataset, catalog_size, current)
 
         saves_dataset_csv_classes_data(dataset_classes_information, dataset, catalog_size, current,
-                                                            source_owl_file_path)
+                                       source_owl_file_path)
 
         current += 1
 
 
-def run_ontcatowl_tester(catalog_path):
+def run_ontcatowl_test1(catalog_path):
+    """ Test 1 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset"""
     TEST_NUMBER = 1
 
     list_datasets = get_list_unhidden_directories(catalog_path)
@@ -81,9 +83,12 @@ def run_ontcatowl_tester(catalog_path):
     total_dataset_number = len(list_datasets)
     for dataset in list_datasets:
 
-        execute = 66
-        if current_dataset_number != execute:
-            current_dataset_number += 1
+        # execute = 66
+        # if current_dataset_number != execute:
+        #     current_dataset_number += 1
+        #     continue
+
+        if dataset != "public-tender":
             continue
 
         logger.info(f"Executing OntCatOWL for dataset {current_dataset_number}/{total_dataset_number}: {dataset}\n")
@@ -115,8 +120,7 @@ def run_ontcatowl_tester(catalog_path):
         execution_number = 1
         tests_total = len(input_classes_list)
 
-        known_inconsistecies = ["Operadora_de_Meio_de_Pagamento", "Componente_de_GE", "Imposto_sobre_Resultado",
-                                "Imposto_sobre_Serviço"]
+        known_inconsistecies = []
         known_consistencies = []
 
         for input_class in input_classes_list:
@@ -134,26 +138,39 @@ def run_ontcatowl_tester(catalog_path):
             working_graph.add((triple_subject, triple_predicate, triple_object))
             working_graph.bind("gufo", "http://purl.org/nemo/gufo#")
 
-            ontology_dataclass_list, time_register, consolidated_statistics = run_ontcatowl(global_configurations,
-                                                                                            working_graph)
-
-            # Creating resulting files
-            create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
-            create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder,
-                                              test_results_folder, execution_name)
-            create_times_csv_output(time_register, test_results_folder, execution_number, execution_name)
-            create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
-                                         execution_number)
-            create_summary_csv_output(test_results_folder, execution_number, input_class)
-
             if execution_number == tests_total:
                 end = "\n"
             else:
                 end = ""
 
-            logger.info(
-                f"Test {execution_number}/{tests_total} for input class {input_class.class_name} executed.{end}")
+            try:
+                ontology_dataclass_list, time_register, consolidated_statistics = run_ontcatowl(global_configurations,
+                                                                                                working_graph)
+            except:
+                logger.error(f"INCONSISTENCY found! Test {execution_number}/{tests_total} "
+                             f"for input class {input_class.class_name} interrupted.{end}")
+            else:
+                logger.info(f"Test {execution_number}/{tests_total} "
+                            f"for input class {input_class.class_name} successfully executed.{end}")
+                # Creating resulting files
+                create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
+                create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder,
+                                                  test_results_folder, execution_name)
+                create_times_csv_output(time_register, test_results_folder, execution_number, execution_name)
+                create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
+                                             execution_number)
+                create_summary_csv_output(test_results_folder, execution_number, input_class)
+
             execution_number += 1
+
+
+def run_ontcatowl_test2(catalog_path):
+    """ Test 2 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset"""
+
+    for num in range(1, 30):
+        print(random.randint(0, 9))
+
+    pass
 
 
 if __name__ == '__main__':
@@ -168,7 +185,8 @@ if __name__ == '__main__':
 
     # Execute in RUN mode.
     if arguments["run"]:
-        run_ontcatowl_tester(arguments["catalog_path"])
+        run_ontcatowl_test1(arguments["catalog_path"])
+        # run_ontcatowl_test2(arguments["catalog_path"])
 
 # TODO (@pedropaulofb): VERIFY
 # Are there any classes with more than one stereotype?

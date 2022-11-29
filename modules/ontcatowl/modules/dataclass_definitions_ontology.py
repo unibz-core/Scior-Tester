@@ -5,7 +5,7 @@ import hashlib
 from dataclasses import dataclass, field
 
 from modules.ontcatowl.modules.dataclass_verifications import verify_duplicates_in_lists_ontology
-from modules.tester.logger_config import initialize_logger
+from modules.ontcatowl.modules.logger_config import initialize_logger
 
 
 @dataclass
@@ -129,9 +129,10 @@ class OntologyDataClass(object):
             elif source_list == "can_individual":
                 target_list = "is_individual"
             else:
-                logger.error(f"Inconsistency found. Error when trying to move the element {element} to the IS LIST "
+                logger.info(f"Inconsistency found. Error when trying to move the element {element} to the IS LIST "
                              f"in {self.uri}. The element was not found in the CAN list. Program aborted.")
-                exit(1)
+                raise Exception("INCONSISTENCY FOUND!")
+                # exit(1)
 
             # Consistency checking is already performed inside the move_between_ontology_lists function.
             self.move_element_between_lists(element, source_list, target_list)
@@ -162,9 +163,10 @@ class OntologyDataClass(object):
             elif source_list == "can_individual":
                 target_list = "not_individual"
             else:
-                logger.error(f"When trying to move the element {element} to the NOT LIST in {self.uri}. "
+                logger.info(f"When trying to move the element {element} to the NOT LIST in {self.uri}. "
                              f"The element was not found in the CAN list. Program aborted.")
-                exit(1)
+                raise Exception("INCONSISTENCY FOUND!")
+                # exit(1)
 
             # Consistency checking is already performed inside the move_between_ontology_lists function.
             self.move_element_between_lists(element, source_list, target_list)
