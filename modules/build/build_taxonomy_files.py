@@ -83,8 +83,13 @@ def create_taxonomy_ttl_file(source_owl_file_path, dataset_folder_path, catalog_
     # Creating and saving taxonomy file
     taxonomy_graph = create_taxonomy_graph(source_owl_file_path)
     taxonomy_file_path = dataset_folder_path + "\\" + "taxonomy.ttl"
-    taxonomy_graph.serialize(taxonomy_file_path, encoding='utf-8')
 
-    logger.info(f"Taxonomy file {current}/{catalog_size} saved: {taxonomy_file_path}")
+    try:
+        taxonomy_graph.serialize(taxonomy_file_path, encoding='utf-8')
+        logger.info(f"Taxonomy file {current}/{catalog_size} saved: {taxonomy_file_path}")
+    except OSError as error:
+        logger.error(f"Could not save {taxonomy_file_path} file. Exiting program."
+                     f"System error reported: {error}")
+        exit(1)
 
     register_sha256_hash_information(taxonomy_file_path, source_owl_file_path)
