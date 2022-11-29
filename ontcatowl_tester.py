@@ -83,14 +83,6 @@ def run_ontcatowl_test1(catalog_path):
     total_dataset_number = len(list_datasets)
     for dataset in list_datasets:
 
-        # execute = 66
-        # if current_dataset_number != execute:
-        #     current_dataset_number += 1
-        #     continue
-
-        if dataset != "public-tender":
-            continue
-
         logger.info(f"Executing OntCatOWL for dataset {current_dataset_number}/{total_dataset_number}: {dataset}\n")
         current_dataset_number += 1
 
@@ -167,10 +159,95 @@ def run_ontcatowl_test1(catalog_path):
 def run_ontcatowl_test2(catalog_path):
     """ Test 2 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset"""
 
-    for num in range(1, 30):
-        print(random.randint(0, 9))
+    # for num in range(1, 30):
+    #     print(random.randint(0, 9))
 
-    pass
+    TEST_NUMBER = 2
+
+    list_datasets = get_list_unhidden_directories(catalog_path)
+    list_datasets.sort()
+    list_datasets_paths = []
+    list_datasets_taxonomies = []
+
+    global_configurations = {"is_automatic": True,
+                             "is_complete": True}
+
+    # Creating list of dataset paths and taxonomies
+    current_dataset_number = 1
+    total_dataset_number = len(list_datasets)
+    for dataset in list_datasets:
+
+        logger.info(f"Executing OntCatOWL for dataset {current_dataset_number}/{total_dataset_number}: {dataset}\n")
+        current_dataset_number += 1
+
+        tester_catalog_folder = str(pathlib.Path().resolve()) + r"\catalog"
+        dataset_folder = tester_catalog_folder + "\\" + dataset
+        list_datasets_paths.append(dataset_folder)
+        dataset_taxonomy = dataset_folder + "\\" + "taxonomy.ttl"
+        list_datasets_taxonomies.append(dataset_taxonomy)
+
+        input_classes_list = load_baseline_dictionary(dataset)
+        input_graph = load_graph_safely(dataset_taxonomy)
+
+        if global_configurations["is_automatic"]:
+            l1 = "a"
+        else:
+            l1 = "i"
+        if global_configurations["is_complete"]:
+            l2 = "c"
+        else:
+            l2 = "n"
+
+        test_name = f"test_{TEST_NUMBER}_{l1}{l2}"
+        test_results_folder = dataset_folder + "\\" + test_name
+        create_test_results_folder(test_results_folder)
+
+        # Executions of the test
+        execution_number = 1
+        tests_total = len(input_classes_list)
+
+        known_inconsistecies = []
+        known_consistencies = []
+
+        for input_class in input_classes_list:
+            execution_name = test_name + "_exec" + str(execution_number)
+
+            if (input_class.class_name in known_inconsistecies) or (input_class.class_name in known_consistencies):
+                execution_number += 1
+                continue
+
+            working_graph = deepcopy(input_graph)
+            triple_subject = URIRef(NAMESPACE_TAXONOMY + input_class.class_name)
+            triple_predicate = RDF.type
+            class_gufo_type = remaps_to_gufo(input_class.class_name, input_class.class_stereotype)
+            triple_object = URIRef(class_gufo_type)
+            working_graph.add((triple_subject, triple_predicate, triple_object))
+            working_graph.bind("gufo", "http://purl.org/nemo/gufo#")
+
+            if execution_number == tests_total:
+                end = "\n"
+            else:
+                end = ""
+
+            try:
+                ontology_dataclass_list, time_register, consolidated_statistics = run_ontcatowl(global_configurations,
+                                                                                                working_graph)
+            except:
+                logger.error(f"INCONSISTENCY found! Test {execution_number}/{tests_total} "
+                             f"for input class {input_class.class_name} interrupted.{end}")
+            else:
+                logger.info(f"Test {execution_number}/{tests_total} "
+                            f"for input class {input_class.class_name} successfully executed.{end}")
+                # Creating resulting files
+                create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
+                create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder,
+                                                  test_results_folder, execution_name)
+                create_times_csv_output(time_register, test_results_folder, execution_number, execution_name)
+                create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
+                                             execution_number)
+                create_summary_csv_output(test_results_folder, execution_number, input_class)
+
+            execution_number += 1
 
 
 if __name__ == '__main__':

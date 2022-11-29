@@ -229,7 +229,6 @@ def create_csv_header():
     csv_header.append("classif_a_known_classif_types_v")
 
     # Classifications percentages before
-    csv_header.append("classif_b_total_classif_types_p")
     csv_header.append("classif_b_unknown_classif_types_p")
     csv_header.append("classif_b_known_classif_types_p")
 
@@ -241,24 +240,22 @@ def create_csv_header():
     # DIFFERENCES
 
     # Classes difference values: after - before
-    csv_header.append("diff_tu_classes_types_v_d")
-    csv_header.append("diff_pk_classes_types_v_d")
-    csv_header.append("diff_tk_classes_types_v_d")
+    csv_header.append("diff_tu_classes_types_v")
+    csv_header.append("diff_pk_classes_types_v")
+    csv_header.append("diff_tk_classes_types_v")
 
     # Classes difference percentages: after - before
-    csv_header.append("diff_tu_classes_types_p_d")
-    csv_header.append("diff_pk_classes_types_p_d")
-    csv_header.append("diff_tk_classes_types_p_d")
+    csv_header.append("diff_tu_classes_types_p")
+    csv_header.append("diff_pk_classes_types_p")
+    csv_header.append("diff_tk_classes_types_p")
 
     # Classifications difference values: after - before
-    csv_header.append("diff_total_classif_types_v_d")
-    csv_header.append("diff_unknown_classif_types_v_d")
-    csv_header.append("diff_known_classif_types_v_d")
+    csv_header.append("diff_unknown_classif_types_v")
+    csv_header.append("diff_known_classif_types_v")
 
     # Classifications difference percentages: after - before
-    csv_header.append("diff_total_classif_types_p_d")
-    csv_header.append("diff_unknown_classif_types_p_d")
-    csv_header.append("diff_known_classif_types_p_d")
+    csv_header.append("diff_unknown_classif_types_p")
+    csv_header.append("diff_known_classif_types_p")
 
     # INCOMPLETENESS
     csv_header.append("incomplete_classes_found")
@@ -337,12 +334,10 @@ def populate_csv_row(consolidated_statistics, execution_number, number_incomplet
     csv_row.append(consolidated_statistics.tk_classes_types_p_d)
 
     # Classifications difference values: after - before
-    csv_row.append(consolidated_statistics.total_classif_types_v_d)
     csv_row.append(consolidated_statistics.unknown_classif_types_v_d)
     csv_row.append(consolidated_statistics.known_classif_types_v_d)
 
     # Classifications difference values: after - before
-    csv_row.append(consolidated_statistics.total_classif_types_p_d)
     csv_row.append(consolidated_statistics.unknown_classif_types_p_d)
     csv_row.append(consolidated_statistics.known_classif_types_p_d)
 
