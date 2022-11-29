@@ -23,7 +23,11 @@ def initialize_logger():
         # If directory "/log" does not exist, create it
         log_dir = "logs/"
         if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
+            try:
+                os.makedirs(log_dir)
+            except OSError as error:
+                print(f"Directory {log_dir} could not be created. Program aborted.\n"
+                             f"System error reported: {error}")
 
         # Creating FILE handler
         file_handler = logging.FileHandler(f"{log_dir}{get_date_time()}.log")

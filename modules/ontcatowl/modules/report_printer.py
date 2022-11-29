@@ -32,7 +32,11 @@ def print_report_file(ontology_dataclass_list, start_date_time, end_date_time, e
     # If directory "/report" does not exist, create it
     report_dir = "reports/"
     if not os.path.exists(report_dir):
-        os.makedirs(report_dir)
+        try:
+            os.makedirs(report_dir)
+        except OSError as error:
+            logger.error(f"Directory {report_dir} could not be created. Program aborted.\n"
+                         f"System error reported: {error}")
 
     report_name = f"{report_dir}report-{get_date_time()}.md"
 

@@ -68,9 +68,15 @@ def convert_ontology_dataclass_list_to_dictionary_list(input_class, ontology_dat
 def create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name):
     """ Receives an ontology_dataclass_list and saves its information in yaml format. """
 
+    logger = initialize_logger()
+
     yaml_folder = test_results_folder + "\\results"
     if not os.path.exists(yaml_folder):
-        os.makedirs(yaml_folder)
+        try:
+            os.makedirs(yaml_folder)
+        except OSError as error:
+            logger.error(f"Directory {yaml_folder} could not be created. Program aborted.\n"
+                         f"System error reported: {error}")
 
     classes_output_filename = f"classes_{execution_name}.yaml"
     classes_output_complete_path = yaml_folder + "\\" + classes_output_filename
