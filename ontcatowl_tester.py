@@ -50,11 +50,6 @@ def build_ontcatowl_tester(catalog_path):
         source_owl_file_path = catalog_path + "\\" + dataset + "\\" + "ontology.ttl"
         dataset_folder_path = internal_catalog_folder + "\\" + dataset
 
-        print(f"source_owl_file_path = {source_owl_file_path}")
-        print(f"catalog_path = {catalog_path}")
-        print(f"dataset_folder_path = {dataset_folder_path}")
-        print(f"internal_catalog_folder = {internal_catalog_folder}")
-
         create_test_directory_folders_structure(dataset_folder_path, catalog_size, current)
 
         # Building taxonomies files and collecting information from classes
@@ -148,6 +143,7 @@ def run_ontcatowl_test1(catalog_path):
             except:
                 logger.error(f"INCONSISTENCY found! Test {execution_number}/{tests_total} "
                              f"for input class {input_class.class_name} interrupted.{end}")
+                create_inconsistency_csv_output(test_results_folder, execution_number, input_class)
             else:
                 logger.info(f"Test {execution_number}/{tests_total} "
                             f"for input class {input_class.class_name} successfully executed.{end}")
