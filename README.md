@@ -69,7 +69,7 @@ The test only generates taxonomy.ttl for classes that are part of taxonomies. I.
 - PhD. Tiago Prince Sales [[GitHub]](https://github.com/tgoprince) [[LinkedIn]](https://www.linkedin.com/in/tiago-sales/)
 - MSc. Elena Romanenko [[GitHub]](https://github.com/mozzherina) [[LinkedIn]]()
 - Prof. PhD. Giancarlo Guizzardi [[LinkedIn]](https://www.linkedin.com/in/giancarlo-guizzardi-bb51aa75/)
-- MSc. Gal Engelberg [[GitHub]]() [[LinkedIn]](https://www.linkedin.com/in/gal-engelberg/)
+- Eng. MSc. Gal Engelberg [[LinkedIn]](https://www.linkedin.com/in/gal-engelberg/)
 - Prof. PhD. Dan Klein [[LinkedIn]](https://www.linkedin.com/in/~danklein/)
 
 ## Acknowledgements
