@@ -14,7 +14,8 @@ from modules.build.build_taxonomy_files import create_taxonomy_ttl_file
 from modules.hash_functions import create_hash_sha256_register_file_csv
 from modules.ontcatowl.ontcatowl import run_ontcatowl
 from modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_classes_yaml_output, \
-    create_classes_results_csv_output, create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
+    create_classes_results_csv_output, create_times_csv_output, create_statistics_csv_output, create_summary_csv_output, \
+    create_inconsistency_csv_output
 from modules.tester.input_arguments import treat_arguments
 from modules.tester.logger_config import initialize_logger
 from modules.tester.utils_rdf import load_graph_safely
@@ -235,6 +236,7 @@ def run_ontcatowl_test2(catalog_path):
             except:
                 logger.error(f"INCONSISTENCY found! Test {execution_number}/{tests_total} "
                              f"for input class {input_class.class_name} interrupted.{end}")
+                create_inconsistency_csv_output(test_results_folder, execution_number, input_class)
             else:
                 logger.info(f"Test {execution_number}/{tests_total} "
                             f"for input class {input_class.class_name} successfully executed.{end}")

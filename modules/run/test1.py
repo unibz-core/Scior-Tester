@@ -377,6 +377,9 @@ def create_statistics_csv_output(ontology_dataclass_list, consolidated_statistic
 
 
 def create_summary_csv_output(test_results_folder, execution_number, input_class):
+    """ Creates and updates a CSV file with a list of all executions, the respective input classes
+    and their stereotypes. """
+
     input_class_name = input_class.class_name
     input_class_stereotype = input_class.class_stereotype
 
@@ -384,6 +387,27 @@ def create_summary_csv_output(test_results_folder, execution_number, input_class
     csv_row = [execution_number, input_class_name, input_class_stereotype]
 
     statistics_output_filename = f"execution_summary.csv"
+    statistics = test_results_folder + "\\" + statistics_output_filename
+
+    if execution_number == 1:
+        with open(statistics, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(csv_header)
+            writer.writerow(csv_row)
+    else:
+        with open(statistics, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(csv_row)
+
+def create_inconsistency_csv_output(test_results_folder, execution_number, input_class):
+    """ Creates and updates a CSV file with a list of all inconsistent classes and their stereotypes. """
+    input_class_name = input_class.class_name
+    input_class_stereotype = input_class.class_stereotype
+
+    csv_header = ["execution_number", "inconsistent_class_name", "inconsistent_class_stereotype"]
+    csv_row = [execution_number, input_class_name, input_class_stereotype]
+
+    statistics_output_filename = f"inconsistencies_found.csv"
     statistics = test_results_folder + "\\" + statistics_output_filename
 
     if execution_number == 1:
