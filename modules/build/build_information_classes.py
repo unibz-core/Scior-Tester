@@ -1,7 +1,7 @@
 """ Functions related to the statistics building, collection and saving. """
 import pathlib
 
-from modules.hash_functions import register_sha256_hash_information
+from modules.tester.hash_functions import register_sha256_hash_information
 from modules.tester.logger_config import initialize_logger
 
 

@@ -1,6 +1,5 @@
 """ Main module for the OntoCatOWL-Catalog Tester. """
 import pathlib
-import random
 from copy import deepcopy
 
 from rdflib import URIRef, RDF
@@ -11,7 +10,7 @@ from modules.build.build_directories_structure import get_list_unhidden_director
 from modules.build.build_information_classes import saves_dataset_csv_classes_data
 from modules.build.build_taxonomy_classes_information import collect_taxonomy_information
 from modules.build.build_taxonomy_files import create_taxonomy_ttl_file
-from modules.hash_functions import create_hash_sha256_register_file_csv
+from modules.tester.hash_functions import create_hash_sha256_register_file_csv
 from modules.ontcatowl.ontcatowl import run_ontcatowl
 from modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_classes_yaml_output, \
     create_classes_results_csv_output, create_times_csv_output, create_statistics_csv_output, create_summary_csv_output, \
@@ -29,6 +28,10 @@ NAMESPACE_GUFO = "http://purl.org/nemo/gufo#"
 NAMESPACE_TAXONOMY = "http://taxonomy.model/"
 
 
+def create_internal_catalog_path(internal_catalog_folder):
+    pass
+
+
 def build_ontcatowl_tester(catalog_path):
     """ Build function for the OntoCatOWL-Catalog Tester. """
 
@@ -39,6 +42,8 @@ def build_ontcatowl_tester(catalog_path):
     list_datasets.sort()
     catalog_size = len(list_datasets)
     logger.info(f"The catalog contains {catalog_size} datasets.\n")
+    internal_catalog_folder = str(pathlib.Path().resolve()) + "\\catalog"
+    create_internal_catalog_path(internal_catalog_folder)
     create_hash_sha256_register_file_csv()
 
     current = 1
@@ -47,7 +52,7 @@ def build_ontcatowl_tester(catalog_path):
         logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset} ###\n")
 
         source_owl_file_path = catalog_path + "\\" + dataset + "\\" + "ontology.ttl"
-        dataset_folder_path = str(pathlib.Path().resolve()) + "\\catalog\\" + dataset
+        dataset_folder_path = internal_catalog_folder + "\\" + dataset
 
         create_test_directory_folders_structure(dataset_folder_path, catalog_size, current)
 

@@ -89,8 +89,9 @@ def write_sha256_hash_register(source_file_path, generated_file_path, hash_regis
         with open(hash_register_file_path, 'a', encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(entry)
-    except OSError:
-        logger.error(f"Hash file could not be created in {hash_register_file_path}. Program aborted.")
+    except OSError as e:
+        logger.error(
+            f"Hash file could not be created in {hash_register_file_path}. Program aborted.\nSystem error reported: {e}")
         exit(1)
 
 

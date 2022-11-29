@@ -2,7 +2,7 @@
 
 from rdflib import RDF, URIRef, Graph, RDFS, OWL
 
-from modules.hash_functions import register_sha256_hash_information
+from modules.tester.hash_functions import register_sha256_hash_information
 from modules.tester.logger_config import initialize_logger
 from modules.tester.utils_rdf import load_graph_safely
 
