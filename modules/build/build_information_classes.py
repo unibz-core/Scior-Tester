@@ -38,28 +38,34 @@ def saves_dataset_csv_classes_data(catalog_information, dataset_path, catalog_si
     csv_header = ["class_name", "stereotype_original", "stereotype_gufo", "is_root", "is_leaf", "is_intermediate",
                   "number_superclasses", "number_subclasses", "number_reachable_classes"]
 
-    csv_file_full_path = dataset_path + "classes_data.csv"
+    csv_file_full_path = dataset_path + "\\classes_data.csv"
 
-    with open(csv_file_full_path, 'w', encoding='utf-8', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(csv_header)
+    try:
+        with open(csv_file_full_path, 'w', encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(csv_header)
 
-        for class_information in catalog_information:
-            csv_row = []
+            for class_information in catalog_information:
+                csv_row = []
 
-            csv_row.append(class_information.name)
-            csv_row.append(class_information.stereotype_original)
-            csv_row.append(class_information.stereotype_gufo)
-            csv_row.append(class_information.is_root)
-            csv_row.append(class_information.is_leaf)
-            csv_row.append(class_information.is_intermediate)
-            csv_row.append(class_information.number_superclasses)
-            csv_row.append(class_information.number_subclasses)
-            csv_row.append(class_information.number_reachable_classes)
+                csv_row.append(class_information.name)
+                csv_row.append(class_information.stereotype_original)
+                csv_row.append(class_information.stereotype_gufo)
+                csv_row.append(class_information.is_root)
+                csv_row.append(class_information.is_leaf)
+                csv_row.append(class_information.is_intermediate)
+                csv_row.append(class_information.number_superclasses)
+                csv_row.append(class_information.number_subclasses)
+                csv_row.append(class_information.number_reachable_classes)
 
-            writer.writerow(csv_row)
+                writer.writerow(csv_row)
 
-    logger.info(f"CSV file {current}/{catalog_size} saved: {csv_file_full_path}\n")
+        logger.info(f"CSV file {current}/{catalog_size} saved: {csv_file_full_path}\n")
+    except OSError as error:
+        logger.error(f"Could not save {csv_file_full_path} csv file. Exiting program."
+                     f"System error reported: {error}")
+        exit(1)
+
     current += 1
 
     register_sha256_hash_information(csv_file_full_path, source_owl_file_path)
