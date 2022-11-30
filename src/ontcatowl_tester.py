@@ -1,12 +1,14 @@
 """ Main module for the OntoCatOWL-Catalog Tester. """
-import pathlib
+import os
 
 from copy import deepcopy
 
 from rdflib import URIRef, RDF
 
+from  import *
+
 from modules.build.build_classes_stereotypes_information import collect_stereotypes_classes_information
-from modules.build.build_directories_structure import get_list_unhidden_directories, \
+from modules.build.build_directories_structure import get_list_ttl_files, \
     create_test_directory_folders_structure, create_test_results_folder, create_internal_catalog_path
 from modules.build.build_information_classes import saves_dataset_csv_classes_data
 from modules.build.build_taxonomy_classes_information import collect_taxonomy_information
@@ -20,14 +22,6 @@ from modules.tester.input_arguments import treat_arguments
 from modules.tester.logger_config import initialize_logger
 from modules.tester.utils_rdf import load_graph_safely
 
-SOFTWARE_ACRONYM = "OntCatOWL Tester"
-SOFTWARE_NAME = "Tester for the Identification of Ontological Categories for OWL Ontologies"
-SOFTWARE_VERSION = "0.22.11.25"
-SOFTWARE_URL = "https://github.com/unibz-core/OntCatOWL-Tester"
-
-NAMESPACE_GUFO = "http://purl.org/nemo/gufo#"
-NAMESPACE_TAXONOMY = "http://taxonomy.model/"
-
 
 def build_ontcatowl_tester(catalog_path):
     """ Build function for the OntoCatOWL-Catalog Tester. """
@@ -35,11 +29,10 @@ def build_ontcatowl_tester(catalog_path):
     # DATA GENERATION FOR TESTS
 
     # Building directories structure
-    list_datasets = get_list_unhidden_directories(catalog_path)
-    list_datasets.sort()
-    catalog_size = len(list_datasets)
+    datasets = get_list_ttl_files(catalog_path)  # returns all ttl files we have with full path
+    catalog_size = len(datasets)
     logger.info(f"The catalog contains {catalog_size} datasets.\n")
-    internal_catalog_folder = str(pathlib.Path().resolve()) + "\\catalog"
+    internal_catalog_folder = os.getcwd() + "\\catalog"
     create_internal_catalog_path(internal_catalog_folder)
     create_hash_sha256_register_file_csv()
 
