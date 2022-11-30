@@ -217,7 +217,6 @@ def create_csv_header_t2():
     csv_header.append("classif_b_known_classif_types_p")
 
     # Classifications percentages after
-    csv_header.append("classif_a_total_classif_types_p")
     csv_header.append("classif_a_unknown_classif_types_p")
     csv_header.append("classif_a_known_classif_types_p")
 
@@ -297,12 +296,10 @@ def populate_csv_row_t2(consolidated_statistics, percentage_number, execution_nu
     csv_row.append(classif_a.known_classif_types_v)
 
     # Classifications percentages before
-    csv_row.append(classif_b.total_classif_types_p)
     csv_row.append(classif_b.unknown_classif_types_p)
     csv_row.append(classif_b.known_classif_types_p)
 
     # Classifications percentages after
-    csv_row.append(classif_a.total_classif_types_p)
     csv_row.append(classif_a.unknown_classif_types_p)
     csv_row.append(classif_a.known_classif_types_p)
 
