@@ -244,7 +244,6 @@ def run_ontcatowl_test2(catalog_path):
                 working_graph.bind("gufo", "http://purl.org/nemo/gufo#")
 
                 for input_class in sample_list:
-                    print(input_class.class_name)
                     triple_subject = URIRef(NAMESPACE_TAXONOMY + input_class.class_name)
                     triple_predicate = RDF.type
                     class_gufo_type = remaps_to_gufo(input_class.class_name, input_class.class_stereotype)
