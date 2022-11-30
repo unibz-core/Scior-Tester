@@ -122,47 +122,43 @@ def run_ontcatowl_test1(catalog_path):
 
         for input_class in sorted_input_classes_list:
 
-            print(input_class.class_name)
-            continue
+            execution_name = test_name + "_exec" + str(execution_number)
 
+            if (input_class.class_name in known_inconsistecies) or (input_class.class_name in known_consistencies):
+                execution_number += 1
+                continue
 
-            # execution_name = test_name + "_exec" + str(execution_number)
-            #
-            # if (input_class.class_name in known_inconsistecies) or (input_class.class_name in known_consistencies):
-            #     execution_number += 1
-            #     continue
-            #
-            # working_graph = deepcopy(input_graph)
-            # triple_subject = URIRef(NAMESPACE_TAXONOMY + input_class.class_name)
-            # triple_predicate = RDF.type
-            # class_gufo_type = remaps_to_gufo(input_class.class_name, input_class.class_stereotype)
-            # triple_object = URIRef(class_gufo_type)
-            # working_graph.add((triple_subject, triple_predicate, triple_object))
-            # working_graph.bind("gufo", "http://purl.org/nemo/gufo#")
-            #
-            # if execution_number == tests_total:
-            #     end = "\n"
-            # else:
-            #     end = ""
-            #
-            # try:
-            #     ontology_dataclass_list, time_register, consolidated_statistics = run_ontcatowl(global_configurations,
-            #                                                                                     working_graph)
-            # except:
-            #     logger.error(f"INCONSISTENCY found! Test {execution_number}/{tests_total} "
-            #                  f"for input class {input_class.class_name} interrupted.{end}")
-            #     create_inconsistency_csv_output(test_results_folder, execution_number, input_class)
-            # else:
-            #     logger.info(f"Test {execution_number}/{tests_total} "
-            #                 f"for input class {input_class.class_name} successfully executed.{end}")
-            #     # Creating resulting files
-            #     create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
-            #     create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder,
-            #                                       test_results_folder, execution_name)
-            #     create_times_csv_output(time_register, test_results_folder, execution_number, execution_name)
-            #     create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
-            #                                  execution_number)
-            #     create_summary_csv_output(test_results_folder, execution_number, input_class)
+            working_graph = deepcopy(input_graph)
+            triple_subject = URIRef(NAMESPACE_TAXONOMY + input_class.class_name)
+            triple_predicate = RDF.type
+            class_gufo_type = remaps_to_gufo(input_class.class_name, input_class.class_stereotype)
+            triple_object = URIRef(class_gufo_type)
+            working_graph.add((triple_subject, triple_predicate, triple_object))
+            working_graph.bind("gufo", "http://purl.org/nemo/gufo#")
+
+            if execution_number == tests_total:
+                end = "\n"
+            else:
+                end = ""
+
+            try:
+                ontology_dataclass_list, time_register, consolidated_statistics = run_ontcatowl(global_configurations,
+                                                                                                working_graph)
+            except:
+                logger.error(f"INCONSISTENCY found! Test {execution_number}/{tests_total} "
+                             f"for input class {input_class.class_name} interrupted.{end}")
+                create_inconsistency_csv_output(test_results_folder, execution_number, input_class)
+            else:
+                logger.info(f"Test {execution_number}/{tests_total} "
+                            f"for input class {input_class.class_name} successfully executed.{end}")
+                # Creating resulting files
+                create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
+                create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder,
+                                                  test_results_folder, execution_name)
+                create_times_csv_output(time_register, test_results_folder, execution_number, execution_name)
+                create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
+                                             execution_number)
+                create_summary_csv_output(test_results_folder, execution_number, input_class)
 
             execution_number += 1
 
