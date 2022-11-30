@@ -7,7 +7,8 @@ import yaml
 from modules.run.test1 import remaps_to_gufo, get_final_list, calculate_incompleteness_values
 from modules.tester.hash_functions import register_sha256_hash_information
 from modules.tester.logger_config import initialize_logger
-from ontcatowl_tester import NAMESPACE_TAXONOMY
+
+NAMESPACE_TAXONOMY = "http://taxonomy.model/"
 
 
 def create_percentage_results_folder(dataset_folder):
@@ -145,6 +146,11 @@ def create_times_csv_output_t2(time_register, test_results_folder, percentage_nu
 
     time_register["percentage"] = percentage_number
     time_register["execution"] = execution_number
+
+    items = list(time_register.items())
+    items.insert(0, ("percentage", percentage_number))
+    time_register = dict(items)
+
 
     file_exists = os.path.exists(times_output_complete_path)
 
@@ -350,4 +356,3 @@ def create_statistics_csv_output_t2(ontology_dataclass_list, consolidated_statis
             writer.writerow(csv_row)
 
     return statistics_complete_path
-

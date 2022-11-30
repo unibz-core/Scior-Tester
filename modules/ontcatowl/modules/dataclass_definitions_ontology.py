@@ -130,7 +130,7 @@ class OntologyDataClass(object):
                 target_list = "is_individual"
             else:
                 logger.info(f"Inconsistency found. Error when trying to move the element {element} to the IS LIST "
-                             f"in {self.uri}. The element was not found in the CAN list. Program aborted.")
+                            f"in {self.uri}. The element was not found in the CAN list. Program aborted.")
                 raise Exception("INCONSISTENCY FOUND!")
                 # exit(1)
 
@@ -164,7 +164,7 @@ class OntologyDataClass(object):
                 target_list = "not_individual"
             else:
                 logger.info(f"When trying to move the element {element} to the NOT LIST in {self.uri}. "
-                             f"The element was not found in the CAN list. Program aborted.")
+                            f"The element was not found in the CAN list. Program aborted.")
                 raise Exception("INCONSISTENCY FOUND!")
                 # exit(1)
 

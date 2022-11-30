@@ -27,7 +27,7 @@ def initialize_logger():
                 os.makedirs(log_dir)
             except OSError as error:
                 print(f"Directory {log_dir} could not be created. Program aborted.\n"
-                             f"System error reported: {error}")
+                      f"System error reported: {error}")
 
         # Creating FILE handler
         file_handler = logging.FileHandler(f"{log_dir}{get_date_time()}.log")

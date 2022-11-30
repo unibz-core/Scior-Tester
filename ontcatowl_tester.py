@@ -1,8 +1,8 @@
 """ Main module for the OntoCatOWL-Catalog Tester. """
 import operator
 import pathlib
+import random
 from copy import deepcopy
-from random import random
 
 from rdflib import URIRef, RDF
 
@@ -16,9 +16,9 @@ from modules.ontcatowl.ontcatowl import run_ontcatowl
 from modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_classes_yaml_output, \
     create_classes_results_csv_output, create_times_csv_output, create_statistics_csv_output, create_summary_csv_output, \
     create_inconsistency_csv_output
-from modules.run.test2 import create_percentage_results_folder, create_inconsistency_csv_output_t2, \
+from modules.run.test2 import create_inconsistency_csv_output_t2, \
     create_classes_yaml_output_t2, create_classes_results_csv_output_t2, create_times_csv_output_t2, \
-    create_statistics_csv_output_t2, create_summary_csv_output_t2
+    create_statistics_csv_output_t2
 from modules.tester.hash_functions import create_hash_sha256_register_file_csv, register_sha256_hash_information
 from modules.tester.input_arguments import treat_arguments
 from modules.tester.logger_config import initialize_logger
@@ -171,13 +171,13 @@ def run_ontcatowl_test2(catalog_path):
     """ Test 2 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset"""
     TEST_NUMBER = 2
 
-    PERCENTAGE_INITIAL = 10
-    PERCENTAGE_FINAL = 90
-    PERCENTAGE_RATE = 10
-    current_percentage = PERCENTAGE_INITIAL
+    MINIMUM_ALLOWED_NUMBER_CLASSES = 20
 
-    NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE = 2
-    current_execution = 1
+    PERCENTAGE_INITIAL = 5
+    PERCENTAGE_FINAL = 95
+    PERCENTAGE_RATE = 5
+
+    NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE = 10
 
     list_datasets = get_list_unhidden_directories(catalog_path)
     list_datasets.sort()
@@ -189,10 +189,8 @@ def run_ontcatowl_test2(catalog_path):
     # Creating list of dataset paths and taxonomies
     current_dataset_number = 1
     total_dataset_number = len(list_datasets)
-    for dataset in list_datasets:
 
-        logger.info(f"Executing OntCatOWL for dataset {current_dataset_number}/{total_dataset_number}: {dataset}\n")
-        current_dataset_number += 1
+    for dataset in list_datasets:
 
         tester_catalog_folder = str(pathlib.Path().resolve()) + r"\catalog"
         dataset_folder = tester_catalog_folder + "\\" + dataset
@@ -214,33 +212,39 @@ def run_ontcatowl_test2(catalog_path):
         # Executions of the test
         model_size = len(input_classes_list)
 
+        logger.info(f"Executing OntCatOWL for "
+                    f"dataset {current_dataset_number}/{total_dataset_number}: {dataset} with {model_size} classes\n")
+        current_dataset_number += 1
+
         # Consider only datasets that have at least 20 classes. If less, skip.
-        if model_size < 20:
-            logger.warning(f"The dataset {dataset} has only {model_size} classes (less than 20) and was skipped.")
+        if model_size < MINIMUM_ALLOWED_NUMBER_CLASSES:
+            logger.warning(f"The dataset {dataset} has only {model_size} classes (less than 20) and was skipped.\n")
             continue
 
         test_name = f"test_{TEST_NUMBER}_{l1}{l2}"
         test_results_folder = dataset_folder + "\\" + test_name
         create_test_results_folder(test_results_folder)
 
+        current_percentage = PERCENTAGE_INITIAL
         while current_percentage <= PERCENTAGE_FINAL:
 
-            percentage_name = "per" + str(current_percentage)
-            percentage_results_folder = test_results_folder + "\\" + percentage_name
-            create_percentage_results_folder(percentage_results_folder)
-
+            current_execution = 1
             number_of_input_classes = round(model_size * current_percentage / 100)
 
             while current_execution <= NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE:
 
-                input_classes_list = random.sample(input_classes_list, number_of_input_classes)
+                if current_execution == NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE:
+                    end = "\n"
+                else:
+                    end = ""
 
-                execution_name = test_name + "_" + percentage_name + "_exec" + str(current_execution)
+                sample_list = random.sample(input_classes_list, number_of_input_classes)
 
                 working_graph = deepcopy(input_graph)
                 working_graph.bind("gufo", "http://purl.org/nemo/gufo#")
 
-                for input_class in input_classes_list:
+                for input_class in sample_list:
+                    print(input_class.class_name)
                     triple_subject = URIRef(NAMESPACE_TAXONOMY + input_class.class_name)
                     triple_predicate = RDF.type
                     class_gufo_type = remaps_to_gufo(input_class.class_name, input_class.class_stereotype)
@@ -253,21 +257,22 @@ def run_ontcatowl_test2(catalog_path):
                         working_graph)
                 except:
                     logger.error(f"INCONSISTENCY found in: dataset {dataset} - "
-                                 f"percentage {current_percentage} - excecution {current_execution}."
-                                 f"Current execution interrupted.")
+                                 f"percentage {current_percentage} - excecution {current_execution}. "
+                                 f"Current execution interrupted.{end}")
                     create_inconsistency_csv_output_t2(test_results_folder, current_percentage, current_execution,
                                                        PERCENTAGE_INITIAL)
                 else:
                     logger.info(f"Test dataset {dataset} - percentage {current_percentage} - "
-                                f"excecution {current_execution} successfully executed.")
+                                f"excecution {current_execution} successfully executed "
+                                f"({number_of_input_classes} input classes).{end}")
                     # Creating resulting files
-                    create_classes_yaml_output_t2(input_classes_list, ontology_dataclass_list, test_results_folder,
+                    create_classes_yaml_output_t2(sample_list, ontology_dataclass_list, test_results_folder,
                                                   current_percentage, current_execution, dataset_taxonomy)
                     create_classes_results_csv_output_t2(input_classes_list, ontology_dataclass_list,
                                                          test_results_folder, current_percentage, current_execution,
                                                          dataset_taxonomy)
                     times_file_name = create_times_csv_output_t2(time_register, test_results_folder, current_percentage,
-                                                                 current_execution, execution_name, PERCENTAGE_INITIAL)
+                                                                 current_execution, PERCENTAGE_INITIAL)
 
                     statistics_file_name = create_statistics_csv_output_t2(ontology_dataclass_list,
                                                                            consolidated_statistics,
@@ -277,9 +282,9 @@ def run_ontcatowl_test2(catalog_path):
 
                 current_execution += 1
 
-            register_sha256_hash_information(times_file_name, dataset_taxonomy)
-            register_sha256_hash_information(statistics_file_name, dataset_taxonomy)
             current_percentage += PERCENTAGE_RATE
+        register_sha256_hash_information(times_file_name, dataset_taxonomy)
+        register_sha256_hash_information(statistics_file_name, dataset_taxonomy)
 
 
 if __name__ == '__main__':
