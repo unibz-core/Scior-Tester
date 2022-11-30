@@ -4,7 +4,7 @@ import time
 from owlrl import DeductiveClosure, RDFS_Semantics
 from rdflib import RDF, OWL, Graph
 
-from modules.tester.logger_config import initialize_logger
+from src.modules.tester.logger_config import initialize_logger
 
 
 def load_graph_safely(ontology_file):

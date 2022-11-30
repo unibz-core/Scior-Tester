@@ -2,7 +2,7 @@
 
 import argparse
 
-from modules.tester.logger_config import initialize_logger
+from src.modules.tester.logger_config import initialize_logger
 
 
 def treat_arguments(software_acronym, software_name, software_version, software_url):

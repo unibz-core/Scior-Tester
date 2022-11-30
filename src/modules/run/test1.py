@@ -5,7 +5,7 @@ import pathlib
 
 import yaml
 
-from modules.tester.logger_config import initialize_logger
+from src.modules.tester.logger_config import initialize_logger
 
 NAMESPACE_GUFO = "http://purl.org/nemo/gufo#"
 NAMESPACE_TAXONOMY = "http://taxonomy.model/"

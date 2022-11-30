@@ -4,9 +4,8 @@ import hashlib
 import os
 import pathlib
 
-from modules.tester.logger_config import initialize_logger
-
-HASH_FILE_LOCATION = "\\catalog\\hash_sha256_register.csv"
+from src import HASH_FILE_NAME
+from src.modules.tester.logger_config import initialize_logger
 
 
 def generate_sha256_hash(file_path):
@@ -25,13 +24,12 @@ def generate_sha256_hash(file_path):
     return file_hash.hexdigest()
 
 
-def create_hash_sha256_register_file_csv():
-    """ If it doesn't exist, creates a new csv file for mapping sha256 hashes fo the original files to all
+def create_hash_sha256_register_file_csv(catalog_path: str):
+    """ If it doesn't exist, creates a new csv file for mapping sha256 hashes of the original files to all
     generated files. """
 
     logger = initialize_logger()
-
-    hash_register_file_path = str(pathlib.Path().resolve()) + HASH_FILE_LOCATION
+    hash_register_file_path = catalog_path + "\\" + HASH_FILE_NAME
 
     if not os.path.exists(hash_register_file_path):
         try:
@@ -96,12 +94,12 @@ def write_sha256_hash_register(source_file_path, generated_file_path, hash_regis
         exit(1)
 
 
-def register_sha256_hash_information(generated_file_path, source_file_path):
+def register_sha256_hash_information(generated_file_path, source_file_path, dataset_folder_path):
     """ Register the hash of the generated file source for tracking purposes. """
 
     logger = initialize_logger()
 
-    hash_register_file_path = str(pathlib.Path().resolve()) + HASH_FILE_LOCATION
+    hash_register_file_path = dataset_folder_path + "\\" + HASH_FILE_NAME
 
     if verify_hash_register_exist(generated_file_path):
         logger.debug(f"File {source_file_path} already registered in hash register file.")

@@ -1,8 +1,8 @@
 """ Initialization of node lists """
 from rdflib import RDFS, RDF, OWL
 
-from modules.tester.logger_config import initialize_logger
-from modules.tester.utils_graph import get_list_root_classes, get_list_leaf_classes
+from src.modules.tester.logger_config import initialize_logger
+from src.modules.tester.utils_graph import get_list_root_classes, get_list_leaf_classes
 
 
 def get_list_root_classes(graph, all_classes):

@@ -3,7 +3,7 @@
 import logging
 import os
 
-from modules.tester.utils_general import get_date_time
+from src.modules.tester.utils_general import get_date_time
 
 
 def initialize_logger():
@@ -30,7 +30,9 @@ def initialize_logger():
                       f"System error reported: {error}")
 
         # Creating FILE handler
-        file_handler = logging.FileHandler(f"{log_dir}{get_date_time()}.log")
+        # TODO: change only after the end of debug
+        # file_handler = logging.FileHandler(f"{log_dir}{get_date_time()}.log")
+        file_handler = logging.FileHandler(f"{log_dir}current.log")
         file_handler.setLevel(logging.DEBUG)
 
         # Create formatters and add it to handlers
