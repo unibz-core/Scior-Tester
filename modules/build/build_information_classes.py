@@ -1,5 +1,6 @@
 """ Functions related to the statistics building, collection and saving. """
 import csv
+import operator
 import pathlib
 
 from modules.tester.hash_functions import register_sha256_hash_information
@@ -40,12 +41,14 @@ def saves_dataset_csv_classes_data(catalog_information, dataset_path, catalog_si
 
     csv_file_full_path = dataset_path + "\\classes_data.csv"
 
+    sorted_catalog_information = sorted(catalog_information, key=operator.attrgetter('name'))
+
     try:
         with open(csv_file_full_path, 'w', encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(csv_header)
 
-            for class_information in catalog_information:
+            for class_information in sorted_catalog_information:
                 csv_row = []
 
                 csv_row.append(class_information.name)
