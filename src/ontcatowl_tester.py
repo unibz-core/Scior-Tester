@@ -41,14 +41,14 @@ def build_ontcatowl_tester(catalog_path):
         create_test_directory_folders_structure(dataset_folder, catalog_size, current)
 
         # Building taxonomies files and collecting information from classes
-        create_taxonomy_ttl_file(dataset, dataset_folder, catalog_size, current)
+        taxonomy_file = create_taxonomy_ttl_file(dataset, dataset_folder, catalog_size, current)
 
         # Builds dataset_classes_information and collects attributes name, prefixed_name, and all taxonomic information
-        dataset_classes_information = collect_taxonomy_information(dataset1, catalog_size, current)
+        dataset_classes_information = collect_taxonomy_information(taxonomy_file, catalog_size, current)
 
         # Collects stereotype_original and stereotype_gufo for dataset_classes_information
         collect_stereotypes_classes_information(catalog_path, dataset_classes_information,
-                                                dataset1, catalog_size, current)
+                                                taxonomy_file, catalog_size, current)
 
         saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder, catalog_size, current,
                                        dataset)
@@ -58,7 +58,7 @@ def run_ontcatowl_test1(catalog_path):
     """ Test 1 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset"""
     TEST_NUMBER = 1
 
-    list_datasets = get_list_unhidden_directories(catalog_path)
+    list_datasets = get_list_unhidden_directories(catalog_path)  # get_list_ttl_files
     list_datasets.sort()
     list_datasets_paths = []
     list_datasets_taxonomies = []

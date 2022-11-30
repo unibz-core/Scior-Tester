@@ -1,6 +1,4 @@
 """ Fills the statistics with taxonomy information. """
-import pathlib
-
 from src.modules.build.build_information_classes import class_information_structure
 from src.modules.tester.graph_data import generates_nodes_lists
 from src.modules.tester.logger_config import initialize_logger
@@ -62,19 +60,17 @@ def calculate_class_taxonomy_information(taxonomy_graph, taxonomy_nodes):
     return list_classes_statistics
 
 
-def collect_taxonomy_information(dataset, catalog_size, current):
+def collect_taxonomy_information(taxonomy_path, catalog_size, current):
     """ Populates the statistics list with taxonomy information. """
 
     logger = initialize_logger()
-
-    dataset_folder_path = str(pathlib.Path().resolve()) + "\\" + "catalog" + "\\" + dataset
-    taxonomy_path = dataset_folder_path + "/taxonomy.ttl"
 
     taxonomy_graph = load_graph_safely(taxonomy_path)
 
     taxonomy_prefixed_nodes_list = generates_nodes_lists(taxonomy_graph)
     list_classes_information = calculate_class_taxonomy_information(taxonomy_graph, taxonomy_prefixed_nodes_list)
 
-    logger.info(f"Taxonomy information {current}/{catalog_size} collected from dataset {dataset}")
+    dataset_name = taxonomy_path.split("\\")[-2]
+    logger.info(f"Taxonomy information {current}/{catalog_size} collected from dataset {dataset_name}")
 
     return list_classes_information

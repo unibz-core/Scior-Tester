@@ -2,35 +2,16 @@
 from datetime import datetime
 
 
-def has_duplicates(input_list):
-    """ Check if given list contains any duplicated element """
-    if len(input_list) == len(set(input_list)):
-        return False
-    else:
-        return True
-
-
 def remove_duplicates(input_list):
     """ Remove duplicated elements from a list. """
 
-    output_list = [*set(input_list)]
-
-    return output_list
-
-
-def lists_intersection(list1, list2):
-    """ Returns the intersection of two lists. """
-    temp = set(list2)
-    list3 = [value for value in list1 if value in temp]
-    return list3
+    return [*set(input_list)]
 
 
 def lists_subtraction(list1, list2):
     """ Returns the subtraction between two lists. """
 
-    list3 = list(set(list1) - set(list2))
-
-    return list3
+    return list(set(list1) - set(list2))
 
 
 def get_date_time():
@@ -39,6 +20,23 @@ def get_date_time():
     """
 
     now = datetime.now()
-    date_time = now.strftime("%Y.%m.%d-%H.%M.%S")
+    return now.strftime("%Y.%m.%d-%H.%M.%S")
 
-    return date_time
+
+"""
+---------------------------------------------------
+The rest of the functions are not used anywhere
+---------------------------------------------------
+"""
+
+
+def has_duplicates(input_list) -> bool:
+    """ Check if given list contains any duplicated element """
+    return len(input_list) != len(set(input_list))
+
+
+def lists_intersection(list1, list2):
+    """ Returns the intersection of two lists. """
+    temp = set(list2)
+    list3 = [value for value in list1 if value in temp]
+    return list3

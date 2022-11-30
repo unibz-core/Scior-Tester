@@ -75,21 +75,25 @@ def create_taxonomy_graph(owl_file_path):
     return taxonomy_graph
 
 
-def create_taxonomy_ttl_file(source_owl_file_path, dataset_folder_path, catalog_size, current):
-    """ Generates and saves the file taxonomy.ttl - rdf-s graph with the model's taxonomy - for a dataset. """
+def create_taxonomy_ttl_file(source_owl_file_path, dataset_folder_path, catalog_size, current) -> str:
+    """
+    Generates and saves the file taxonomy.ttl - rdf-s graph with the model's taxonomy - for a dataset.
+    :return: name of the created file
+    """
 
     logger = initialize_logger()
 
     # Creating and saving taxonomy file
     taxonomy_graph = create_taxonomy_graph(source_owl_file_path)
-    taxonomy_file_path = dataset_folder_path + "\\" + "taxonomy.ttl"
+    taxonomy_file = dataset_folder_path + "\\" + "taxonomy.ttl"
 
     try:
-        taxonomy_graph.serialize(taxonomy_file_path, encoding='utf-8')
-        logger.info(f"Taxonomy file {current}/{catalog_size} saved: {taxonomy_file_path}")
+        taxonomy_graph.serialize(taxonomy_file, encoding='utf-8')
+        logger.info(f"Taxonomy file {current}/{catalog_size} saved: {taxonomy_file}")
     except OSError as error:
-        logger.error(f"Could not save {taxonomy_file_path} file. Exiting program.\n"
+        logger.error(f"Could not save {taxonomy_file} file. Exiting program.\n"
                      f"System error reported: {error}")
         exit(1)
 
-    register_sha256_hash_information(taxonomy_file_path, source_owl_file_path, dataset_folder_path)
+    register_sha256_hash_information(taxonomy_file, source_owl_file_path, dataset_folder_path)
+    return taxonomy_file
