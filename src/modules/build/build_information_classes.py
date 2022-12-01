@@ -1,5 +1,6 @@
 """ Functions related to the statistics building, collection and saving. """
 import csv
+import operator
 
 from src import CLASSES_DATA_FILE_NAME, NAMESPACE_TAXONOMY
 from src.modules.tester.hash_functions import register_sha256_hash_information
@@ -56,14 +57,21 @@ def saves_dataset_csv_classes_data(catalog_information, dataset_path, catalog_si
 
     csv_file_full_path = dataset_path + "\\" + CLASSES_DATA_FILE_NAME
 
-    with open(csv_file_full_path, 'w', encoding='utf-8', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(csv_header)
+    sorted_catalog_information = sorted(catalog_information, key=operator.attrgetter('name'))
 
-        for class_information in catalog_information:
-            writer.writerow(class_information.convert_to_row())
+    try:
+        with open(csv_file_full_path, 'w', encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(csv_header)
 
-    logger.info(f"CSV file {current}/{catalog_size} saved: {csv_file_full_path}\n")
+            for class_information in sorted_catalog_information:
+                writer.writerow(class_information.convert_to_row())
+
+        logger.info(f"CSV file {current}/{catalog_size} saved: {csv_file_full_path}\n")
+    except OSError as error:
+        logger.error(f"Could not save {csv_file_full_path} csv file. Exiting program."
+                     f"System error reported: {error}")
+        exit(1)
 
     hash_register = register_sha256_hash_information(hash_register, csv_file_full_path, source_owl_file_path)
 
