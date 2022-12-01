@@ -1,80 +1,63 @@
 """ Main module for the OntoCatOWL-Catalog Tester. """
-import pathlib
-from copy import deepcopy
+import os
+import pandas as pd
 
+from copy import deepcopy
 from rdflib import URIRef, RDF
 
-from modules.build.build_classes_stereotypes_information import collect_stereotypes_classes_information
-from modules.build.build_directories_structure import get_list_unhidden_directories, \
+from src import *
+from src.modules.build.build_classes_stereotypes_information import collect_stereotypes_classes_information
+from src.modules.build.build_directories_structure import get_list_ttl_files, \
     create_test_directory_folders_structure, create_test_results_folder, create_internal_catalog_path
-from modules.build.build_information_classes import saves_dataset_csv_classes_data
-from modules.build.build_taxonomy_classes_information import collect_taxonomy_information
-from modules.build.build_taxonomy_files import create_taxonomy_ttl_file
-from modules.ontcatowl.ontcatowl import run_ontcatowl
-from modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_classes_yaml_output, \
-    create_classes_results_csv_output, create_times_csv_output, create_statistics_csv_output, create_summary_csv_output, \
-    create_inconsistency_csv_output
-from modules.tester.hash_functions import create_hash_sha256_register_file_csv
-from modules.tester.input_arguments import treat_arguments
-from modules.tester.logger_config import initialize_logger
-from modules.tester.utils_rdf import load_graph_safely
-
-SOFTWARE_ACRONYM = "OntCatOWL Tester"
-SOFTWARE_NAME = "Tester for the Identification of Ontological Categories for OWL Ontologies"
-SOFTWARE_VERSION = "0.22.11.25"
-SOFTWARE_URL = "https://github.com/unibz-core/OntCatOWL-Tester"
-
-NAMESPACE_GUFO = "http://purl.org/nemo/gufo#"
-NAMESPACE_TAXONOMY = "http://taxonomy.model/"
+from src.modules.build.build_information_classes import saves_dataset_csv_classes_data
+from src.modules.build.build_taxonomy_classes_information import collect_taxonomy_information
+from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_file
+from ontcatowl.ontcatowl import run_ontcatowl
+from src.modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_classes_yaml_output, \
+    create_classes_results_csv_output, create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
+from src.modules.tester.hash_functions import write_sha256_hash_register
+from src.modules.tester.input_arguments import treat_arguments
+from src.modules.tester.logger_config import initialize_logger
+from src.modules.tester.utils_rdf import load_graph_safely
 
 
 def build_ontcatowl_tester(catalog_path):
-    """ Build function for the OntoCatOWL-Catalog Tester. """
-
-    # DATA GENERATION FOR TESTS
+    """ Build function for the OntoCatOWL-Catalog Tester. Generates all the needed data."""
 
     # Building directories structure
-    list_datasets = get_list_unhidden_directories(catalog_path)
-    list_datasets.sort()
-    catalog_size = len(list_datasets)
+    datasets = get_list_ttl_files(catalog_path)  # returns all ttl files we have with full path
+    catalog_size = len(datasets)
     logger.info(f"The catalog contains {catalog_size} datasets.\n")
-    internal_catalog_folder = str(pathlib.Path().resolve()) + "\\catalog"
+    internal_catalog_folder = os.getcwd() + "\\catalog\\"
     create_internal_catalog_path(internal_catalog_folder)
-    create_hash_sha256_register_file_csv()
+    hash_register = pd.DataFrame(columns=["file_name", "file_hash", "source_file_name", "source_file_hash"])
 
-    current = 1
+    for (current, dataset) in enumerate(datasets):
+        dataset_name = dataset.split("\\")[-2]
+        if dataset_name not in EXCEPTIONS_LIST:
+            dataset_folder = internal_catalog_folder + dataset_name
+            logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset_name} ###\n")
 
-    for dataset in list_datasets:
-        logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset} ###\n")
+            create_test_directory_folders_structure(dataset_folder, catalog_size, current)
 
-        source_owl_file_path = catalog_path + "\\" + dataset + "\\" + "ontology.ttl"
-        dataset_folder_path = internal_catalog_folder + "\\" + dataset
+            # Building taxonomies files and collecting information from classes
+            taxonomy_file, hash_register = create_taxonomy_ttl_file(
+                dataset, dataset_folder, catalog_size, current, hash_register)
 
-        print(f"source_owl_file_path = {source_owl_file_path}")
-        print(f"catalog_path = {catalog_path}")
-        print(f"dataset_folder_path = {dataset_folder_path}")
-        print(f"internal_catalog_folder = {internal_catalog_folder}")
+            # Builds dataset_classes_information and collects attributes name, prefixed_name, and all taxonomic information
+            dataset_classes_information = collect_taxonomy_information(taxonomy_file, catalog_size, current)
 
-        create_test_directory_folders_structure(dataset_folder_path, catalog_size, current)
+            # Collects stereotype_original and stereotype_gufo for dataset_classes_information
+            collect_stereotypes_classes_information(dataset, dataset_classes_information, catalog_size, current)
 
-        # Building taxonomies files and collecting information from classes
-        create_taxonomy_ttl_file(source_owl_file_path, dataset_folder_path, catalog_size, current)
+            _, hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
+                                                              catalog_size, current, dataset, hash_register)
 
-        # Builds dataset_classes_information and collects attributes name, prefixed_name, and all taxonomic information
-        dataset_classes_information = collect_taxonomy_information(dataset, catalog_size, current)
-
-        # Collects stereotype_original and stereotype_gufo for dataset_classes_information
-        collect_stereotypes_classes_information(catalog_path, dataset_classes_information,
-                                                dataset, catalog_size, current)
-
-        saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder_path, catalog_size, current,
-                                       source_owl_file_path)
-
-        current += 1
+    write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
 
 def run_ontcatowl_test1(catalog_path):
-    """ Test 1 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset"""
+    # Test 1 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset
     TEST_NUMBER = 1
 
     list_datasets = get_list_unhidden_directories(catalog_path)
@@ -163,9 +146,9 @@ def run_ontcatowl_test1(catalog_path):
 
             execution_number += 1
 
-
+"""
 def run_ontcatowl_test2(catalog_path):
-    """ Test 2 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset"""
+    # Test 2 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset
     TEST_NUMBER = 2
 
     MINIMUM_ALLOWED_NUMBER_CLASSES = 20
@@ -281,7 +264,7 @@ def run_ontcatowl_test2(catalog_path):
             current_percentage += PERCENTAGE_RATE
         register_sha256_hash_information(times_file_name, dataset_taxonomy)
         register_sha256_hash_information(statistics_file_name, dataset_taxonomy)
-
+"""
 
 if __name__ == '__main__':
 

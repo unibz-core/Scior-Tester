@@ -4,9 +4,9 @@ import os
 
 import yaml
 
-from modules.run.test1 import remaps_to_gufo, get_final_list, calculate_incompleteness_values
-from modules.tester.hash_functions import register_sha256_hash_information
-from modules.tester.logger_config import initialize_logger
+from src.modules.run.test1 import remaps_to_gufo, get_final_list, calculate_incompleteness_values
+from src.modules.tester.hash_functions import register_sha256_hash_information
+from src.modules.tester.logger_config import initialize_logger
 
 NAMESPACE_TAXONOMY = "http://taxonomy.model/"
 

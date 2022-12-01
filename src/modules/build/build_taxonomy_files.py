@@ -1,23 +1,17 @@
-""" Functions for extracting taxonomy from OntoUML serialization in OWL. """
+from rdflib import RDF, Graph, RDFS, OWL
 
-from rdflib import RDF, URIRef, Graph, RDFS, OWL
-
-from modules.tester.hash_functions import register_sha256_hash_information
-from modules.tester.logger_config import initialize_logger
-from modules.tester.utils_rdf import load_graph_safely
-
-VOCABULARY_CLASS_URI = URIRef("https://purl.org/ontouml-models/vocabulary/Class")
-VOCABULARY_GENERALIZATION_URI = URIRef("https://purl.org/ontouml-models/vocabulary/Generalization")
-VOCABULARY_GENERAL_URI = URIRef("https://purl.org/ontouml-models/vocabulary/general")
-VOCABULARY_SPECIFIC_URI = URIRef("https://purl.org/ontouml-models/vocabulary/specific")
-VOCABULARY_NAME_URI = URIRef("https://purl.org/ontouml-models/vocabulary/name")
-VOCABULARY_STEREOTYPE_URI = URIRef("https://purl.org/ontouml-models/vocabulary/stereotype")
+from src import NAMESPACE_TAXONOMY
+from src.modules.build import *
+from src.modules.tester.hash_functions import register_sha256_hash_information
+from src.modules.tester.logger_config import initialize_logger
+from src.modules.tester.utils_rdf import load_graph_safely
 
 
 def clean_class_name(class_raw_name: str) -> str:
     """
-    :param class_raw_name (string): Class name as read from model.
-    :return class_clean_name (string): Class name after removing invalid characters .
+    Clears class name from unnecessary chars
+    :param class_raw_name: Class name as read from model
+    :return: Class name after removing invalid characters
     """
 
     class_clean_name = class_raw_name.strip()
@@ -35,8 +29,6 @@ def create_taxonomy_graph(owl_file_path):
 
     source_graph = load_graph_safely(owl_file_path)
     taxonomy_graph = Graph()
-
-    taxonomy_namespace = "http://taxonomy.model/"
 
     # Isolated classes are ignored for the creation of the taxonomy.ttl file.
     for generalization in source_graph.subjects(RDF.type, VOCABULARY_GENERALIZATION_URI):
@@ -62,8 +54,8 @@ def create_taxonomy_graph(owl_file_path):
         class_general_name_string = clean_class_name(class_general_name_string)
         class_specific_name_string = clean_class_name(class_specific_name_string)
 
-        class_general_full_name = taxonomy_namespace + class_general_name_string
-        class_specific_full_name = taxonomy_namespace + class_specific_name_string
+        class_general_full_name = NAMESPACE_TAXONOMY + class_general_name_string
+        class_specific_full_name = NAMESPACE_TAXONOMY + class_specific_name_string
         uriref_general = URIRef(class_general_full_name)
         uriref_specific = URIRef(class_specific_full_name)
 
@@ -75,21 +67,26 @@ def create_taxonomy_graph(owl_file_path):
     return taxonomy_graph
 
 
-def create_taxonomy_ttl_file(source_owl_file_path, dataset_folder_path, catalog_size, current):
-    """ Generates and saves the file taxonomy.ttl - rdf-s graph with the model's taxonomy - for a dataset. """
+def create_taxonomy_ttl_file(source_owl_file_path, dataset_folder_path, catalog_size, current, hash_register) -> str:
+    """
+    Generates and saves the file taxonomy.ttl - rdf-s graph with the model's taxonomy - for a dataset.
+    :return: name of the created file
+    """
 
     logger = initialize_logger()
 
     # Creating and saving taxonomy file
     taxonomy_graph = create_taxonomy_graph(source_owl_file_path)
-    taxonomy_file_path = dataset_folder_path + "\\" + "taxonomy.ttl"
+    taxonomy_file_name = dataset_folder_path + "\\taxonomy.ttl"
 
     try:
-        taxonomy_graph.serialize(taxonomy_file_path, encoding='utf-8')
-        logger.info(f"Taxonomy file {current}/{catalog_size} saved: {taxonomy_file_path}")
+        taxonomy_graph.serialize(taxonomy_file_name, encoding='utf-8')
+        logger.info(f"Taxonomy file {current}/{catalog_size} saved: {taxonomy_file_name}")
     except OSError as error:
-        logger.error(f"Could not save {taxonomy_file_path} file. Exiting program.\n"
+        logger.error(f"Could not save {taxonomy_file_name} file. Exiting program.\n"
                      f"System error reported: {error}")
         exit(1)
 
-    register_sha256_hash_information(taxonomy_file_path, source_owl_file_path)
+    hash_register = register_sha256_hash_information(hash_register, taxonomy_file_name, source_owl_file_path)
+
+    return taxonomy_file_name, hash_register
