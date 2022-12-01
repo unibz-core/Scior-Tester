@@ -1,12 +1,11 @@
 """ Main module for the OntoCatOWL-Catalog Tester. """
 import os
+import pandas as pd
 
 from copy import deepcopy
-
 from rdflib import URIRef, RDF
 
 from src import *
-
 from src.modules.build.build_classes_stereotypes_information import collect_stereotypes_classes_information
 from src.modules.build.build_directories_structure import get_list_ttl_files, \
     create_test_directory_folders_structure, create_test_results_folder, create_internal_catalog_path
@@ -16,7 +15,7 @@ from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_file
 from ontcatowl.ontcatowl import run_ontcatowl
 from src.modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_classes_yaml_output, \
     create_classes_results_csv_output, create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
-from src.modules.tester.hash_functions import create_hash_sha256_register_file_csv
+from src.modules.tester.hash_functions import write_sha256_hash_register
 from src.modules.tester.input_arguments import treat_arguments
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_rdf import load_graph_safely
@@ -29,29 +28,31 @@ def build_ontcatowl_tester(catalog_path):
     datasets = get_list_ttl_files(catalog_path)  # returns all ttl files we have with full path
     catalog_size = len(datasets)
     logger.info(f"The catalog contains {catalog_size} datasets.\n")
-    internal_catalog_folder = os.getcwd() + "\\catalog"
+    internal_catalog_folder = os.getcwd() + "\\catalog\\"
     create_internal_catalog_path(internal_catalog_folder)
-    create_hash_sha256_register_file_csv(internal_catalog_folder)
+    hash_register = pd.DataFrame(columns=["file_name", "file_hash", "source_file_name", "source_file_hash"])
 
     for (current, dataset) in enumerate(datasets):
         dataset_name = dataset.split("\\")[-2]
-        dataset_folder = internal_catalog_folder + "\\" + dataset_name
-        logger.info(f"### Starting dataset {current + 1}/{catalog_size}: {dataset_name} ###\n")
+        dataset_folder = internal_catalog_folder + dataset_name
+        logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset_name} ###\n")
 
         create_test_directory_folders_structure(dataset_folder, catalog_size, current)
 
         # Building taxonomies files and collecting information from classes
-        taxonomy_file = create_taxonomy_ttl_file(dataset, dataset_folder, catalog_size, current)
+        taxonomy_file, hash_register = create_taxonomy_ttl_file(
+            dataset, dataset_folder, catalog_size, current, hash_register)
 
         # Builds dataset_classes_information and collects attributes name, prefixed_name, and all taxonomic information
         dataset_classes_information = collect_taxonomy_information(taxonomy_file, catalog_size, current)
 
         # Collects stereotype_original and stereotype_gufo for dataset_classes_information
-        collect_stereotypes_classes_information(catalog_path, dataset_classes_information,
-                                                taxonomy_file, catalog_size, current)
+        collect_stereotypes_classes_information(dataset, dataset_classes_information, catalog_size, current)
 
-        saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder, catalog_size, current,
-                                       dataset)
+        _, hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder, catalog_size, current,
+                                       dataset, hash_register)
+
+    write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
 
 def run_ontcatowl_test1(catalog_path):

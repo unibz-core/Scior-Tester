@@ -1,54 +1,41 @@
 """ Functions related to stereotypes. """
 
-from rdflib import URIRef, RDF
+from rdflib import RDF
 
+from src.modules.build import *
 from src.modules.build.build_taxonomy_files import clean_class_name
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_rdf import load_graph_safely
-
-VOCABULARY_CLASS_URI = URIRef("https://purl.org/ontouml-models/vocabulary/Class")
-VOCABULARY_GENERALIZATION_URI = URIRef("https://purl.org/ontouml-models/vocabulary/Generalization")
-VOCABULARY_GENERAL_URI = URIRef("https://purl.org/ontouml-models/vocabulary/general")
-VOCABULARY_SPECIFIC_URI = URIRef("https://purl.org/ontouml-models/vocabulary/specific")
-VOCABULARY_NAME_URI = URIRef("https://purl.org/ontouml-models/vocabulary/name")
-VOCABULARY_STEREOTYPE_URI = URIRef("https://purl.org/ontouml-models/vocabulary/stereotype")
 
 
 def get_gufo_stereotype(class_stereotype_original):
     """ Mapps OntoUML serialization in OWL stereotype for the gUFO types used in OntCatOWL """
 
-    if class_stereotype_original == "category":
-        mapped_stereotype = "category"
-    elif (class_stereotype_original == "collective") or (class_stereotype_original == "kind") or (
-            class_stereotype_original == "quality") or (class_stereotype_original == "quantity") or (
-            class_stereotype_original == "mode") or (class_stereotype_original == "relator"):
-        mapped_stereotype = "kind"
-    elif class_stereotype_original == "mixin":
-        mapped_stereotype = "mixin"
-    elif class_stereotype_original == "phase":
-        mapped_stereotype = "phase"
-    elif class_stereotype_original == "phasemixin":
-        mapped_stereotype = "phasemixin"
-    elif class_stereotype_original == "role" or class_stereotype_original == "historicalrole":
-        mapped_stereotype = "role"
-    elif class_stereotype_original == "rolemixin" or class_stereotype_original == "historicalrolemixin":
-        mapped_stereotype = "rolemixin"
-    elif class_stereotype_original == "subkind":
-        mapped_stereotype = "subkind"
-    else:
-        mapped_stereotype = "other"
+    keeped_stereotypes = ("category", "mixin", "phase", "phasemixin", "kind", "subkind", "role", "rolemixin")
+    if class_stereotype_original in keeped_stereotypes:
+        return class_stereotype_original
 
-    return mapped_stereotype
+    mapped_stereotypes = {"collective": "kind", "quality": "kind", "quantity": "kind", "mode": "kind",
+                          "relator": "kind", "historicalrole": "role", "historicalrolemixin": "rolemixin"}
+    if class_stereotype_original in mapped_stereotypes:
+        return mapped_stereotypes[class_stereotype_original]
+
+    return "other"
 
 
-def collect_stereotypes_classes_information(catalog_path, dataset_classes_information, dataset, catalog_size, current):
-    """ Read all classes information related to stereotypes and updates the catalog_information. """
+def collect_stereotypes_classes_information(source_owl_file_path, dataset_classes_information, catalog_size, current):
+    """ Read all classes information related to stereotypes and updates the catalog_information
+        :param source_owl_file_path: full path to *.ttl file
+        :param dataset_classes_information:
+        :param catalog_size: size of the whole catalog
+        :param current: number of current dataset
+    """
 
     logger = initialize_logger()
 
-    source_owl_file_path = catalog_path + "\\" + dataset + "\\" + "ontology.ttl"
     ontology_graph = load_graph_safely(source_owl_file_path)
 
+    class_inf = {}
     for owl_class in ontology_graph.subjects(RDF.type, VOCABULARY_CLASS_URI):
 
         # Getting classes' names
@@ -57,11 +44,10 @@ def collect_stereotypes_classes_information(catalog_path, dataset_classes_inform
         class_name = clean_class_name(class_name)
 
         if class_name != "string" and class_name != "int" and class_name != "char":
-
             # Getting classes' stereotypes
             class_stereotype_original = ontology_graph.value(owl_class, VOCABULARY_STEREOTYPE_URI)
 
-            if class_stereotype_original == None:
+            if not class_stereotype_original:
                 class_stereotype_original_string = "none"
                 class_stereotype_gufo = "other"
             else:
@@ -69,9 +55,12 @@ def collect_stereotypes_classes_information(catalog_path, dataset_classes_inform
                 class_stereotype_original_string = class_stereotype_original_string.lower().strip()
                 class_stereotype_gufo = get_gufo_stereotype(class_stereotype_original_string)
 
-            for class_in_list in dataset_classes_information:
-                if class_in_list.name == class_name:
-                    class_in_list.stereotype_original = class_stereotype_original_string
-                    class_in_list.stereotype_gufo = class_stereotype_gufo
+            class_inf[class_name] = (class_stereotype_original_string, class_stereotype_gufo)
 
+    for class_in_list in dataset_classes_information:
+        if class_in_list.name in class_inf:
+            class_in_list.stereotype_original = class_inf[class_in_list.name][0]
+            class_in_list.stereotype_gufo = class_inf[class_in_list.name][1]
+
+    dataset = source_owl_file_path.split("\\")[-2]
     logger.info(f"Stereotypes information {current}/{catalog_size} collected from dataset {dataset}")

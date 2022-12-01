@@ -1,18 +1,15 @@
-""" Functions for registering hashes informations for all generated files. """
+""" Functions for registering hashes information for all generated files. """
 import csv
 import hashlib
 import os
-import pathlib
+import pandas as pd
 
-from src import HASH_FILE_NAME
+from src import HASH_FILE_NAME, BLOCK_SIZE
 from src.modules.tester.logger_config import initialize_logger
 
 
 def generate_sha256_hash(file_path):
     """ Receives the complete path of a file and returns its sha256 hash. """
-
-    # The size of each read from the file. Prevents memory overload.
-    BLOCK_SIZE = 65536
 
     file_hash = hashlib.sha256()
     with open(file_path, 'rb') as f:
@@ -24,85 +21,35 @@ def generate_sha256_hash(file_path):
     return file_hash.hexdigest()
 
 
-def create_hash_sha256_register_file_csv(catalog_path: str):
-    """ If it doesn't exist, creates a new csv file for mapping sha256 hashes of the original files to all
-    generated files. """
+def write_sha256_hash_register(hash_register, hash_register_file_path):
+    """ Writes into hash register file. """
 
     logger = initialize_logger()
-    hash_register_file_path = catalog_path + "\\" + HASH_FILE_NAME
-
-    if not os.path.exists(hash_register_file_path):
-        try:
-            with open(hash_register_file_path, 'w', encoding='utf-8', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(["file_name", "file_hash", "source_file_name", "source_file_hash"])
-        except OSError as e:
-            logger.error(f"Hash file could not be created in {hash_register_file_path}. Program aborted.\n"
-                         f"System error reported: {e}")
-            exit(1)
-        else:
-            logger.debug(f"New hash file successfully created in {hash_register_file_path}.")
-    else:
-        logger.debug(f"Hash file already exists in {hash_register_file_path}.")
-
-
-def verify_hash_register_exist(generated_file_path):
-    """ Checks if a generated file is already registered in the hash register and returns True or False.
-
-    Hash file registers are structured in a csv with columns:
-    ["file_name", "file_hash", "source_file_name", "source_file_hash"]
-        - "file_path": path of the registered file
-        - "file_hash": sha256 hash of the registered file
-        - "file_path": path of the file from which the registered file was generated
-        - "source_file_hash": sha256 hash of the file from which the registered file was generated.
-    """
-
-    hash_register_file_path = str(pathlib.Path().resolve()) + HASH_FILE_LOCATION
-    file_hash = generate_sha256_hash(generated_file_path)
-
-    with open(hash_register_file_path, encoding='utf-8') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        registered_hashes_list = []
-        for row in csv_reader:
-            registered_hashes = row[1]
-            registered_hashes_list.append(registered_hashes)
-
-    if file_hash in registered_hashes_list:
-        exists = True
-    else:
-        exists = False
-
-    return exists
-
-
-def write_sha256_hash_register(source_file_path, generated_file_path, hash_register_file_path):
-    """ Creates a new entry in the hash register file. """
-
-    logger = initialize_logger()
-
-    generated_file_hash = generate_sha256_hash(generated_file_path)
-    source_file_hash = generate_sha256_hash(source_file_path)
-    entry = [generated_file_path, generated_file_hash, source_file_path, source_file_hash]
 
     try:
-        with open(hash_register_file_path, 'a', encoding='utf-8', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(entry)
+        hash_register.to_csv(hash_register_file_path, index=False)
     except OSError as e:
-        logger.error(
-            f"Hash file could not be created in {hash_register_file_path}. Program aborted.\nSystem error reported: {e}")
+        logger.error(f"Hash file could not be created in {hash_register_file_path}. Program aborted.\n"
+                     f"System error reported: {e}")
         exit(1)
 
 
-def register_sha256_hash_information(generated_file_path, source_file_path, dataset_folder_path):
+def register_sha256_hash_information(hash_register, generated_file_path, source_file_path):
     """ Register the hash of the generated file source for tracking purposes. """
 
     logger = initialize_logger()
 
-    hash_register_file_path = dataset_folder_path + "\\" + HASH_FILE_NAME
+    generated_file_hash = generate_sha256_hash(generated_file_path)
 
-    if verify_hash_register_exist(generated_file_path):
+    if generated_file_hash in hash_register["file_hash"].values:
         logger.debug(f"File {source_file_path} already registered in hash register file.")
     else:
-        write_sha256_hash_register(source_file_path, generated_file_path, hash_register_file_path)
-        logger.debug(f"New hash entry successfully created in {hash_register_file_path}.")
+        source_file_hash = generate_sha256_hash(source_file_path)
+        entry = {'file_name': [generated_file_path],
+                 'file_hash': [generated_file_hash],
+                 'source_file_name': [source_file_path],
+                 'source_file_hash': [source_file_hash]}
+        hash_register = pd.concat([hash_register, pd.DataFrame.from_dict(entry)])
+
+    logger.debug(f"New hash entry for {generated_file_hash} successfully created.")
+    return hash_register

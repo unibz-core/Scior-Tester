@@ -10,9 +10,6 @@ def get_superclasses(graph, all_classes, element: str):
         Analogous to function get_subclasses.
     """
 
-    logger = initialize_logger()
-    logger.debug(f"Getting superclasses of node {element}...")
-
     elem = URIRef(element)
     superclasses = []
 
@@ -20,8 +17,6 @@ def get_superclasses(graph, all_classes, element: str):
         ins = obj.n3()[1:-1]
         if ins in all_classes:
             superclasses.append(ins)
-
-    logger.debug(f"Superclasses of node {element} are: {superclasses}.")
 
     return superclasses
 
@@ -72,7 +67,7 @@ def get_list_leaf_classes(graph, all_classes):
 
 def get_list_of_all_classes(ontology_graph, exceptions_list: list = []):
     """ Returns a list of all classes as URI strings without repetitions available in a Graph.
-    Classes that have namespaces included in the exception_list parameter are not included in the returned list. """
+        Classes that have namespaces included in the exception_list parameter are not included in the returned list. """
 
     classes_list = []
 
@@ -132,29 +127,23 @@ def get_all_subclasses(graph, nodes_list, element):
     return remove_duplicates(all_subclasses)
 
 
-def get_all_related_nodes_inc(graph, nodes_list, node, queue=[], visited=[], related=[]):
+def _get_all_related_nodes(graph, nodes_list, node, visited):
     """ Implements the BFS algorithm to return the list of all nodes of the given graph that are directly or indirectly
-    related to the given element. I.e., return all nodes that are reachable from the ontologies node (element).
-
-    The return list DOES INCLUDE the own element.
+        related to the given element. I.e., return all nodes that are reachable from the ontology's node (element).
+        The return list DOES INCLUDE the own element.
     """
+    if not visited:
+        visited = []
 
+    neighbours = get_subclasses(graph, nodes_list["all"], node) + get_superclasses(graph, nodes_list["all"], node)
     visited.append(node)
-    queue.append(node)
 
-    while queue:
-        related.append(queue.pop(0))
-
-    neighbours_list = get_subclasses(graph, nodes_list["all"], node) + get_superclasses(graph, nodes_list["all"], node)
-
-    for neighbour in neighbours_list:
+    while neighbours:
+        neighbour = neighbours.pop(0)
         if neighbour not in visited:
-            result = get_all_related_nodes_inc(graph, nodes_list, neighbour, queue, visited, related)
-            for r in result:
-                if r not in related:
-                    related.append(r)
+            neighbours.extend(_get_all_related_nodes(graph, nodes_list, neighbour, visited))
 
-    return related
+    return visited
 
 
 def get_all_related_nodes(graph, nodes_list, node):
@@ -162,9 +151,25 @@ def get_all_related_nodes(graph, nodes_list, node):
         related to the given element. I.e., return all nodes that are reachable from the ontology's node (element).
 
         The return list DOES NOT INCLUDE the element itself.
-        """
+    """
 
-    return get_all_related_nodes_inc(graph, nodes_list, node)[1:]
+    return _get_all_related_nodes(graph, nodes_list, node, None)[1:]
+
+
+def generates_nodes_lists(graph) -> dict:
+    """ Return lists of different types of classes (string with the class URI) for the ontologies ontology to be used
+        in other functions. This lists of classes must be initializated and, after that, not be edited anymore.
+    """
+    logger = initialize_logger()
+    logger.debug("Initializing list of Taxonomy nodes...")
+
+    prefixed_node_list = {"all": get_list_of_all_classes(graph), "roots": [], "leaves": []}
+    prefixed_node_list["roots"] = get_list_root_classes(graph, prefixed_node_list["all"])
+    prefixed_node_list["leaves"] = get_list_leaf_classes(graph, prefixed_node_list["all"])
+
+    logger.debug("List of Taxonomy nodes successfully initialized.")
+
+    return prefixed_node_list
 
 
 """
