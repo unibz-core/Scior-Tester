@@ -108,7 +108,6 @@ def get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclas
 
 def create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder, test_results_folder,
                                       execution_name):
-
     final_row_list = []
 
     for input_class in input_classes_list:
@@ -239,7 +238,6 @@ def create_csv_header():
     csv_header.append("classif_b_known_classif_types_p")
 
     # Classifications percentages after
-    csv_header.append("classif_a_total_classif_types_p")
     csv_header.append("classif_a_unknown_classif_types_p")
     csv_header.append("classif_a_known_classif_types_p")
 
@@ -318,12 +316,10 @@ def populate_csv_row(consolidated_statistics, execution_number, number_incomplet
     csv_row.append(classif_a.known_classif_types_v)
 
     # Classifications percentages before
-    csv_row.append(classif_b.total_classif_types_p)
     csv_row.append(classif_b.unknown_classif_types_p)
     csv_row.append(classif_b.known_classif_types_p)
 
     # Classifications percentages after
-    csv_row.append(classif_a.total_classif_types_p)
     csv_row.append(classif_a.unknown_classif_types_p)
     csv_row.append(classif_a.known_classif_types_p)
 
@@ -404,6 +400,7 @@ def create_summary_csv_output(test_results_folder, execution_number, input_class
         with open(statistics, 'a', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(csv_row)
+
 
 def create_inconsistency_csv_output(test_results_folder, execution_number, input_class):
     """ Creates and updates a CSV file with a list of all inconsistent classes and their stereotypes. """
