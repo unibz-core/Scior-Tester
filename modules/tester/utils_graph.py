@@ -121,7 +121,7 @@ def get_all_superclasses(graph, nodes_list, element):
 
     for superclass in list_superclasses:
         all_superclasses.append(superclass)
-        if list_superclasses not in nodes_list["roots"]:
+        if superclass not in nodes_list["roots"]:
             temp = get_all_superclasses(graph, nodes_list, superclass)
             all_superclasses.extend(temp)
 
@@ -141,7 +141,7 @@ def get_all_subclasses(graph, nodes_list, element):
 
     for subclass in list_subclasses:
         all_subclasses.append(subclass)
-        if list_subclasses not in nodes_list["leaves"]:
+        if subclass not in nodes_list["leaves"]:
             temp = get_all_subclasses(graph, nodes_list, subclass)
             all_subclasses.extend(temp)
 
