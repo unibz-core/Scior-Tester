@@ -2,18 +2,10 @@
 
 Software used for testing OntCatOWL using the OntoUML/UFO Catalog
 
-## Tests
+# Tests
 
 The tests are performed on the [OntoUML/UFO catalog](https://github.com/unibz-core/ontouml-models) datasets
 that `conformsTo` exclusively with `ontouml`.
-
-## Tested Models
-109
-OntoUML only
-Must have taxonomy
-Minor characters modifications made for improvements
-Dataset van-ee with problem
-
 
 # Collected Data
 

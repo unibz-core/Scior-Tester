@@ -1,13 +1,9 @@
 """ Functions for extracting taxonomy from OntoUML serialization in OWL. """
-from copy import deepcopy, copy
 
-from ontcatowl.modules.initialization_data_graph import initialize_nodes_lists
-from ontcatowl.modules.utils_general import lists_subtraction
 from rdflib import RDF, URIRef, Graph, RDFS, OWL
 
 from modules.tester.hash_functions import register_sha256_hash_information
 from modules.tester.logger_config import initialize_logger
-from modules.tester.utils_graph import get_all_related_nodes_inc
 from modules.tester.utils_rdf import load_graph_safely
 
 VOCABULARY_CLASS_URI = URIRef("https://purl.org/ontouml-models/vocabulary/Class")
@@ -34,11 +30,11 @@ def clean_class_name(class_raw_name: str) -> str:
     return class_clean_name
 
 
-def create_full_taxonomy_graph(owl_file_path):
+def create_taxonomy_graph(owl_file_path):
     """ Extract the dataset model's taxonomy into a new graph. """
 
     source_graph = load_graph_safely(owl_file_path)
-    full_taxonomy_graph = Graph()
+    taxonomy_graph = Graph()
 
     taxonomy_namespace = "http://taxonomy.model/"
 
@@ -72,80 +68,28 @@ def create_full_taxonomy_graph(owl_file_path):
         uriref_specific = URIRef(class_specific_full_name)
 
         # Including classes and generalization into the new graph
-        full_taxonomy_graph.add((uriref_general, RDF.type, OWL.Class))
-        full_taxonomy_graph.add((uriref_specific, RDF.type, OWL.Class))
-        full_taxonomy_graph.add((uriref_specific, RDFS.subClassOf, uriref_general))
+        taxonomy_graph.add((uriref_general, RDF.type, OWL.Class))
+        taxonomy_graph.add((uriref_specific, RDF.type, OWL.Class))
+        taxonomy_graph.add((uriref_specific, RDFS.subClassOf, uriref_general))
 
-    return full_taxonomy_graph
-
-
-def safe_save_taxonomy_graph(taxonomy_graph, complete_taxonomy_file_path,end=""):
-    """ Safely save the taxonomy graph to a file. """
-
-    logger = initialize_logger()
-
-    try:
-        taxonomy_graph.serialize(complete_taxonomy_file_path, encoding='utf-8')
-        logger.info(f"Taxonomy file saved: {complete_taxonomy_file_path}{end}")
-    except OSError as error:
-        logger.error(f"Could not save {complete_taxonomy_file_path} file. Exiting program.\n"
-                     f"System error reported: {error}")
-        exit(1)
+    return taxonomy_graph
 
 
-def remove_classes_from_graph(source_graph, classes_to_remove_list):
-    """ Receives a graph and a list of classes that are part of this graph and that must be removed.
-        Removes all classes in the list and returns a new graph without them.
-    """
-
-    reduced_graph = deepcopy(source_graph)
-
-    for class_to_remove in classes_to_remove_list:
-        uriref_to_remove = URIRef(class_to_remove)
-        reduced_graph.remove((uriref_to_remove, None, None))
-        reduced_graph.remove((None, None, uriref_to_remove))
-
-    return reduced_graph
-
-
-def generate_isolated_taxonomy_files(source_taxonomy_graph, saving_path, source_owl_file_path,
-                                     current_taxonomy_number=0):
-    """ Uses recursion for isolate all separated taxonomies inside a single taxonomical graph
-    and saves each one of them as a separated file with the name taxonomy_X.ttl,
-    where X is the number of the taxonomy."""
-
-    taxonomy_file_path = saving_path + f"\\taxonomy_{current_taxonomy_number+1:02d}.ttl"
-
-    source_taxonomy_nodes = initialize_nodes_lists(source_taxonomy_graph)
-    source_taxonomy_roots = source_taxonomy_nodes["roots"]
-
-    classes_related_to_root0 = get_all_related_nodes_inc(source_taxonomy_graph, source_taxonomy_nodes,
-                                                         source_taxonomy_roots[0])
-    classes_not_related_to_root0 = lists_subtraction(source_taxonomy_nodes["all"],classes_related_to_root0)
-
-    # Single taxonomy (or end of recursion)
-    if len(classes_not_related_to_root0) == 0:
-        safe_save_taxonomy_graph(source_taxonomy_graph, taxonomy_file_path, "\n")
-        register_sha256_hash_information(taxonomy_file_path, source_owl_file_path)
-    # Isolating taxonomies from source graph
-    else:
-        # Save current
-        reduced_graph = remove_classes_from_graph(source_taxonomy_graph, classes_not_related_to_root0)
-        safe_save_taxonomy_graph(reduced_graph, taxonomy_file_path)
-        register_sha256_hash_information(taxonomy_file_path, source_owl_file_path)
-
-        # Proceeding to next
-        current_taxonomy_number += 1
-        new_source_graph = remove_classes_from_graph(source_taxonomy_graph, classes_related_to_root0)
-        generate_isolated_taxonomy_files(new_source_graph, saving_path, source_owl_file_path, current_taxonomy_number)
-
-
-def create_taxonomy_ttl_files(source_owl_file_path, dataset_folder_path, catalog_size, current):
+def create_taxonomy_ttl_file(source_owl_file_path, dataset_folder_path, catalog_size, current):
     """ Generates and saves the file taxonomy.ttl - rdf-s graph with the model's taxonomy - for a dataset. """
 
     logger = initialize_logger()
 
     # Creating and saving taxonomy file
-    full_taxonomy_graph = create_full_taxonomy_graph(source_owl_file_path)
+    taxonomy_graph = create_taxonomy_graph(source_owl_file_path)
+    taxonomy_file_path = dataset_folder_path + "\\" + "taxonomy.ttl"
 
-    generate_isolated_taxonomy_files(full_taxonomy_graph, dataset_folder_path, source_owl_file_path)
+    try:
+        taxonomy_graph.serialize(taxonomy_file_path, encoding='utf-8')
+        logger.info(f"Taxonomy file {current}/{catalog_size} saved: {taxonomy_file_path}")
+    except OSError as error:
+        logger.error(f"Could not save {taxonomy_file_path} file. Exiting program.\n"
+                     f"System error reported: {error}")
+        exit(1)
+
+    register_sha256_hash_information(taxonomy_file_path, source_owl_file_path)
