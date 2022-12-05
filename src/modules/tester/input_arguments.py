@@ -27,8 +27,11 @@ def treat_arguments(software_acronym, software_name, software_version, software_
     arguments_parser.add_argument("-b", "--build", action='store_true',
                                   help="Build test datasets' structure and files.")
 
-    arguments_parser.add_argument("-r", "--run", action='store_true',
-                                  help="Execute the tester for the build datasets.")
+    arguments_parser.add_argument("-r1", "--run1", action='store_true',
+                                  help="Execute the TEST_1 for the build datasets.")
+
+    arguments_parser.add_argument("-r2", "--run2", action='store_true',
+                                  help="Execute the TEST_2 for the build datasets.")
 
     # Automatic arguments
     arguments_parser.add_argument("-v", "--version", action="version", help="Prints the software version and exit.")
@@ -41,7 +44,8 @@ def treat_arguments(software_acronym, software_name, software_version, software_
     arguments = arguments_parser.parse_args()
 
     global_configurations = {"build": arguments.build,
-                             "run": arguments.run,
+                             "run1": arguments.run1,
+                             "run2": arguments.run2,
                              "catalog_path": arguments.catalog_path}
 
     logger.debug(f"Arguments Parsed. Obtained values are: {global_configurations}")

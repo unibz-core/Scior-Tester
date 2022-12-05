@@ -4,7 +4,7 @@ import hashlib
 import os
 import pandas as pd
 
-from src import HASH_FILE_NAME, BLOCK_SIZE
+from src import BLOCK_SIZE
 from src.modules.tester.logger_config import initialize_logger
 
 
@@ -27,7 +27,7 @@ def write_sha256_hash_register(hash_register, hash_register_file_path):
     logger = initialize_logger()
 
     try:
-        hash_register.to_csv(hash_register_file_path, index=False)
+        hash_register.to_csv(hash_register_file_path, mode="a", index=False)
     except OSError as e:
         logger.error(f"Hash file could not be created in {hash_register_file_path}. Program aborted.\n"
                      f"System error reported: {e}")

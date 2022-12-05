@@ -12,7 +12,7 @@ from src.modules.build.build_directories_structure import get_list_ttl_files, \
 from src.modules.build.build_information_classes import saves_dataset_csv_classes_data
 from src.modules.build.build_taxonomy_classes_information import collect_taxonomy_information
 from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_file
-from ontcatowl.ontcatowl import run_ontcatowl
+from ontcatowl import run_ontcatowl
 from src.modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_classes_yaml_output, \
     create_classes_results_csv_output, create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
 from src.modules.tester.hash_functions import write_sha256_hash_register
@@ -25,7 +25,7 @@ def build_ontcatowl_tester(catalog_path):
     """ Build function for the OntoCatOWL-Catalog Tester. Generates all the needed data."""
 
     # Building directories structure
-    datasets = get_list_ttl_files(catalog_path)  # returns all ttl files we have with full path
+    datasets = get_list_ttl_files(catalog_path, name="ontology")  # returns all ttl files we have with full path
     catalog_size = len(datasets)
     logger.info(f"The catalog contains {catalog_size} datasets.\n")
     internal_catalog_folder = os.getcwd() + "\\catalog\\"
@@ -60,21 +60,18 @@ def run_ontcatowl_test1(catalog_path):
     # Test 1 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset
     TEST_NUMBER = 1
 
-    list_datasets = get_list_unhidden_directories(catalog_path)
-    list_datasets.sort()
+    list_datasets = get_list_ttl_files(catalog_path, name="taxonomy")
     list_datasets_paths = []
     list_datasets_taxonomies = []
 
-    global_configurations = {"is_automatic": True,
-                             "is_complete": True}
+    #global_configurations = {"is_automatic": TEST1_AUTOMATIC,
+    #                         "is_complete": TEST1_COMPLETE}
 
     # Creating list of dataset paths and taxonomies
-    current_dataset_number = 1
     total_dataset_number = len(list_datasets)
-    for dataset in list_datasets:
+    for (current, dataset) in enumerate(list_datasets):
 
-        logger.info(f"Executing OntCatOWL for dataset {current_dataset_number}/{total_dataset_number}: {dataset}\n")
-        current_dataset_number += 1
+        logger.info(f"Executing OntCatOWL for dataset {current}/{total_dataset_number}: {dataset}\n")
 
         tester_catalog_folder = str(pathlib.Path().resolve()) + r"\catalog"
         dataset_folder = tester_catalog_folder + "\\" + dataset
@@ -146,22 +143,11 @@ def run_ontcatowl_test1(catalog_path):
 
             execution_number += 1
 
-"""
+
 def run_ontcatowl_test2(catalog_path):
     # Test 2 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset
-    TEST_NUMBER = 2
 
-    MINIMUM_ALLOWED_NUMBER_CLASSES = 20
-
-    PERCENTAGE_INITIAL = 5
-    PERCENTAGE_FINAL = 95
-    PERCENTAGE_RATE = 5
-
-    NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE = 10
-
-    list_datasets = get_list_unhidden_directories(catalog_path)
-    list_datasets.sort()
-    list_datasets_paths = []
+    list_datasets = get_list_ttl_files(catalog_path)
 
     global_configurations = {"is_automatic": True,
                              "is_complete": True}
@@ -264,7 +250,7 @@ def run_ontcatowl_test2(catalog_path):
             current_percentage += PERCENTAGE_RATE
         register_sha256_hash_information(times_file_name, dataset_taxonomy)
         register_sha256_hash_information(statistics_file_name, dataset_taxonomy)
-"""
+
 
 if __name__ == '__main__':
 
@@ -277,8 +263,11 @@ if __name__ == '__main__':
         build_ontcatowl_tester(arguments["catalog_path"])
 
     # Execute in RUN mode.
-    if arguments["run"]:
+    if arguments["run1"]:
         run_ontcatowl_test1(arguments["catalog_path"])
+
+    if arguments["run2"]:
+        run_ontcatowl_test2(arguments["catalog_path"])
 
 # TODO (@pedropaulofb): VERIFY
 # Are there any classes with more than one stereotype?

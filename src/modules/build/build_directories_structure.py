@@ -5,7 +5,7 @@ import glob
 from src.modules.tester.logger_config import initialize_logger
 
 
-def get_list_ttl_files(directory_path) -> list:
+def get_list_ttl_files(directory_path, name="*") -> list:
     """ Receives the path of a directory and returns a list of all *.ttl files in all sub-folders. """
     logger = initialize_logger()
     file_names = []
@@ -15,7 +15,7 @@ def get_list_ttl_files(directory_path) -> list:
         logger.error(f"OntoUML/UFO Catalog directory {directory_path} does not exist. Exiting program.")
         exit(1)
     else:  # if yes, collect all ttl files we have
-        for file in glob.glob(directory_path + "/*/ontology.ttl"):
+        for file in glob.glob(directory_path + f"/*/{name}.ttl"):
             file_names.append(file)
 
     return file_names

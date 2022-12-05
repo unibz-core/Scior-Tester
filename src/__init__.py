@@ -1,3 +1,6 @@
+from decouple import config
+from typing import Final
+
 SOFTWARE_ACRONYM = "OntCatOWL Tester"
 SOFTWARE_NAME = "Tester for the Identification of Ontological Categories for OWL Ontologies"
 SOFTWARE_VERSION = "0.22.11.25"
@@ -38,3 +41,24 @@ EXCEPTIONS_LIST = [
     "zhou2017hazard-ontology-robotic-strolling",
     "zhou2017hazard-ontology-train-control"
 ]
+
+"""
+------------------------------------------------------------
+TEST_1 constants
+------------------------------------------------------------
+"""
+TEST1_AUTOMATIC: Final[bool] = bool(config("TEST1_AUTOMATIC"))
+TEST1_COMPLETE: Final[bool] = bool(config("TEST1_COMPLETE"))
+
+"""
+------------------------------------------------------------
+TEST_2 constants
+------------------------------------------------------------
+"""
+
+MINIMUM_ALLOWED_NUMBER_CLASSES: Final[int] = int(config("MINIMUM_ALLOWED_NUMBER_CLASSES"))
+PERCENTAGE_INITIAL: Final[int] = int(config("PERCENTAGE_INITIAL"))
+PERCENTAGE_FINAL: Final[int] = int(config("PERCENTAGE_FINAL"))
+PERCENTAGE_RATE: Final[int] = int(config("PERCENTAGE_RATE"))
+NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE: Final[int] = \
+    int(config("NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE"))
