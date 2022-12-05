@@ -23,17 +23,20 @@ def calculate_class_taxonomy_information(taxonomy_graph, taxonomy_nodes):
     return list_classes_statistics
 
 
-def collect_taxonomy_information(taxonomy_path, catalog_size, current):
-    """ Populates the statistics list with taxonomy information. """
+def collect_taxonomies_information(taxonomies_paths, catalog_size, current):
+    """ Populates the statistics lists with taxonomy information. """
 
     logger = initialize_logger()
+    all_classes_information = []
 
-    taxonomy_graph = load_graph_safely(taxonomy_path)
+    for path in taxonomies_paths:
+        taxonomy_graph = load_graph_safely(path)
+        taxonomy_prefixed_nodes_list = generates_nodes_lists(taxonomy_graph)
+        all_classes_information.append(
+            calculate_class_taxonomy_information(taxonomy_graph, taxonomy_prefixed_nodes_list)
+        )
 
-    taxonomy_prefixed_nodes_list = generates_nodes_lists(taxonomy_graph)
-    list_classes_information = calculate_class_taxonomy_information(taxonomy_graph, taxonomy_prefixed_nodes_list)
+    dataset_name = taxonomies_paths[0].split("\\")[-2]
+    logger.info(f"Taxonomies information {current}/{catalog_size} collected from dataset {dataset_name}")
 
-    dataset_name = taxonomy_path.split("\\")[-2]
-    logger.info(f"Taxonomy information {current}/{catalog_size} collected from dataset {dataset_name}")
-
-    return list_classes_information
+    return all_classes_information

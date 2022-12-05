@@ -9,7 +9,7 @@ SOFTWARE_URL = "https://github.com/unibz-core/OntCatOWL-Tester"
 NAMESPACE_GUFO = "http://purl.org/nemo/gufo#"
 NAMESPACE_TAXONOMY = "http://taxonomy.model/"
 
-CLASSES_DATA_FILE_NAME = "classes_data.csv"
+CLASSES_DATA_FILE_NAME = "classes_data"
 HASH_FILE_NAME = "hash_sha256_register.csv"
 BLOCK_SIZE = 65536
 

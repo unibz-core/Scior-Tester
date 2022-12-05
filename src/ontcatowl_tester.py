@@ -10,8 +10,8 @@ from src.modules.build.build_classes_stereotypes_information import collect_ster
 from src.modules.build.build_directories_structure import get_list_ttl_files, \
     create_test_directory_folders_structure, create_test_results_folder, create_internal_catalog_path
 from src.modules.build.build_information_classes import saves_dataset_csv_classes_data
-from src.modules.build.build_taxonomy_classes_information import collect_taxonomy_information
-from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_file
+from src.modules.build.build_taxonomy_classes_information import collect_taxonomies_information
+from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_files
 from ontcatowl import run_ontcatowl
 from src.modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_classes_yaml_output, \
     create_classes_results_csv_output, create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
@@ -41,17 +41,16 @@ def build_ontcatowl_tester(catalog_path):
             create_test_directory_folders_structure(dataset_folder, catalog_size, current)
 
             # Building taxonomies files and collecting information from classes
-            taxonomy_file, hash_register = create_taxonomy_ttl_file(
-                dataset, dataset_folder, catalog_size, current, hash_register)
+            taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, hash_register)
 
             # Builds dataset_classes_information and collects attributes name, prefixed_name, and all taxonomic information
-            dataset_classes_information = collect_taxonomy_information(taxonomy_file, catalog_size, current)
+            dataset_classes_information = collect_taxonomies_information(taxonomy_files, catalog_size, current)
 
             # Collects stereotype_original and stereotype_gufo for dataset_classes_information
             collect_stereotypes_classes_information(dataset, dataset_classes_information, catalog_size, current)
 
-            _, hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
-                                                              catalog_size, current, dataset, hash_register)
+            hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
+                                                           catalog_size, current, dataset, hash_register)
 
     write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 

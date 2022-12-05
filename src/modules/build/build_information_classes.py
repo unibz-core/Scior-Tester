@@ -55,24 +55,25 @@ def saves_dataset_csv_classes_data(catalog_information, dataset_path, catalog_si
     csv_header = ["class_name", "stereotype_original", "stereotype_gufo", "is_root", "is_leaf", "is_intermediate",
                   "number_superclasses", "number_subclasses", "number_reachable_classes"]
 
-    csv_file_full_path = dataset_path + "\\" + CLASSES_DATA_FILE_NAME
+    for idx, sublist in enumerate(catalog_information):
+        csv_file_full_path = dataset_path + f"\\{CLASSES_DATA_FILE_NAME}_{idx + 1:02d}.csv"
 
-    sorted_catalog_information = sorted(catalog_information, key=operator.attrgetter('name'))
+        sorted_catalog_information = sorted(sublist, key=operator.attrgetter('name'))
 
-    try:
-        with open(csv_file_full_path, 'w', encoding='utf-8', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(csv_header)
+        try:
+            with open(csv_file_full_path, 'w', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(csv_header)
 
-            for class_information in sorted_catalog_information:
-                writer.writerow(class_information.convert_to_row())
+                for class_information in sorted_catalog_information:
+                    writer.writerow(class_information.convert_to_row())
 
-        logger.info(f"CSV file {current}/{catalog_size} saved: {csv_file_full_path}\n")
-    except OSError as error:
-        logger.error(f"Could not save {csv_file_full_path} csv file. Exiting program."
-                     f"System error reported: {error}")
-        exit(1)
+            logger.info(f"CSV file {current}/{catalog_size} saved: {csv_file_full_path}")
+        except OSError as error:
+            logger.error(f"Could not save {csv_file_full_path} csv file. Exiting program."
+                         f"System error reported: {error}")
+            exit(1)
 
-    hash_register = register_sha256_hash_information(hash_register, csv_file_full_path, source_owl_file_path)
+        hash_register = register_sha256_hash_information(hash_register, csv_file_full_path, source_owl_file_path)
 
-    return csv_file_full_path, hash_register
+    return hash_register
