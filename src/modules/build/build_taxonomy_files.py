@@ -137,7 +137,3 @@ def generate_isolated_taxonomy_files(source_taxonomy_graph, saving_path, source_
         idx += 1
 
     return files, hash_register
-
-
-
-
