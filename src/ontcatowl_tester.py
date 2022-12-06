@@ -6,15 +6,14 @@ from copy import deepcopy
 from rdflib import URIRef, RDF
 
 from src import *
+from modules.run.test1 import *
 from src.modules.build.build_classes_stereotypes_information import collect_stereotypes_classes_information
 from src.modules.build.build_directories_structure import get_list_ttl_files, \
     create_test_directory_folders_structure, create_test_results_folder, create_internal_catalog_path
 from src.modules.build.build_information_classes import saves_dataset_csv_classes_data
 from src.modules.build.build_taxonomy_classes_information import collect_taxonomies_information
 from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_files
-from ontcatowl import run_ontcatowl
-from src.modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_classes_yaml_output, \
-    create_classes_results_csv_output, create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
+from ontcatowl import run_ontcatowl_tester
 from src.modules.tester.hash_functions import write_sha256_hash_register
 from src.modules.tester.input_arguments import treat_arguments
 from src.modules.tester.logger_config import initialize_logger
@@ -59,88 +58,67 @@ def run_ontcatowl_test1(catalog_path):
     # Test 1 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset
     TEST_NUMBER = 1
 
-    list_datasets = get_list_ttl_files(catalog_path, name="taxonomy")
-    list_datasets_paths = []
-    list_datasets_taxonomies = []
+    # Creating list of taxonomies
+    taxonomies = get_list_ttl_files(catalog_path, name=TAXONOMY_FILE_NAME)
+    total_taxonomies_number = len(taxonomies)
+    global_configurations = {"is_automatic": TEST1_AUTOMATIC, "is_complete": TEST1_COMPLETE}
 
-    #global_configurations = {"is_automatic": TEST1_AUTOMATIC,
-    #                         "is_complete": TEST1_COMPLETE}
+    for (current, taxonomy) in enumerate(taxonomies):
+        logger.info(f"Executing OntCatOWL for taxonomy {current}/{total_taxonomies_number}: {taxonomy}\n")
 
-    # Creating list of dataset paths and taxonomies
-    total_dataset_number = len(list_datasets)
-    for (current, dataset) in enumerate(list_datasets):
+        input_classes = load_baseline_dictionary(
+            # change "taxonomy" to "classes_data"
+            CLASSES_DATA_FILE_NAME.join(taxonomy.rsplit(TAXONOMY_FILE_NAME, 1)).replace(".ttl", ".csv")
+        )
+        input_graph = load_graph_safely(taxonomy)
 
-        logger.info(f"Executing OntCatOWL for dataset {current}/{total_dataset_number}: {dataset}\n")
+        l1 = "a" if TEST1_AUTOMATIC else "i"
+        l2 = "c" if TEST1_COMPLETE else "n"
 
-        tester_catalog_folder = str(pathlib.Path().resolve()) + r"\catalog"
-        dataset_folder = tester_catalog_folder + "\\" + dataset
-        list_datasets_paths.append(dataset_folder)
-        dataset_taxonomy = dataset_folder + "\\" + "taxonomy.ttl"
-        list_datasets_taxonomies.append(dataset_taxonomy)
-
-        input_classes_list = load_baseline_dictionary(dataset)
-        input_graph = load_graph_safely(dataset_taxonomy)
-
-        if global_configurations["is_automatic"]:
-            l1 = "a"
-        else:
-            l1 = "i"
-        if global_configurations["is_complete"]:
-            l2 = "c"
-        else:
-            l2 = "n"
-
+        dataset_folder = taxonomy.rsplit("\\", 1)[0]
         test_name = f"test_{TEST_NUMBER}_{l1}{l2}"
         test_results_folder = dataset_folder + "\\" + test_name
         create_test_results_folder(test_results_folder)
 
-        # Executions of the test
-        execution_number = 1
-        tests_total = len(input_classes_list)
-
+        tests_total = len(input_classes)
         known_inconsistecies = []
         known_consistencies = []
 
-        for input_class in input_classes_list:
-            execution_name = test_name + "_exec" + str(execution_number)
+        # Executions of the test
+        for idx, input_class in enumerate(input_classes):
+            execution_name = test_name + "_exec" + str(idx + 1)
 
-            if (input_class.class_name in known_inconsistecies) or (input_class.class_name in known_consistencies):
-                execution_number += 1
+            if (input_class.name in known_inconsistecies) or (input_class.name in known_consistencies):
                 continue
 
             working_graph = deepcopy(input_graph)
-            triple_subject = URIRef(NAMESPACE_TAXONOMY + input_class.class_name)
-            triple_predicate = RDF.type
-            class_gufo_type = remaps_to_gufo(input_class.class_name, input_class.class_stereotype)
+            triple_subject = URIRef(NAMESPACE_TAXONOMY + input_class.name)
+            class_gufo_type = remaps_to_gufo(input_class.name, input_class.stereotype)
             triple_object = URIRef(class_gufo_type)
-            working_graph.add((triple_subject, triple_predicate, triple_object))
-            working_graph.bind("gufo", "http://purl.org/nemo/gufo#")
-
-            if execution_number == tests_total:
-                end = "\n"
-            else:
-                end = ""
+            working_graph.add((triple_subject, RDF.type, triple_object))
+            working_graph.bind("gufo", NAMESPACE_GUFO)
 
             try:
-                ontology_dataclass_list, time_register, consolidated_statistics = run_ontcatowl(global_configurations,
-                                                                                                working_graph)
+                ontology_dataclass_list, time_register, consolidated_statistics = \
+                    run_ontcatowl_tester(global_configurations, working_graph)
             except:
-                logger.error(f"INCONSISTENCY found! Test {execution_number}/{tests_total} "
-                             f"for input class {input_class.class_name} interrupted.{end}")
-                create_inconsistency_csv_output(test_results_folder, execution_number, input_class)
+                logger.error(f"INCONSISTENCY found! Test {idx + 1}/{tests_total} "
+                             f"for input class {input_class.name} interrupted.")
+                create_inconsistency_csv_output(test_results_folder, idx + 1, input_class)
             else:
-                logger.info(f"Test {execution_number}/{tests_total} "
-                            f"for input class {input_class.class_name} successfully executed.{end}")
+                logger.info(f"Test {idx + 1}/{tests_total} "
+                            f"for input class {input_class.name} successfully executed.")
                 # Creating resulting files
                 create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
-                create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, dataset_folder,
-                                                  test_results_folder, execution_name)
-                create_times_csv_output(time_register, test_results_folder, execution_number, execution_name)
+                create_classes_results_csv_output(
+                    input_classes, ontology_dataclass_list, test_results_folder, execution_name
+                )
+                create_times_csv_output(time_register, test_results_folder, idx + 1)
                 create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
-                                             execution_number)
-                create_summary_csv_output(test_results_folder, execution_number, input_class)
+                                             idx + 1)
+                create_summary_csv_output(test_results_folder, idx + 1, input_class)
 
-            execution_number += 1
+        logger.info(f"TEST1 is finished for {dataset_folder}\n")
 
 
 def run_ontcatowl_test2(catalog_path):
@@ -160,7 +138,7 @@ def run_ontcatowl_test2(catalog_path):
         tester_catalog_folder = str(pathlib.Path().resolve()) + r"\catalog"
         dataset_folder = tester_catalog_folder + "\\" + dataset
         list_datasets_paths.append(dataset_folder)
-        dataset_taxonomy = dataset_folder + "\\" + "taxonomy.ttl"
+        dataset_taxonomy = dataset_folder + f"\\{TAXONOMY_FILE_NAME}.ttl"
 
         input_classes_list = load_baseline_dictionary(dataset)
         input_graph = load_graph_safely(dataset_taxonomy)
