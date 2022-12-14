@@ -27,19 +27,19 @@ You need to [download and install Python](https://www.python.org/downloads/) for
 
 For executing the Tester, first install OntCatOWL as a package running the following command on the terminal:
 
-\```shell
+```shell
 
 pip install git+<https://github.com/unibz-core/OntCatOWL.git>
 
-\```
+```
 
 For installing all other necessary dependencies, run the following command on the terminal:
 
-\```shell
+```shell
 
 pip install -r requirements.txt
 
-\```
+```
 
 The execution of each of the OntCatOWL-Tester functionalities are explained in their corresponding documentation sections. Please get in touch with this software’s contributors [using the provided links](https://github.com/unibz-core/OntCatOWL-Tester#contributors) or (preferably) [open an issue](https://github.com/unibz-core/OntCatOWL-Tester/issues) in case of doubts or problems found.
 
@@ -48,7 +48,7 @@ The execution of each of the OntCatOWL-Tester functionalities are explained in t
 Three functionalities are available in the OntCatOWL-Tester. The first one (*build*) is mandatory for the execution of the two last ones, which are the tests over the OntoUML/UFO Catalog. The functionalities are:
 
 - **Build:** create directory structure and files
-  - Description and execution instructions **(link to be created)**
+  - [Description and execution instructions](https://github.com/unibz-core/OntCatOWL-Tester/blob/main/documentation/OntCatOWL-Tester-Build.md)
   - [Generated file’s structures (OntCatOWL-Dataset repository)](https://github.com/unibz-core/OntCatOWL-Dataset#build-generated-files)
 - **Test 1:** single class used as input
   - Description and execution instructions **(link to be created)**
