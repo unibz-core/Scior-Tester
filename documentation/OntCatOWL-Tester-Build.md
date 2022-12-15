@@ -67,7 +67,7 @@ The procedure's algorithm is the following:
 
 We present in the image below an example of how the taxonomy separation procedure works.
 
-![separation](https://user-images.githubusercontent.com/8641647/207654250-3434e2b7-036c-43b6-94a5-66f95f5d41bc.png)
+<img src="https://user-images.githubusercontent.com/8641647/207654250-3434e2b7-036c-43b6-94a5-66f95f5d41bc.png" width="600">
 
 By applying the algorithm presented in the original graph of figure above, we have as results two taxonomies. Note that classes C08, C09, and C10 were discarded during the algorithm's step 2. The algorithm's step 3 generates the following list of root nodes: C01, C02, C03, and C11. Using C01 as a pivot, all its reachable nodes (algorithm's step 4) are: C04 and C05. Hence, these classes are separated into a new graph and the root list is updated without C01 and their related nodes. The new list is C02, C03, and C11. A second taxonomy is generated with all remaining classes as, by applying the same algorithm, all remaining classes are reachable from C02. By the end of the process, there are no mode root nodes and the algorithm ends.
 
