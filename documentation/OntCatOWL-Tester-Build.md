@@ -1,11 +1,8 @@
 # OntCatOWL-Tester: Build Function
 
-## Description
-
-As the OntCatOWL-Tester build function creates the structure necessary for performing the tests, its execution is mandatory before the execution of the tests. Once executed, the build function reads the information from the [OntoUML/UFO Catalog](https://github.com/unibz-core/ontouml-models) and creates a new directory structure for each of its datasets that are eligible for receiving the tests. In this documentation, we present all the points necessary for understanding and performing the build function, as well as its generated results.
-
 ## Contents
 
+- [Description](#description)
 - [Input Catalog Datasets](#input-catalog-datasets)
   - [Input Models Selection](#input-models-selection)
   - [Exceptional Cases](#exceptional-cases)
@@ -15,6 +12,10 @@ As the OntCatOWL-Tester build function creates the structure necessary for perfo
 - [Execution Instructions](#execution-instructions)
   - [OntoUML/UFO Catalog](#ontoumlufo-catalog)
   - [OntCatOWL-Tester’s Build Execution](#ontcatowl-testers-build-execution)
+
+## Description
+
+As the OntCatOWL-Tester build function creates the structure necessary for performing the tests, its execution is mandatory before the execution of the tests. Once executed, the build function reads the information from the [OntoUML/UFO Catalog](https://github.com/unibz-core/ontouml-models) and creates a new directory structure for each of its datasets that are eligible for receiving the tests. In this documentation, we present all the points necessary for understanding and performing the build function, as well as its generated results.
 
 ## Input Catalog Datasets
 
