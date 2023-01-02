@@ -23,9 +23,9 @@ All tests implemented in the OntCatOWL-Tester execute OntCatOWL using it as a pa
 
 The aim of this test is to evaluate how information discovery varies with the increasing amount of input provided. Through the analysis of the generated dataset, a user must be able to answer the following questions for general research:
 
-- _Usually, how much information a user must provide to a model so that she/he can have more inferred information than asserted information? I.e., at which point does a user has more information discovered than provided?_
-- _Usually, how much information a user must provide to a model so that she/he can have all information about a model completely known?_
-- _Usually, how much information a user must provide to a model to discover if it is consistent or not? I.e., at which point a user can detect that a model is inconsistent?_
+- _On average, how much information a user must provide to a model so that she/he can have more inferred information than asserted information? I.e., at which point does a user has more information discovered than provided?_
+- _On average, how much information a user must provide to a model so that she/he can have all information about a model completely known?_
+- _On average, how much information a user must provide to a model to discover if it is consistent or not? I.e., at which point a user can detect that a model is inconsistent?_
 
 Regarding utility for specific models, the analysis of the data resulting from Test 2 can answer questions like:
 
