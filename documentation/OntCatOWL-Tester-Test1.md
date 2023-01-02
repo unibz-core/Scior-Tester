@@ -22,7 +22,7 @@ The aim of this test is to generate data related to the classes' ontological cla
 Through the analysis of the generated dataset, a user must be able to answer the following questions for general research:
 
 - *How much information gain can be obtained by a specific gUFO ontology classification? I.e., how many new classifications can be discovered using that classification?*
-- *How much information gain the use of a single class as input usually can offer?*
+- *How much information gain the use of a single class as input can offer on average?*
 - *Which gUFO ontology classification provides more information inference?*
 - *Which node position provides more information inference?*
 - *Is it better to start a model's knowledge acquisition process via the more general concepts or via the more specific concepts?*
