@@ -50,6 +50,7 @@ The execution of Test 1 results in the generation of the following files:
 - Inconsistencies *csv* files
 - Results *yaml* files
 - Results *csv* files
+- Knowledge Matrix *csv* files
 
 You can find the complete description of all output files generated in Test 1 accessing its corresponding page at the repository with the OntCatOWL [tests resulting datasets](https://github.com/unibz-core/OntCatOWL-Dataset/blob/main/documentation/OntCatOWL-Dataset-Test1.md).
 
