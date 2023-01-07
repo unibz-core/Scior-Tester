@@ -60,10 +60,8 @@ It is necessary to first execute the Tester's build function to create the struc
 
 For executing the OntCatOWL-Tester Test 1, use the following command, where *-c* or *-n* indicate that the evaluated models must be considered as complete or incomplete:
 
-```shell
-
+```txt
 python ./src/ontcatowl_tester.py -r1 [-c|-n]
-
 ```
 
 Note: the instructions here provided may not work properly in the Tester's current implementation—please refer to [issue #14](https://github.com/unibz-core/OntCatOWL-Tester/issues/14).
