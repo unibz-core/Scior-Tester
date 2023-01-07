@@ -87,6 +87,7 @@ The execution of Test 2 generates of the following files:
 - Inconsistencies _csv_ File
 - Results _yaml_ files
 - Results _csv_ files
+- Knowledge Matrix _csv_ files
 
 You can find the complete description of all output files generated in Test 2 by accessing its corresponding page at the repository with the OntCatOWL [tests resulting datasets](https://github.com/unibz-core/OntCatOWL-Dataset/blob/main/documentation/OntCatOWL-Dataset-Test2.md).
 
@@ -96,10 +97,8 @@ It is necessary to first execute the Tester's build function to create the struc
 
 For executing the OntCatOWL-Tester Test 2, first you need to set the configuration's values in the file `__init__.py file` **(link to be created)**. After that, use the following command:
 
-```shell
-
+```txt
 python ./src/ontcatowl_tester.py -r2
-
 ```
 
 Note: the instructions here provided may not work properly in the Tester's current implementation—please refer to [issue #14](https://github.com/unibz-core/OntCatOWL-Tester/issues/14).
