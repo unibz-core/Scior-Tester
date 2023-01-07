@@ -28,18 +28,14 @@ You need to [download and install Python](https://www.python.org/downloads/) for
 
 For executing the Tester, first install OntCatOWL as a package running the following command on the terminal:
 
-```shell
-
+```txt
 pip install git+<https://github.com/unibz-core/OntCatOWL.git>
-
 ```
 
 For installing all other necessary dependencies, run the following command on the terminal:
 
-```shell
-
+```txt
 pip install -r requirements.txt
-
 ```
 
 The execution of each of the OntCatOWL-Tester functionalities are explained in their corresponding documentation sections. Please get in touch with this software’s contributors [using the provided links](https://github.com/unibz-core/OntCatOWL-Tester#contributors) or (preferably) [open an issue](https://github.com/unibz-core/OntCatOWL-Tester/issues) in case of doubts or problems found.
