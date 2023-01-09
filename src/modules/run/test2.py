@@ -1,4 +1,4 @@
-""" Functions related to OntCatOWL Test 2 """
+""" Functions related to Test 2 """
 import csv
 import os
 
@@ -111,7 +111,7 @@ def create_classes_yaml_output_t2(input_class_list, ontology_dataclass_list, tes
 def create_classes_results_csv_output_t2(input_classes_list, ontology_dataclass_list, test_results_folder,
                                          percentage_number, execution_number, dataset_taxonomy):
     """ Create a csv file for each class, its original stereotype,
-    and the list in which this stereotype is located after the execution of OntCatOWL. """
+    and the list in which this stereotype is located after the execution of Scior. """
 
     final_row_list = []
 

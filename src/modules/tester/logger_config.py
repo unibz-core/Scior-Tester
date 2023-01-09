@@ -7,14 +7,14 @@ from src.modules.tester.utils_general import get_date_time
 
 
 def initialize_logger():
-    """ Initialize OntCatOWL Tester Logger. """
+    """ Initialize Scior Tester Logger. """
 
     # Create a custom logger
-    new_logger = logging.getLogger("OntCatOWL Tester")
+    new_logger = logging.getLogger("Scior Tester")
     new_logger.setLevel(logging.DEBUG)
 
-    # Creates a new logger only if OntCatOWLTester does not exist
-    if not logging.getLogger("OntCatOWL Tester").hasHandlers():
+    # Creates a new logger only if SciorTester does not exist
+    if not logging.getLogger("Scior Tester").hasHandlers():
 
         # Creating CONSOLE handler
         console_handler = logging.StreamHandler()

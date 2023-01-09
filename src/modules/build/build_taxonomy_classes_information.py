@@ -1,4 +1,6 @@
 """ Fills the statistics with taxonomy information. """
+import os.path
+
 from src import NAMESPACE_TAXONOMY
 from src.modules.build.build_information_classes import InformationStructure
 from src.modules.tester.utils_graph import generates_nodes_lists
@@ -36,7 +38,7 @@ def collect_taxonomies_information(taxonomies_paths, catalog_size, current):
             calculate_class_taxonomy_information(taxonomy_graph, taxonomy_prefixed_nodes_list)
         )
 
-    dataset_name = taxonomies_paths[0].split("\\")[-2]
+    dataset_name = taxonomies_paths[0].split(os.path.sep)[-2]
     logger.info(f"Taxonomies information {current}/{catalog_size} collected from dataset {dataset_name}")
 
     return all_classes_information

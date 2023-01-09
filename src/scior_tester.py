@@ -20,14 +20,14 @@ from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_rdf import load_graph_safely
 
 
-def build_ontcatowl_tester(catalog_path):
-    """ Build function for the OntoCatOWL-Catalog Tester. Generates all the needed data."""
+def build_scior_tester(catalog_path):
+    """ Build function for the Scior-Catalog Tester. Generates all the needed data."""
 
     # Building directories structure
     datasets = get_list_ttl_files(catalog_path, name="ontology")  # returns all ttl files we have with full path
     catalog_size = len(datasets)
     logger.info(f"The catalog contains {catalog_size} datasets.\n")
-    internal_catalog_folder = os.getcwd() + "\\catalog\\"
+    internal_catalog_folder = os.path.join(os.getcwd(), CATALOG_FOLDER) + os.path.sep
     create_internal_catalog_path(internal_catalog_folder)
     hash_register = pd.DataFrame(columns=["file_name", "file_hash", "source_file_name", "source_file_hash"])
 
@@ -54,30 +54,28 @@ def build_ontcatowl_tester(catalog_path):
     write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
 
-def run_ontcatowl_test1(catalog_path):
-    # Test 1 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset
-    TEST_NUMBER = 1
+def run_scior_test1(is_automatic: bool, is_complete: bool):
+    # Test 1 for Scior - described in: https://github.com/unibz-core/OntCatOWL-Dataset
 
     # Creating list of taxonomies
-    taxonomies = get_list_ttl_files(catalog_path, name=TAXONOMY_FILE_NAME)
+    taxonomies = get_list_ttl_files(os.path.join(os.getcwd(), CATALOG_FOLDER))
     total_taxonomies_number = len(taxonomies)
-    global_configurations = {"is_automatic": TEST1_AUTOMATIC, "is_complete": TEST1_COMPLETE}
+    global_configurations = {"is_automatic": is_automatic, "is_complete": is_complete}
 
     for (current, taxonomy) in enumerate(taxonomies):
         logger.info(f"Executing OntCatOWL for taxonomy {current}/{total_taxonomies_number}: {taxonomy}\n")
 
-        input_classes = load_baseline_dictionary(
-            # change "taxonomy" to "classes_data"
-            CLASSES_DATA_FILE_NAME.join(taxonomy.rsplit(TAXONOMY_FILE_NAME, 1)).replace(".ttl", ".csv")
-        )
+        taxonomy_filename = taxonomy.split(os.path.sep)[-1]
+        data_filename = CLASSES_DATA_FILE_NAME + "_" + taxonomy_filename.replace(".ttl", ".csv")
+        input_classes = load_baseline_dictionary(taxonomy.replace(taxonomy_filename, data_filename))
         input_graph = load_graph_safely(taxonomy)
 
-        l1 = "a" if TEST1_AUTOMATIC else "i"
-        l2 = "c" if TEST1_COMPLETE else "n"
+        l1 = "a" if is_automatic else "i"
+        l2 = "c" if is_complete else "n"
 
-        dataset_folder = taxonomy.rsplit("\\", 1)[0]
-        test_name = f"test_{TEST_NUMBER}_{l1}{l2}"
-        test_results_folder = dataset_folder + "\\" + test_name
+        dataset_folder = taxonomy.rsplit(os.path.sep, 1)[0]
+        test_name = f"tt001_{l1}{l2}"
+        test_results_folder = os.path.join(dataset_folder, test_name)
         create_test_results_folder(test_results_folder)
 
         tests_total = len(input_classes)
@@ -86,7 +84,7 @@ def run_ontcatowl_test1(catalog_path):
 
         # Executions of the test
         for idx, input_class in enumerate(input_classes):
-            execution_name = test_name + "_exec" + str(idx + 1)
+            execution_number = idx + 1
 
             if (input_class.name in known_inconsistecies) or (input_class.name in known_consistencies):
                 continue
@@ -99,14 +97,14 @@ def run_ontcatowl_test1(catalog_path):
             working_graph.bind("gufo", NAMESPACE_GUFO)
 
             try:
-                ontology_dataclass_list, time_register, consolidated_statistics = \
+                ontology_dataclass_list, time_register, consolidated_statistics, knowledge_matrix = \
                     run_ontcatowl_tester(global_configurations, working_graph)
             except:
-                logger.error(f"INCONSISTENCY found! Test {idx + 1}/{tests_total} "
+                logger.error(f"INCONSISTENCY found! Test {execution_number}/{tests_total} "
                              f"for input class {input_class.name} interrupted.")
-                create_inconsistency_csv_output(test_results_folder, idx + 1, input_class)
+                create_inconsistency_csv_output(test_results_folder, execution_number, input_class)
             else:
-                logger.info(f"Test {idx + 1}/{tests_total} "
+                logger.info(f"Test {execution_number}/{tests_total} "
                             f"for input class {input_class.name} successfully executed.")
                 # Creating resulting files
                 create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name)
@@ -116,13 +114,13 @@ def run_ontcatowl_test1(catalog_path):
                 create_times_csv_output(time_register, test_results_folder, idx + 1)
                 create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
                                              idx + 1)
-                create_summary_csv_output(test_results_folder, idx + 1, input_class)
+                create_summary_csv_output(test_results_folder, execution_number, input_class)
 
         logger.info(f"TEST1 is finished for {dataset_folder}\n")
 
 
-def run_ontcatowl_test2(catalog_path):
-    # Test 2 for OntCatOWL - described in: https://github.com/unibz-core/OntCatOWL-Dataset
+def run_scior_test2():
+    # Test 2 for Scior - described in: https://github.com/unibz-core/OntCatOWL-Dataset
 
     list_datasets = get_list_ttl_files(catalog_path)
 
@@ -194,7 +192,7 @@ def run_ontcatowl_test2(catalog_path):
                     working_graph.add((triple_subject, triple_predicate, triple_object))
 
                 try:
-                    ontology_dataclass_list, time_register, consolidated_statistics = run_ontcatowl(
+                    ontology_dataclass_list, time_register, consolidated_statistics = run_ontcatowl_tester(
                         global_configurations,
                         working_graph)
                 except:
@@ -237,14 +235,14 @@ if __name__ == '__main__':
 
     # Execute in BUILD mode.
     if arguments["build"]:
-        build_ontcatowl_tester(arguments["catalog_path"])
+        build_scior_tester(arguments["catalog_path"])
 
     # Execute in RUN mode.
     if arguments["run1"]:
-        run_ontcatowl_test1(arguments["catalog_path"])
+        run_scior_test1(arguments["is_automatic"], arguments["is_complete"])
 
     if arguments["run2"]:
-        run_ontcatowl_test2(arguments["catalog_path"])
+        run_scior_test2()
 
 # TODO (@pedropaulofb): VERIFY
 # Are there any classes with more than one stereotype?

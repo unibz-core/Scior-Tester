@@ -1,7 +1,9 @@
+import os.path
+
 from rdflib import RDF, Graph, RDFS, OWL
 from copy import deepcopy
 
-from src import NAMESPACE_TAXONOMY, TAXONOMY_FILE_NAME
+from src import NAMESPACE_TAXONOMY
 from src.modules.build import *
 from src.modules.tester.hash_functions import register_sha256_hash_information
 from src.modules.tester.logger_config import initialize_logger
@@ -130,7 +132,7 @@ def generate_isolated_taxonomy_files(source_taxonomy_graph, saving_path, source_
         reduced_graph = remove_classes_from_graph(source_taxonomy_graph, not_related_classes)
         source_taxonomy_roots = lists_subtraction(source_taxonomy_roots, related_classes)
 
-        taxonomy_file_path = saving_path + f"\\{TAXONOMY_FILE_NAME}_{idx + 1:02d}.ttl"
+        taxonomy_file_path = os.path.join(saving_path, f"{saving_path.split(os.path.sep)[-1]}_tx{idx + 1:03d}.ttl")
         safe_save_taxonomy_graph(reduced_graph, taxonomy_file_path)
         hash_register = register_sha256_hash_information(hash_register, taxonomy_file_path, source_owl_file_path)
         files.append(taxonomy_file_path)

@@ -1,6 +1,6 @@
-# OntCatOWL-Catalog-Tester
+# Scior-Catalog-Tester
 
-Software used for testing OntCatOWL using the OntoUML/UFO Catalog
+Software used for testing Scior using the OntoUML/UFO Catalog
 
 # Tests
 

@@ -9,7 +9,7 @@ from src.modules.tester.utils_rdf import load_graph_safely
 
 
 def get_gufo_stereotype(class_stereotype_original):
-    """ Mapps OntoUML serialization in OWL stereotype for the gUFO types used in OntCatOWL """
+    """ Maps OntoUML serialization in OWL stereotype for the gUFO types used in Scior """
 
     keeped_stereotypes = ("category", "mixin", "phase", "phasemixin", "kind", "subkind", "role", "rolemixin")
     if class_stereotype_original in keeped_stereotypes:

@@ -1,6 +1,7 @@
 """ Functions related to the statistics building, collection and saving. """
 import csv
 import operator
+import os.path
 
 from src import CLASSES_DATA_FILE_NAME, NAMESPACE_TAXONOMY
 from src.modules.tester.hash_functions import register_sha256_hash_information
@@ -49,11 +50,12 @@ def saves_dataset_csv_classes_data(catalog_information, dataset_path, catalog_si
     """ Saves dataset classes information in CSV format. """
 
     logger = initialize_logger()
-    csv_header = ["class_name", "stereotype_original", "stereotype_gufo", "is_root", "is_leaf",
+    csv_header = ["class_name", "ontouml_stereotype", "gufo_classification", "is_root", "is_leaf",
                   "is_intermediate", "number_superclasses", "number_subclasses"]
 
     for idx, sublist in enumerate(catalog_information):
-        csv_file_full_path = dataset_path + f"\\{CLASSES_DATA_FILE_NAME}_{idx + 1:02d}.csv"
+        dataset_name = dataset_path.split(os.path.sep)[-1]
+        csv_file_full_path = os.path.join(dataset_path, f"{CLASSES_DATA_FILE_NAME}_{dataset_name}_tx{idx + 1:03d}.csv")
 
         sorted_catalog_information = sorted(sublist, key=operator.attrgetter('name'))
 

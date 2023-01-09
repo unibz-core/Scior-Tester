@@ -1,16 +1,15 @@
 from decouple import config
 from typing import Final
 
-SOFTWARE_ACRONYM = "OntCatOWL Tester"
+SOFTWARE_ACRONYM = "Scior Tester"
 SOFTWARE_NAME = "Tester for the Identification of Ontological Categories for OWL Ontologies"
 SOFTWARE_VERSION = "0.22.11.25"
-SOFTWARE_URL = "https://github.com/unibz-core/OntCatOWL-Tester"
+SOFTWARE_URL = "https://github.com/unibz-core/Scior-Tester"
 
 NAMESPACE_GUFO = "http://purl.org/nemo/gufo#"
 NAMESPACE_TAXONOMY = "http://taxonomy.model/"
 
-TAXONOMY_FILE_NAME = "taxonomy"
-CLASSES_DATA_FILE_NAME = "classes_data"
+CLASSES_DATA_FILE_NAME = "data"
 HASH_FILE_NAME = "hash_sha256_register.csv"
 BLOCK_SIZE = 65536
 
@@ -42,6 +41,8 @@ EXCEPTIONS_LIST = [
     "zhou2017hazard-ontology-robotic-strolling",
     "zhou2017hazard-ontology-train-control"
 ]
+
+CATALOG_FOLDER: Final[str] = config("CATALOG_FOLDER")
 
 """
 ------------------------------------------------------------
