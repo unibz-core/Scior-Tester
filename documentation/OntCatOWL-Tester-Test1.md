@@ -34,7 +34,7 @@ Regarding utility for specific models, the analysis of the data resulting from T
 
 ## Execution Procedures
 
-For executing Test 1, the user must inform if the Tester must consider the models to be tested as complete or incomplete (more information in this link **(create link)**), which can be done by using the argument *-c* or *-n*, respectively. The Tester provides this argument to OntCatOWL for each of its executions—the OntCatOWL's `is_automatic` is always set as true for Test 1.
+For executing Test 1, the user must inform if the Tester must consider the models to be tested as complete or incomplete (more information in [this link](https://github.com/unibz-core/OntCatOWL/blob/main/documentation/OntCatOWL-Execution-Modes.md#models-completeness-modes)), which can be done by using the argument *-c* or *-n*, respectively. The Tester provides this argument to OntCatOWL for each of its executions—the OntCatOWL's `is_automatic` is always set as true for Test 1.
 
 For each of these two configurations, complete or incomplete, the Tester creates a different folder inside each dataset folder for storing the test's resulting files. The folders created by Test 1 are tt001\_ac (when `is_complete` equals true) and tt001\_an (when `is_complete` equals false).
 
