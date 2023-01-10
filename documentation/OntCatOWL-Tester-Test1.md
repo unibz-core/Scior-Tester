@@ -87,22 +87,22 @@ Considering the execution of Test 1 on both complete and incomplete execution mo
     |   |   |   complete_dataset1_tt001_ac_tx002_ex002.yaml
     |   |   |   ...
     |   |   |   complete_dataset1_tt001_ac_tx002_ex00N.yaml
-    |   |   |   simple_dataset1_tt001_ac_tx001_ex001.yaml
-    |   |   |   simple_dataset1_tt001_ac_tx001_ex002.yaml
+    |   |   |   simple_dataset1_tt001_ac_tx001_ex001.csv
+    |   |   |   simple_dataset1_tt001_ac_tx001_ex002.csv
     |   |   |   ...
-    |   |   |   simple_dataset1_tt001_ac_tx001_ex00N.yaml
-    |   |   |   simple_dataset1_tt001_ac_tx002_ex001.yaml
-    |   |   |   simple_dataset1_tt001_ac_tx002_ex002.yaml
+    |   |   |   simple_dataset1_tt001_ac_tx001_ex00N.csv
+    |   |   |   simple_dataset1_tt001_ac_tx002_ex001.csv
+    |   |   |   simple_dataset1_tt001_ac_tx002_ex002.csv
     |   |   |   ...
-    |   |   |   simple_dataset1_tt001_ac_tx002_ex00N.yaml
-    |   |   |   matrix_dataset1_tt001_ac_tx001_ex001.yaml
-    |   |   |   matrix_dataset1_tt001_ac_tx001_ex002.yaml
+    |   |   |   simple_dataset1_tt001_ac_tx002_ex00N.csv
+    |   |   |   matrix_dataset1_tt001_ac_tx001_ex001.csv
+    |   |   |   matrix_dataset1_tt001_ac_tx001_ex002.csv
     |   |   |   ...
-    |   |   |   matrix_dataset1_tt001_ac_tx001_ex00N.yaml
-    |   |   |   matrix_dataset1_tt001_ac_tx002_ex001.yaml
-    |   |   |   matrix_dataset1_tt001_ac_tx002_ex002.yaml
+    |   |   |   matrix_dataset1_tt001_ac_tx001_ex00N.csv
+    |   |   |   matrix_dataset1_tt001_ac_tx002_ex001.csv
+    |   |   |   matrix_dataset1_tt001_ac_tx002_ex002.csv
     |   |   |   ...
-    |   |   |   matrix_dataset1_tt001_ac_tx002_ex00N.yaml
+    |   |   |   matrix_dataset1_tt001_ac_tx002_ex00N.csv
     |   +---tt001_an/
     |   |   ... **
     +---dataset2/
