@@ -5,6 +5,8 @@
 - [Description](#description)
 - [Objectives and Utility](#objectives-and-utility)
 - [Execution Procedures](#execution-procedures)
+  - [Resulting Files](#resulting-files)
+  - [Resulting Structure](#resulting-structure)
 - [Execution Instructions](#execution-instructions)
 
 ## Description
@@ -42,6 +44,8 @@ Test 1 is executed for each taxonomy of all datasets. For every taxonomy (*ttl* 
 
 If OntCatOWL reports an inconsistency, the Tester reports the inconsistency in the `inconsistencies_found.csv` file ([more information in this link](https://github.com/unibz-core/OntCatOWL-Dataset/blob/main/documentation/OntCatOWL-Dataset-Test1.md#inconsistencies-csv-files)), it interrupts the current execution, and starts the next one.
 
+### Resulting Files
+
 The execution of Test 1 results in the generation of the following files:
 
 - Execution summary *csv* files
@@ -53,6 +57,64 @@ The execution of Test 1 results in the generation of the following files:
 - Knowledge Matrix *csv* files
 
 You can find the complete description of all output files generated in Test 1 accessing its corresponding page at the repository with the OntCatOWL [tests resulting datasets](https://github.com/unibz-core/OntCatOWL-Dataset/blob/main/documentation/OntCatOWL-Dataset-Test1.md).
+
+### Resulting Structure
+
+Considering the execution of Test 1 on both complete and incomplete execution modes on a dataset with only two taxonomies, the resulting files are structured in the created catalog folder according to the following structure:
+
+```txt
+/catalog/
+    +---dataset1/
+    |   dataset1_tx001.ttl
+    |   dataset1_tx002.ttl
+    |   data_dataset1_tx001.csv
+    |   data_dataset1_tx002.csv
+    |   +---tt001_ac/
+    |   |   summary_dataset1_tt001_ac_tx001.csv
+    |   |   summary_dataset1_tt001_ac_tx002.csv
+    |   |   statistics_dataset1_tt001_ac_tx001.csv
+    |   |   statistics_dataset1_tt001_ac_tx002.csv
+    |   |   times_dataset1_tt001_ac_tx001.csv
+    |   |   times_dataset1_tt001_ac_tx002.csv
+    |   |   inconsistencies_dataset1_tt001_ac_tx001.csv *
+    |   |   inconsistencies_dataset1_tt001_ac_tx002.csv *
+    |   |   +---results/
+    |   |   |   complete_dataset1_tt001_ac_tx001_ex001.yaml
+    |   |   |   complete_dataset1_tt001_ac_tx001_ex002.yaml
+    |   |   |   ...
+    |   |   |   complete_dataset1_tt001_ac_tx001_ex00N.yaml
+    |   |   |   complete_dataset1_tt001_ac_tx002_ex001.yaml
+    |   |   |   complete_dataset1_tt001_ac_tx002_ex002.yaml
+    |   |   |   ...
+    |   |   |   complete_dataset1_tt001_ac_tx002_ex00N.yaml
+    |   |   |   simple_dataset1_tt001_ac_tx001_ex001.yaml
+    |   |   |   simple_dataset1_tt001_ac_tx001_ex002.yaml
+    |   |   |   ...
+    |   |   |   simple_dataset1_tt001_ac_tx001_ex00N.yaml
+    |   |   |   simple_dataset1_tt001_ac_tx002_ex001.yaml
+    |   |   |   simple_dataset1_tt001_ac_tx002_ex002.yaml
+    |   |   |   ...
+    |   |   |   simple_dataset1_tt001_ac_tx002_ex00N.yaml
+    |   |   |   matrix_dataset1_tt001_ac_tx001_ex001.yaml
+    |   |   |   matrix_dataset1_tt001_ac_tx001_ex002.yaml
+    |   |   |   ...
+    |   |   |   matrix_dataset1_tt001_ac_tx001_ex00N.yaml
+    |   |   |   matrix_dataset1_tt001_ac_tx002_ex001.yaml
+    |   |   |   matrix_dataset1_tt001_ac_tx002_ex002.yaml
+    |   |   |   ...
+    |   |   |   matrix_dataset1_tt001_ac_tx002_ex00N.yaml
+    |   +---tt001_an/
+    |   |   ... **
+    +---dataset2/
+    +---dataset3/
+    ...
+    +---datasetN/
+    +---hash_sha256_register.csv
+```
+
+\* Please note that the inconsistencies files are only generated when inconsistencies were found during the test's execution.
+
+\*\* The structure of tt001_an folder is similar to the structure of the folder tt001_an.
 
 ## Execution Instructions
 
