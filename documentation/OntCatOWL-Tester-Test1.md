@@ -71,8 +71,7 @@ Considering the execution of Test 1 on both complete and incomplete execution mo
     |   data_dataset1_tx001.csv
     |   data_dataset1_tx002.csv
     |   +---tt001_ac/
-    |   |   settings_dataset1_tt001_ac_tx001.csv
-    |   |   settings_dataset1_tt001_ac_tx002.csv
+    |   |   settings_dataset1_tt001_ac.csv
     |   |   summary_dataset1_tt001_ac_tx001.csv
     |   |   summary_dataset1_tt001_ac_tx002.csv
     |   |   statistics_dataset1_tt001_ac_tx001.csv
