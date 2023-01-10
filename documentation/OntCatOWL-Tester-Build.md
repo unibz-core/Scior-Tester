@@ -41,10 +41,10 @@ The build function receives as argument the path to the folder containing the On
 ```txt
 /catalog/
     +---dataset1/
-    |   |   dataset1_tx001.ttl
-    |   |   dataset1_tx002.ttl
-    |   |   data_dataset1_tx001.csv
-    |   |   data_dataset1_tx002.csv
+    |   dataset1_tx001.ttl
+    |   dataset1_tx002.ttl
+    |   data_dataset1_tx001.csv
+    |   data_dataset1_tx002.csv
     +---dataset2/
     +---dataset3/
     ...
