@@ -28,7 +28,7 @@ However, not all datasets that are part of the catalog are eligible for receivin
 1. The dataset's ontology model must comply exclusively with the OntoUML syntax (i.e., datasets with models formalized directly specializing UFO concepts or that use both OntoUML and UFO are excluded)
 1. The dataset's OntoUML model must contain at least one taxonomy (i.e., models with no generalization/specialization relations are not eligible for the tests)
 
-A list called `EXCEPTIONS_LIST`, available in the project's `__init__.py` file **(include link)**, registers the excluded datasets (i.e., the datasets that will not be processed by the Tester). By downloading the OntCatOWL-Tester, this list is already going to be filled in, however the user can manipulate this list in case of need.
+A list called `EXCEPTIONS_LIST`, available in the project's `__init__.py` [file](https://github.com/unibz-core/OntCatOWL/blob/main/ontcatowl/__init__.py), registers the excluded datasets (i.e., the datasets that will not be processed by the Tester). By downloading the OntCatOWL-Tester, this list is already going to be filled in, however the user can manipulate this list in case of need.
 
 ### Exceptional Cases
 
