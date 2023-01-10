@@ -89,6 +89,8 @@ The execution of Test 2 generates of the following files:
 - Results _csv_ files
 - Knowledge Matrix _csv_ files
 
+These files are going to be displayed in a structure similar to the one created by Test 1, which is [represented here](https://github.com/unibz-core/OntCatOWL-Tester/blob/main/documentation/OntCatOWL-Tester-Test1.md#resulting-structure). Note, however, that the structure is not going to contain Execution Summary _csv_ Files and that the file's names are going to contain the substring tt002 instead of tt001.
+
 You can find the complete description of all output files generated in Test 2 by accessing its corresponding page at the repository with the OntCatOWL [tests resulting datasets](https://github.com/unibz-core/OntCatOWL-Dataset/blob/main/documentation/OntCatOWL-Dataset-Test2.md).
 
 ## Execution Instructions
