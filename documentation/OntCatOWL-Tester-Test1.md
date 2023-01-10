@@ -114,7 +114,7 @@ Considering the execution of Test 1 on both complete and incomplete execution mo
 
 \* Please note that the inconsistencies files are only generated when inconsistencies were found during the test's execution.
 
-\*\* The structure of tt001_an folder is similar to the structure of the folder tt001_an.
+\*\* The structure of tt001_an folder is similar to the structure of the folder tt001_ac.
 
 ## Execution Instructions
 
