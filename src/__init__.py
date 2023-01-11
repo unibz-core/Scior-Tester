@@ -42,15 +42,14 @@ EXCEPTIONS_LIST = [
     "zhou2017hazard-ontology-train-control"
 ]
 
+"""
+------------------------------------------------------------
+Constants
+------------------------------------------------------------
+"""
 CATALOG_FOLDER: Final[str] = config("CATALOG_FOLDER")
-
-"""
-------------------------------------------------------------
-TEST_1 constants
-------------------------------------------------------------
-"""
-TEST1_AUTOMATIC: Final[bool] = bool(config("TEST1_AUTOMATIC"))
-TEST1_COMPLETE: Final[bool] = bool(config("TEST1_COMPLETE"))
+AUTOMATIC: Final[bool] = bool(config("AUTOMATIC"))
+COMPLETE: Final[bool] = bool(config("COMPLETE"))
 
 """
 ------------------------------------------------------------

@@ -21,7 +21,7 @@ def initialize_logger():
         console_handler.setLevel(logging.INFO)
 
         # If directory "/log" does not exist, create it
-        log_dir = "logs/"
+        log_dir = "logs"
         if not os.path.exists(log_dir):
             try:
                 os.makedirs(log_dir)
@@ -30,9 +30,7 @@ def initialize_logger():
                       f"System error reported: {error}")
 
         # Creating FILE handler
-        # TODO: change only after the end of debug
-        # file_handler = logging.FileHandler(f"{log_dir}{get_date_time()}.log")
-        file_handler = logging.FileHandler(f"{log_dir}current.log")
+        file_handler = logging.FileHandler(os.path.join(log_dir, f"{get_date_time()}.log"))
         file_handler.setLevel(logging.DEBUG)
 
         # Create formatters and add it to handlers

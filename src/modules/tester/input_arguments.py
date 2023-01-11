@@ -2,7 +2,7 @@
 
 import argparse
 
-from src import TEST1_AUTOMATIC, TEST1_COMPLETE
+from src import AUTOMATIC, COMPLETE
 from src.modules.tester.logger_config import initialize_logger
 
 
@@ -66,16 +66,16 @@ def treat_arguments(software_acronym, software_name, software_version, software_
     arguments = arguments_parser.parse_args()
 
     if (not arguments.automatic) and (not arguments.interactive):
-        arguments.automatic = TEST1_AUTOMATIC
+        arguments.automatic = AUTOMATIC
 
     if (not arguments.incomplete) and (not arguments.complete):
-        arguments.complete = TEST1_COMPLETE
+        arguments.complete = COMPLETE
 
     global_configurations = {"build": arguments.build,
                              "run1": arguments.run1,
+                             "run2": arguments.run2,
                              "is_automatic": arguments.automatic,
                              "is_complete": arguments.complete,
-                             "run2": arguments.run2,
                              "catalog_path": arguments.catalog_path}
 
     logger.debug(f"Arguments Parsed. Obtained values are: {global_configurations}")

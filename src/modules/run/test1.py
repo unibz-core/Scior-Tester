@@ -2,6 +2,8 @@
 import csv
 import os
 import yaml
+import platform
+import psutil
 
 from src import NAMESPACE_TAXONOMY, NAMESPACE_GUFO
 from src.modules.tester.logger_config import initialize_logger
@@ -27,6 +29,21 @@ def load_baseline_dictionary(csv_file_name):
     return list_input_classes
 
 
+def save_platform_information(dataset_folder, file_name, software_version):
+    """ Saves platform information into the file """
+    csv_header = ["scior_version", "python_version", "operating_system", "processor", "installed_ram"]
+    csv_row = [software_version,
+               platform.python_version(),
+               f"{platform.system()} {platform.release()} - v{platform.version()}",
+               f"{platform.processor()} ({platform.machine()})",
+               round(psutil.virtual_memory().total / (1024.0 ** 3))]
+
+    with open(os.path.join(dataset_folder, file_name), 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(csv_header)
+        writer.writerow(csv_row)
+
+
 def remaps_to_gufo(class_name, gufo_lower_type: str, no_namespace: bool = False):
     """ Receives a gufo_lower_type and returns a valid_gufo_type """
 
@@ -48,7 +65,7 @@ def remaps_to_gufo(class_name, gufo_lower_type: str, no_namespace: bool = False)
     return mapped_stereotype if no_namespace else NAMESPACE_GUFO + mapped_stereotype
 
 
-def _write_csv_row(file_name, header_row, row, is_first_line: bool = False):
+def write_csv_row(file_name, header_row, row, is_first_line: bool = False):
     if is_first_line:
         with open(file_name, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
@@ -60,45 +77,61 @@ def _write_csv_row(file_name, header_row, row, is_first_line: bool = False):
             writer.writerow(row)
 
 
-def create_inconsistency_csv_output(test_results_folder, execution_number, input_class):
+def create_inconsistency_csv_output(test_results_folder, file_name, execution_number, input_class):
     """ Creates and updates a CSV file with a list of all inconsistent classes and their stereotypes. """
     csv_header = ["execution_number", "inconsistent_class_name", "inconsistent_class_stereotype"]
     csv_row = [execution_number, input_class.name, input_class.stereotype]
-    statistics = test_results_folder + f"\\inconsistencies_found.csv"
+    inconsistencies = os.path.join(test_results_folder, f"inconsistencies{file_name}")
 
-    _write_csv_row(statistics, csv_header, csv_row, execution_number == 1)
+    write_csv_row(inconsistencies, csv_header, csv_row, execution_number == 1)
 
 
-def create_summary_csv_output(test_results_folder, execution_number, input_class):
+def create_summary_csv_output(test_results_folder, file_name, execution_number, input_class):
     """ Creates and updates a CSV file with a list of all executions, the respective input classes
     and their stereotypes. """
     csv_header = ["execution_number", "input_class_name", "input_class_stereotype"]
     csv_row = [execution_number, input_class.name, input_class.stereotype]
-    statistics = test_results_folder + "\\execution_summary.csv"
+    statistics = os.path.join(test_results_folder, f"summary{file_name}")
 
-    _write_csv_row(statistics, csv_header, csv_row, execution_number == 1)
+    write_csv_row(statistics, csv_header, csv_row, execution_number == 1)
 
 
 def create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
-                                 execution_number):
+                                 file_name, execution_number):
     csv_header = create_csv_header()
     number_incomplete_classes = calculate_incompleteness_values(ontology_dataclass_list)
     csv_row = populate_csv_row(consolidated_statistics, execution_number, number_incomplete_classes)
-    statistics = test_results_folder + "\\execution_statistics.csv"
+    statistics = os.path.join(test_results_folder, f"statistics{file_name}")
 
-    _write_csv_row(statistics, csv_header, csv_row, execution_number == 1)
+    write_csv_row(statistics, csv_header, csv_row, execution_number == 1)
 
 
 def calculate_incompleteness_values(ontology_dataclass_list):
     return sum([1 for dataclass in ontology_dataclass_list if dataclass.incompleteness_info["is_incomplete"]])
 
 
-def create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, execution_name):
+def create_times_csv_output(time_register, test_results_folder, file_name, execution_number):
+    times_output_complete_path = os.path.join(test_results_folder,  f"times{file_name}")
+    time_keys = ["execution"] + list(time_register.keys())
+    time_register["execution"] = execution_number
+
+    if execution_number == 1:
+        with open(times_output_complete_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=time_keys)
+            writer.writeheader()
+            writer.writerow(time_register)
+    else:
+        with open(times_output_complete_path, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=time_keys)
+            writer.writerow(time_register)
+
+
+def create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, file_name):
     """ Receives an ontology_dataclass_list and saves its information in yaml format. """
 
-    yaml_folder = test_results_folder + "\\results"
+    yaml_folder = os.path.join(test_results_folder, "results")
     create_folder(yaml_folder, "Results directory created")
-    classes_output_complete_path = yaml_folder + f"\\classes_{execution_name}.yaml"
+    classes_output_complete_path = os.path.join(yaml_folder, file_name)
 
     ontology_dictionary_list = convert_ontology_dataclass_list_to_dictionary_list(input_class, ontology_dataclass_list)
 
@@ -149,9 +182,7 @@ def get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclas
     return final_list
 
 
-def create_classes_results_csv_output(
-        input_classes_list, ontology_dataclass_list, test_results_folder, execution_name
-):
+def create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, test_folder, file_name):
     final_row_list = []
 
     for input_class in input_classes_list:
@@ -161,9 +192,8 @@ def create_classes_results_csv_output(
         final_row = [input_class.name, input_class.stereotype, final_list]
         final_row_list.append(final_row)
 
-    yaml_folder = test_results_folder + "\\results"
-    classes_output_complete_path = yaml_folder + f"\\results_{execution_name}.csv"
-    csv_header = ["class_name", "class_original_stereotype", "stereotype_final_list"]
+    classes_output_complete_path = os.path.join(test_folder, "results", file_name)
+    csv_header = ["class_name", "class_original_classification", "classification_final_list"]
 
     with open(classes_output_complete_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
@@ -172,24 +202,17 @@ def create_classes_results_csv_output(
             writer.writerow(final_row)
 
 
-def create_times_csv_output(time_register, test_results_folder, execution_number):
-    times_output_complete_path = test_results_folder + f"\\execution_times.csv"
-    time_register["execution"] = execution_number
+def create_matrix_output(knowledge_matrix, test_folder, file_name):
+    knowledge_matrix_path = os.path.join(test_folder, "results", file_name)
 
-    if execution_number == 1:
-        with open(times_output_complete_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=time_register.keys())
-            writer.writeheader()
-            writer.writerow(time_register)
-    else:
-        with open(times_output_complete_path, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=time_register.keys())
-            writer.writerow(time_register)
+    with open(knowledge_matrix_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerows(knowledge_matrix)
 
 
 """
 --------------------------------
-Do not touch the rest
+Functions for statistics
 --------------------------------
 """
 
