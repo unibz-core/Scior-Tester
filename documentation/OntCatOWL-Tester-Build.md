@@ -49,6 +49,7 @@ The build function receives as argument the path to the folder containing the On
     +---dataset3/
     ...
     +---datasetN/
+    +---taxonomies.csv
     +---hash_sha256_register.csv
 ```
 
