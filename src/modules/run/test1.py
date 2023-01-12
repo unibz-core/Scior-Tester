@@ -65,15 +65,15 @@ def remaps_to_gufo(class_name, gufo_lower_type: str, no_namespace: bool = False)
     return mapped_stereotype if no_namespace else NAMESPACE_GUFO + mapped_stereotype
 
 
-def write_csv_row(file_name, header_row, row, is_first_line: bool = False):
-    if is_first_line:
+def write_csv_row(file_name, header_row, row):
+    if os.path.exists(file_name):
+        with open(file_name, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(row)
+    else:
         with open(file_name, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(header_row)
-            writer.writerow(row)
-    else:
-        with open(file_name, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
             writer.writerow(row)
 
 
@@ -83,7 +83,7 @@ def create_inconsistency_csv_output(test_results_folder, file_name, execution_nu
     csv_row = [execution_number, input_class.name, input_class.stereotype]
     inconsistencies = os.path.join(test_results_folder, f"inconsistencies{file_name}")
 
-    write_csv_row(inconsistencies, csv_header, csv_row, execution_number == 1)
+    write_csv_row(inconsistencies, csv_header, csv_row)
 
 
 def create_summary_csv_output(test_results_folder, file_name, execution_number, input_class):
@@ -92,8 +92,7 @@ def create_summary_csv_output(test_results_folder, file_name, execution_number, 
     csv_header = ["execution_number", "input_class_name", "input_class_stereotype"]
     csv_row = [execution_number, input_class.name, input_class.stereotype]
     statistics = os.path.join(test_results_folder, f"summary{file_name}")
-
-    write_csv_row(statistics, csv_header, csv_row, execution_number == 1)
+    write_csv_row(statistics, csv_header, csv_row)
 
 
 def create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
@@ -102,8 +101,7 @@ def create_statistics_csv_output(ontology_dataclass_list, consolidated_statistic
     number_incomplete_classes = calculate_incompleteness_values(ontology_dataclass_list)
     csv_row = populate_csv_row(consolidated_statistics, execution_number, number_incomplete_classes)
     statistics = os.path.join(test_results_folder, f"statistics{file_name}")
-
-    write_csv_row(statistics, csv_header, csv_row, execution_number == 1)
+    write_csv_row(statistics, csv_header, csv_row)
 
 
 def calculate_incompleteness_values(ontology_dataclass_list):
@@ -115,14 +113,14 @@ def create_times_csv_output(time_register, test_results_folder, file_name, execu
     time_keys = ["execution"] + list(time_register.keys())
     time_register["execution"] = execution_number
 
-    if execution_number == 1:
+    if os.path.exists(times_output_complete_path):
+        with open(times_output_complete_path, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=time_keys)
+            writer.writerow(time_register)
+    else:
         with open(times_output_complete_path, 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=time_keys)
             writer.writeheader()
-            writer.writerow(time_register)
-    else:
-        with open(times_output_complete_path, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=time_keys)
             writer.writerow(time_register)
 
 
@@ -133,24 +131,23 @@ def create_classes_yaml_output(input_class, ontology_dataclass_list, test_result
     create_folder(yaml_folder, "Results directory created")
     classes_output_complete_path = os.path.join(yaml_folder, file_name)
 
-    ontology_dictionary_list = convert_ontology_dataclass_list_to_dictionary_list(input_class, ontology_dataclass_list)
+    ontology_dictionary_list = convert_ontology_dataclass_list_to_dictionary_list(
+        [input_class], ontology_dataclass_list)
 
     with open(classes_output_complete_path, 'w', encoding='utf-8') as file:
         yaml.dump_all(ontology_dictionary_list, file, sort_keys=True)
 
 
-def convert_ontology_dataclass_list_to_dictionary_list(input_class, ontology_dataclass_list):
+def convert_ontology_dataclass_list_to_dictionary_list(input_class_list, ontology_dataclass_list):
     """ Receives an ontology_dataclass_list and returns a dictionary to be printed in yaml format. """
 
     ontology_dictionary_list = []
+    input_long_names = [NAMESPACE_TAXONOMY + input_class.name for input_class in input_class_list]
 
     for ontology_dataclass in ontology_dataclass_list:
-
-        input_class_long_name = NAMESPACE_TAXONOMY + input_class.name
-        short_class_name = ontology_dataclass.uri.removeprefix(NAMESPACE_TAXONOMY)
-
-        ontology_dictionary = {short_class_name: {
-                "input": input_class_long_name == ontology_dataclass.uri,
+        short_dataclass_name = ontology_dataclass.uri.removeprefix(NAMESPACE_TAXONOMY)
+        ontology_dictionary = {short_dataclass_name: {
+                "input": ontology_dataclass.uri in input_long_names,
                 "is_type": ontology_dataclass.is_type,
                 "can_type": ontology_dataclass.can_type,
                 "not_type": ontology_dataclass.not_type,

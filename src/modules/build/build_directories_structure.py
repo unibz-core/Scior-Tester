@@ -1,6 +1,7 @@
 """ Functions related to OS files and strings used for general purposes. """
 import os
 import glob
+import shutil
 
 from src.modules.tester.logger_config import initialize_logger
 
@@ -21,8 +22,14 @@ def get_list_ttl_files(directory_path, name="*") -> list:
     return file_names
 
 
-def create_folder(path, ok_message="The folder was created", existed_message=""):
+def create_folder(path, ok_message="The folder was created", existed_message="", clear_if_exists: bool = False):
     logger = initialize_logger()
+
+    if os.path.exists(path):
+        if existed_message:
+            logger.info(f"{existed_message}: {path}.")
+        if clear_if_exists:
+            shutil.rmtree(path)
 
     if not os.path.exists(path):
         try:
@@ -31,16 +38,14 @@ def create_folder(path, ok_message="The folder was created", existed_message="")
         except OSError as error:
             logger.error(f"Directory {path} could not be created. Program aborted.\n"
                          f"System error reported: {error}")
-    elif existed_message:
-        logger.info(f"{existed_message}: {path}.")
 
 
 def create_internal_catalog_path(catalog_path):
     create_folder(catalog_path, "Internal catalog directory created")
 
 
-def create_test_results_folder(test_results_folder):
-    create_folder(test_results_folder, "Test results directory created")
+def create_test_results_folder(test_results_folder, clear_if_exists):
+    create_folder(test_results_folder, "Test results directory created", clear_if_exists=clear_if_exists)
 
 
 def create_test_directory_folders_structure(dataset_folder, catalog_size, current):

@@ -63,6 +63,7 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
     total_taxonomies_number = len(taxonomies)
     global_configurations = {"is_automatic": is_automatic, "is_complete": is_complete}
 
+    prev_dataset_folder = ""
     for (current, taxonomy) in enumerate(taxonomies):
         logger.info(f"Executing OntCatOWL for taxonomy {current + 1}/{total_taxonomies_number}: {taxonomy}\n")
 
@@ -78,30 +79,28 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
         test_name = f"{tname}_{l1}{l2}"
         draft_file_name = data_filename[4:-10] + "_" + test_name + data_filename[-10:]
         test_results_folder = os.path.join(dataset_folder, test_name)
-        create_test_results_folder(test_results_folder)
+        create_test_results_folder(test_results_folder, dataset_folder != prev_dataset_folder)
 
         if tname.endswith("1"):
             run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder, draft_file_name)
-            logger.info(f"TEST1 is finished for {dataset_folder}\n")
 
         if tname.endswith("2"):
             run_scior_test2(global_configurations, input_classes, input_graph, test_results_folder,
                             draft_file_name, taxonomy_filename)
-            logger.info(f"TEST2 is finished for {dataset_folder}\n")
+
+        if dataset_folder != prev_dataset_folder:
+            if prev_dataset_folder:
+                logger.info(f"TEST{tname[-1]} is finished for {prev_dataset_folder}\n")
+            prev_dataset_folder = dataset_folder
 
 
 def run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder, draft_file_name):
     # Test 1 for Scior - described in: https://github.com/unibz-core/OntCatOWL-Dataset
     tests_total = len(input_classes)
-    known_inconsistecies = []
-    known_consistencies = []
 
     # Executions of the test
     for idx, input_class in enumerate(input_classes):
         execution_number = idx + 1
-
-        if (input_class.name in known_inconsistecies) or (input_class.name in known_consistencies):
-            continue
 
         working_graph = deepcopy(input_graph)
         triple_subject = URIRef(NAMESPACE_TAXONOMY + input_class.name)
@@ -180,20 +179,17 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
                 if (current_execution == 1) and (current_percentage == PERCENTAGE_INITIAL):
                     save_platform_information(test_results_folder,
                                               f"settings{draft_file_name[:-10]}.csv", software_version)
-                create_classes_yaml_output(sample_list, ontology_dataclass_list, test_results_folder,
-                                              current_percentage, current_execution, dataset_taxonomy)
-                create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder,
+                create_classes_yaml_output_t2(sample_list, ontology_dataclass_list, test_results_folder,
                   file_name=f"complete{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.yaml")
-
                 create_classes_results_csv_output(input_classes, ontology_dataclass_list, test_results_folder,
                     file_name=f"simple{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
                 create_matrix_output(knowledge_matrix, test_results_folder,
                     file_name=f"matrix{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
-                create_times_csv_output_t2(time_register, test_results_folder, draft_file_name, current_percentage,
-                                                             current_execution, PERCENTAGE_INITIAL)
+                create_times_csv_output_t2(time_register, test_results_folder, draft_file_name,
+                                           current_percentage, current_execution)
                 create_statistics_csv_output_t2(ontology_dataclass_list, consolidated_statistics,
                                                 test_results_folder, draft_file_name, current_percentage,
-                                                current_execution, PERCENTAGE_INITIAL)
+                                                current_execution)
             current_execution += 1
 
         current_percentage += PERCENTAGE_RATE
