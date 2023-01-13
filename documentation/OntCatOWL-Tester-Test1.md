@@ -53,6 +53,7 @@ The execution of Test 1 results in the generation of the following files:
 - Results *yaml* files
 - Results *csv* files
 - Knowledge Matrix *csv* files
+- Divergences *csv* files
 
 You can find the complete description of all output files generated in Test 1 accessing its corresponding page at the repository with the OntCatOWL [tests resulting datasets](https://github.com/unibz-core/OntCatOWL-Dataset/blob/main/documentation/OntCatOWL-Dataset-Test1.md).
 
@@ -76,6 +77,7 @@ Considering the execution of Test 1 on both complete and incomplete execution mo
     |   |   times_dataset1_tt001_ac_tx001.csv
     |   |   times_dataset1_tt001_ac_tx002.csv
     |   |   inconsistencies_tt001_ac.csv *
+    |   |   divergences_tt001_ac.csv *
     |   |   +---results/
     |   |   |   complete_dataset1_tt001_ac_tx001_ex001.yaml
     |   |   |   complete_dataset1_tt001_ac_tx001_ex002.yaml
@@ -110,7 +112,7 @@ Considering the execution of Test 1 on both complete and incomplete execution mo
     +---hash_sha256_register.csv
 ```
 
-\* Please note that the inconsistencies files are only generated when at least one inconsistency is found during the test's execution.
+\* Please note that the inconsistencies and divergences files are only generated when at least one case is found during the test's execution.
 
 \*\* The structure of tt001_an folder is similar to the structure of the folder tt001_ac.
 
