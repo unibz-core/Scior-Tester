@@ -1,12 +1,13 @@
 ﻿# OntCatOWL-Tester
 
-Software used for testing OntCatOWL on OntoUML/UFO Catalog datasets.
+Software used for testing [OntCatOWL](https://github.com/unibz-core/OntCatOWL) on [OntoUML/UFO Catalog](https://github.com/unibz-core/ontouml-models) datasets.
 
 ## Contents
 
 - [Description](#description)
 - [Installing and Running](#installing-and-running)
 - [Implemented Functionalities](#implemented-functionalities)
+- [Related Repositories](#related-repositories)
 - [Contributors](#contributors)
 - [Acknowledgements](#acknowledgements)
 
@@ -53,6 +54,13 @@ Three functionalities are available in the OntCatOWL-Tester. The first one (*bui
 - **Test 2:** increasing percentage of classes used as input
   - [Description and execution instructions](https://github.com/unibz-core/OntCatOWL-Tester/blob/main/documentation/OntCatOWL-Tester-Test2.md)
   - [Generated file’s structures (OntCatOWL-Dataset repository)](https://github.com/unibz-core/OntCatOWL-Dataset/blob/main/documentation/OntCatOWL-Dataset-Test2.md)
+
+## Related Repositories
+
+- [OntCatOWL](https://github.com/unibz-core/OntCatOWL): software for identification of ontological categories for OWL ontologies.
+- [OntCatOWL-Tester](https://github.com/unibz-core/OntCatOWL-Tester): used for automating tests on OntCatOWL.
+- [OntCatOWL-Dataset](https://github.com/unibz-core/OntCatOWL-Dataset): contains data resulting from the OntCatOWL-Tester.
+- [OntoUML/UFO Catalog](https://github.com/unibz-core/ontouml-models): source of models used for the performed tests.
 
 ## Contributors
 
