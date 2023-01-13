@@ -6,13 +6,11 @@ import yaml
 import src.modules.run.test1 as test1
 
 
-def create_inconsistency_csv_output_t2(test_results_folder, file_name, percentage_number, execution_number,
-                                       initial_percentage):
+def create_inconsistency_csv_output_t2(inconsistencies_file_name, file_name, percentage_number, execution_number):
     """ Creates and updates a CSV file with a list of percentages and executions that reported inconsistencies. """
-    csv_header = ["percentage", "execution_number"]
-    csv_row = [percentage_number, execution_number]
-    inconsistencies = os.path.join(test_results_folder, f"inconsistencies{file_name}")
-    test1.write_csv_row(inconsistencies, csv_header, csv_row)
+    csv_header = ["taxonomy_name", "percentage", "execution_number"]
+    csv_row = [file_name[1:-18] + file_name[-9:-4], percentage_number, execution_number]
+    test1.write_csv_row(inconsistencies_file_name, csv_header, csv_row)
 
 
 def create_classes_yaml_output_t2(input_class_list, ontology_dataclass_list, test_results_folder, file_name):

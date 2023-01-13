@@ -77,13 +77,11 @@ def write_csv_row(file_name, header_row, row):
             writer.writerow(row)
 
 
-def create_inconsistency_csv_output(test_results_folder, file_name, execution_number, input_class):
+def create_inconsistency_csv_output(inconsistencies_file_name, file_name, execution_number, input_class):
     """ Creates and updates a CSV file with a list of all inconsistent classes and their stereotypes. """
-    csv_header = ["execution_number", "inconsistent_class_name", "inconsistent_class_stereotype"]
-    csv_row = [execution_number, input_class.name, input_class.stereotype]
-    inconsistencies = os.path.join(test_results_folder, f"inconsistencies{file_name}")
-
-    write_csv_row(inconsistencies, csv_header, csv_row)
+    csv_header = ["taxonomy_name", "execution_number", "inconsistent_class_name", "inconsistent_class_stereotype"]
+    csv_row = [file_name[1:-18] + file_name[-9:-4], execution_number, input_class.name, input_class.stereotype]
+    write_csv_row(inconsistencies_file_name, csv_header, csv_row)
 
 
 def create_summary_csv_output(test_results_folder, file_name, execution_number, input_class):

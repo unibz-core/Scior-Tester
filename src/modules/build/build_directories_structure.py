@@ -42,6 +42,8 @@ def create_folder(path, ok_message="The folder was created", existed_message="",
 
 def create_internal_catalog_path(catalog_path):
     create_folder(catalog_path, "Internal catalog directory created")
+    if os.path.exists(os.path.join(catalog_path, "taxonomies.csv")):
+        os.remove(os.path.join(catalog_path, "taxonomies.csv"))
 
 
 def create_test_results_folder(test_results_folder, clear_if_exists):

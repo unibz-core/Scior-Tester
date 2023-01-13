@@ -43,10 +43,8 @@ def build_scior_tester(catalog_path):
 
             # Building taxonomies files and collecting information from classes
             taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, hash_register)
-
             # Builds dataset_classes_information and collects attributes name, prefixed_name, and all taxonomic information
             dataset_classes_information = collect_taxonomies_information(taxonomy_files, catalog_size, current)
-
             # Collects stereotype_original and stereotype_gufo for dataset_classes_information
             collect_stereotypes_classes_information(dataset, dataset_classes_information, catalog_size, current)
 
@@ -61,7 +59,15 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
     # Creating list of taxonomies
     taxonomies = get_list_ttl_files(os.path.join(os.getcwd(), CATALOG_FOLDER))
     total_taxonomies_number = len(taxonomies)
+
     global_configurations = {"is_automatic": is_automatic, "is_complete": is_complete}
+    l1 = "a" if is_automatic else "i"
+    l2 = "c" if is_complete else "n"
+    test_name = f"{tname}_{l1}{l2}"
+    inconsistencies_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"inconsistencies_{test_name}.csv")
+    if os.path.exists(inconsistencies_file_name):
+        os.remove(inconsistencies_file_name)
+
 
     prev_dataset_folder = ""
     for (current, taxonomy) in enumerate(taxonomies):
@@ -72,21 +78,19 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
         input_classes = load_baseline_dictionary(taxonomy.replace(taxonomy_filename, data_filename))
         input_graph = load_graph_safely(taxonomy)
 
-        l1 = "a" if is_automatic else "i"
-        l2 = "c" if is_complete else "n"
 
         dataset_folder = taxonomy.rsplit(os.path.sep, 1)[0]
-        test_name = f"{tname}_{l1}{l2}"
         draft_file_name = data_filename[4:-10] + "_" + test_name + data_filename[-10:]
         test_results_folder = os.path.join(dataset_folder, test_name)
         create_test_results_folder(test_results_folder, dataset_folder != prev_dataset_folder)
 
         if tname.endswith("1"):
-            run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder, draft_file_name)
+            run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder,
+                            draft_file_name, inconsistencies_file_name)
 
         if tname.endswith("2"):
             run_scior_test2(global_configurations, input_classes, input_graph, test_results_folder,
-                            draft_file_name, taxonomy_filename)
+                            draft_file_name, inconsistencies_file_name, taxonomy_filename)
 
         if dataset_folder != prev_dataset_folder:
             if prev_dataset_folder:
@@ -94,7 +98,8 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
             prev_dataset_folder = dataset_folder
 
 
-def run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder, draft_file_name):
+def run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder,
+                    draft_file_name, inconsistencies_file_name):
     # Test 1 for Scior - described in: https://github.com/unibz-core/OntCatOWL-Dataset
     tests_total = len(input_classes)
 
@@ -115,7 +120,7 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
         except:
             logger.error(f"INCONSISTENCY found! Test {execution_number}/{tests_total} "
                          f"for input class {input_class.name} interrupted.")
-            create_inconsistency_csv_output(test_results_folder, draft_file_name, execution_number, input_class)
+            create_inconsistency_csv_output(inconsistencies_file_name, draft_file_name, execution_number, input_class)
         else:
             logger.info(f"Test {execution_number}/{tests_total} "
                         f"for input class {input_class.name} successfully executed.")
@@ -136,7 +141,7 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
 
 
 def run_scior_test2(global_configurations, input_classes, input_graph, test_results_folder,
-                    draft_file_name, taxonomy_filename):
+                    draft_file_name, inconsistencies_file_name, taxonomy_filename):
     # Test 2 for Scior - described in: https://github.com/unibz-core/OntCatOWL-Dataset
     model_size = len(input_classes)
     # Consider only datasets that have at least 20 classes. If less, skip.
@@ -168,13 +173,12 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
                 logger.error(f"INCONSISTENCY found: {taxonomy_filename} "
                              f"- percentage {current_percentage} - excecution {current_execution}. "
                              f"Current execution interrupted.{end}")
-                create_inconsistency_csv_output_t2(test_results_folder, draft_file_name, current_percentage,
-                                                   current_execution,  PERCENTAGE_INITIAL)
+                create_inconsistency_csv_output_t2(inconsistencies_file_name, draft_file_name, current_percentage,
+                                                   current_execution)
             else:
                 logger.info(f"Test dataset {taxonomy_filename} - percentage {current_percentage} - "
                             f"excecution {current_execution} successfully executed "
                             f"({number_of_input_classes} input classes).{end}")
-                # Creating resulting files
                 # Creating resulting files
                 if (current_execution == 1) and (current_percentage == PERCENTAGE_INITIAL):
                     save_platform_information(test_results_folder,
