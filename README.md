@@ -50,16 +50,16 @@ Three functionalities are available in the OntCatOWL-Tester. The first one (*bui
   - [Generated file’s structures (OntCatOWL-Dataset repository)](https://github.com/unibz-core/OntCatOWL-Dataset#build-generated-files)
 - **Test 1:** single class used as input
   - [Description and execution instructions](https://github.com/unibz-core/OntCatOWL-Tester/blob/main/documentation/OntCatOWL-Tester-Test1.md)
-  - [Generated file’s structures (OntCatOWL-Dataset repository)](https://github.com/unibz-core/OntCatOWL-Dataset/blob/main/documentation/OntCatOWL-Dataset-Test1.md)
+  - [Generated file’s structures (Scior-Dataset repository)](https://github.com/unibz-core/Scior-Dataset/blob/main/documentation/Scior-Dataset-Test1.md)
 - **Test 2:** increasing percentage of classes used as input
   - [Description and execution instructions](https://github.com/unibz-core/OntCatOWL-Tester/blob/main/documentation/OntCatOWL-Tester-Test2.md)
-  - [Generated file’s structures (OntCatOWL-Dataset repository)](https://github.com/unibz-core/OntCatOWL-Dataset/blob/main/documentation/OntCatOWL-Dataset-Test2.md)
+  - [Generated file’s structures (Scior-Dataset repository)](https://github.com/unibz-core/Scior-Dataset/blob/main/documentation/Scior-Dataset-Test2.md)
 
 ## Related Repositories
 
 - [OntCatOWL](https://github.com/unibz-core/OntCatOWL): software for identification of ontological categories for OWL ontologies.
 - [OntCatOWL-Tester](https://github.com/unibz-core/OntCatOWL-Tester): used for automating tests on OntCatOWL.
-- [OntCatOWL-Dataset](https://github.com/unibz-core/OntCatOWL-Dataset): contains data resulting from the OntCatOWL-Tester.
+- [Scior-Dataset](https://github.com/unibz-core/Scior-Dataset): contains data resulting from the OntCatOWL-Tester.
 - [OntoUML/UFO Catalog](https://github.com/unibz-core/ontouml-models): source of models used for the performed tests.
 
 ## Contributors
