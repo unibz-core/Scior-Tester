@@ -146,14 +146,14 @@ def _get_all_related_nodes(graph, nodes_list, node, visited):
     return visited
 
 
-def get_all_related_nodes(graph, nodes_list, node):
+def get_all_related_nodes(graph, nodes_list, node, remove_itself: bool = True):
     """ Return the list of all nodes of the given graph that are directly or indirectly
         related to the given element. I.e., return all nodes that are reachable from the ontology's node (element).
 
-        The return list DOES NOT INCLUDE the element itself.
+        The return list DOES NOT INCLUDE the element itself IF remove_itself is not set to False
     """
-
-    return _get_all_related_nodes(graph, nodes_list, node, None)[1:]
+    result = _get_all_related_nodes(graph, nodes_list, node, None)
+    return result[1:] if remove_itself else result
 
 
 def generates_nodes_lists(graph) -> dict:

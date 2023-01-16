@@ -9,7 +9,7 @@ from src.modules.tester.utils_rdf import load_graph_safely
 
 
 def get_gufo_stereotype(class_stereotype_original):
-    """ Mapps OntoUML serialization in OWL stereotype for the gUFO types used in OntCatOWL """
+    """ Maps OntoUML serialization in OWL stereotype for the gUFO types used in Scior """
 
     keeped_stereotypes = ("category", "mixin", "phase", "phasemixin", "kind", "subkind", "role", "rolemixin")
     if class_stereotype_original in keeped_stereotypes:
@@ -57,10 +57,11 @@ def collect_stereotypes_classes_information(source_owl_file_path, dataset_classe
 
             class_inf[class_name] = (class_stereotype_original_string, class_stereotype_gufo)
 
-    for class_in_list in dataset_classes_information:
-        if class_in_list.name in class_inf:
-            class_in_list.stereotype_original = class_inf[class_in_list.name][0]
-            class_in_list.stereotype_gufo = class_inf[class_in_list.name][1]
+    for sublist in dataset_classes_information:
+        for class_in_list in sublist:
+            if class_in_list.name in class_inf:
+                class_in_list.stereotype_original = class_inf[class_in_list.name][0]
+                class_in_list.stereotype_gufo = class_inf[class_in_list.name][1]
 
     dataset = source_owl_file_path.split("\\")[-2]
     logger.info(f"Stereotypes information {current}/{catalog_size} collected from dataset {dataset}")
