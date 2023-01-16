@@ -181,8 +181,8 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
                             f"({number_of_input_classes} input classes).{end}")
                 # Creating resulting files
                 if (current_execution == 1) and (current_percentage == PERCENTAGE_INITIAL):
-                    save_platform_information(test_results_folder,
-                                              f"settings{draft_file_name[:-10]}.csv", software_version)
+                    save_platform_information(test_results_folder, f"settings{draft_file_name[:-10]}.csv",
+                                              software_version, env_vars=True)
                 create_classes_yaml_output_t2(sample_list, ontology_dataclass_list, test_results_folder,
                   file_name=f"complete{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.yaml")
                 create_classes_results_csv_output(input_classes, ontology_dataclass_list, test_results_folder,
