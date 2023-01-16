@@ -5,7 +5,8 @@ import yaml
 import platform
 import psutil
 
-from src import NAMESPACE_TAXONOMY, NAMESPACE_GUFO
+from src import NAMESPACE_TAXONOMY, NAMESPACE_GUFO, MINIMUM_ALLOWED_NUMBER_CLASSES, PERCENTAGE_INITIAL, \
+    PERCENTAGE_FINAL, PERCENTAGE_RATE, NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.build.build_directories_structure import create_folder
 
@@ -29,7 +30,7 @@ def load_baseline_dictionary(csv_file_name):
     return list_input_classes
 
 
-def save_platform_information(dataset_folder, file_name, software_version):
+def save_platform_information(dataset_folder, file_name, software_version, env_vars=False):
     """ Saves platform information into the file """
     csv_header = ["scior_version", "python_version", "operating_system", "processor", "installed_ram"]
     csv_row = [software_version,
@@ -37,6 +38,11 @@ def save_platform_information(dataset_folder, file_name, software_version):
                f"{platform.system()} {platform.release()} - v{platform.version()}",
                f"{platform.processor()} ({platform.machine()})",
                round(psutil.virtual_memory().total / (1024.0 ** 3))]
+    if env_vars:
+        csv_header += ["minimum_allowed_number_classes", "percentage_initial", "percentage_final",
+                       "percentage_rate", "number_of_executions_per_dataset_per_percentage"]
+        csv_row += [MINIMUM_ALLOWED_NUMBER_CLASSES, PERCENTAGE_INITIAL, PERCENTAGE_FINAL,
+                    PERCENTAGE_RATE, NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE]
 
     with open(os.path.join(dataset_folder, file_name), 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
