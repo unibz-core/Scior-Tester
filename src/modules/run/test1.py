@@ -85,7 +85,7 @@ def write_csv_row(file_name, header_row, row):
 
 def create_inconsistency_csv_output(inconsistencies_file_name, file_name, execution_number, input_class):
     """ Creates and updates a CSV file with a list of all inconsistent classes and their stereotypes. """
-    csv_header = ["taxonomy_name", "execution_number", "inconsistent_class_name", "inconsistent_class_stereotype"]
+    csv_header = ["taxonomy_name", "execution_number", "inconsistent_class_name", "inconsistent_class_classification"]
     csv_row = [file_name[1:-18] + file_name[-9:-4] + ".ttl", execution_number, input_class.name, input_class.stereotype]
     write_csv_row(inconsistencies_file_name, csv_header, csv_row)
 
