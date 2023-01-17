@@ -112,20 +112,25 @@ def calculate_incompleteness_values(ontology_dataclass_list):
     return sum([1 for dataclass in ontology_dataclass_list if dataclass.incompleteness_info["is_incomplete"]])
 
 
+def write_dictionary(file_name, keys, register):
+    if os.path.exists(file_name):
+        with open(file_name, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=keys)
+            writer.writerow(register)
+    else:
+        with open(file_name, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=keys)
+            writer.writeheader()
+            writer.writerow(register)
+
+
 def create_times_csv_output(time_register, test_results_folder, file_name, execution_number):
     times_output_complete_path = os.path.join(test_results_folder,  f"times{file_name}")
-    time_keys = ["execution"] + list(time_register.keys())
+    time_keys = list(time_register.keys())
+    time_keys.sort()
+    time_keys = ["execution"] + time_keys
     time_register["execution"] = execution_number
-
-    if os.path.exists(times_output_complete_path):
-        with open(times_output_complete_path, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=time_keys)
-            writer.writerow(time_register)
-    else:
-        with open(times_output_complete_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=time_keys)
-            writer.writeheader()
-            writer.writerow(time_register)
+    write_dictionary(times_output_complete_path, time_keys, time_register)
 
 
 def create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, file_name):

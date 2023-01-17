@@ -30,20 +30,12 @@ def create_classes_yaml_output_t2(input_class_list, ontology_dataclass_list, tes
 def create_times_csv_output_t2(time_register, test_results_folder, file_name, percentage_number, execution_number):
     times_output_complete_path = os.path.join(test_results_folder,
                                     f"times{file_name[:-4]}_ex{execution_number:03d}_pc{percentage_number:03d}.csv")
-    time_keys = ["percentage", "execution"] + list(time_register.keys())
+    time_keys = list(time_register.keys())
+    time_keys.sort()
+    time_keys = ["percentage", "execution"] + time_keys
     time_register["percentage"] = percentage_number
     time_register["execution"] = execution_number
-
-    # If not file or first case (initial percentage and first execution), then create. Else, append.
-    if os.path.exists(times_output_complete_path):
-        with open(times_output_complete_path, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=time_keys)
-            writer.writerow(time_register)
-    else:
-        with open(times_output_complete_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=time_keys)
-            writer.writeheader()
-            writer.writerow(time_register)
+    test1.write_dictionary(times_output_complete_path, time_keys, time_register)
 
 
 def create_csv_header():
