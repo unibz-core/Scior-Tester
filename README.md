@@ -27,12 +27,6 @@ This document presents the functionalities provided by the Scior-Tester, informi
 
 You need to [download and install Python](https://www.python.org/downloads/) for executing the Scior-Tester. Its code was developed and tested using Python v3.11.0.
 
-For executing the Tester, first install Scior as a package running the following command on the terminal:
-
-```txt
-pip install git+<https://github.com/unibz-core/Scior.git>
-```
-
 For installing all other necessary dependencies, run the following command on the terminal:
 
 ```txt
