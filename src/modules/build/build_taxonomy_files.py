@@ -125,7 +125,7 @@ def generate_isolated_taxonomy_files(source_taxonomy_graph, saving_path, source_
     source_taxonomy_roots.sort()
     dataset_name = saving_path.split(os.path.sep)[-1]
 
-    files = {}
+    files = []
     idx = 0
     while len(source_taxonomy_roots) > 0:
         related_classes = get_all_related_nodes(source_taxonomy_graph, source_taxonomy_nodes,
@@ -137,13 +137,7 @@ def generate_isolated_taxonomy_files(source_taxonomy_graph, saving_path, source_
         taxonomy_file_path = os.path.join(saving_path, f"{dataset_name}_tx{idx + 1:03d}.ttl")
         safe_save_taxonomy_graph(reduced_graph, taxonomy_file_path)
         hash_register = register_sha256_hash_information(hash_register, taxonomy_file_path, source_owl_file_path)
-        files[taxonomy_file_path] = len(related_classes)
+        files.append(taxonomy_file_path)
         idx += 1
 
-    full_file_name = os.path.join(saving_path.rsplit(os.path.sep, 1)[0], f"taxonomies.csv")
-    csv_header = ["taxonomy_name", "dataset_name", "num_classes"]
-    for full_taxonomy_name, num_classes in files.items():
-        csv_row = [full_taxonomy_name.split(os.path.sep)[-1], dataset_name, num_classes]
-        write_csv_row(full_file_name, csv_header, csv_row)
-
-    return list(files.keys()), hash_register
+    return files, hash_register

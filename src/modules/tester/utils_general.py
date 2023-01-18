@@ -1,4 +1,7 @@
 """ General auxiliary functions. """
+import os
+import csv
+
 from datetime import datetime
 
 
@@ -23,20 +26,25 @@ def get_date_time():
     return now.strftime("%Y.%m.%d-%H.%M.%S")
 
 
-"""
----------------------------------------------------
-The rest of the functions are not used anywhere
----------------------------------------------------
-"""
+def write_csv_row(file_name, header_row, row):
+    if os.path.exists(file_name):
+        with open(file_name, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(row)
+    else:
+        with open(file_name, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(header_row)
+            writer.writerow(row)
 
 
-def has_duplicates(input_list) -> bool:
-    """ Check if given list contains any duplicated element """
-    return len(input_list) != len(set(input_list))
-
-
-def lists_intersection(list1, list2):
-    """ Returns the intersection of two lists. """
-    temp = set(list2)
-    list3 = [value for value in list1 if value in temp]
-    return list3
+def write_dictionary(file_name, keys, register):
+    if os.path.exists(file_name):
+        with open(file_name, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=keys)
+            writer.writerow(register)
+    else:
+        with open(file_name, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=keys)
+            writer.writeheader()
+            writer.writerow(register)

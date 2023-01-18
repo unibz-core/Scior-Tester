@@ -1,4 +1,5 @@
 """ Functions related to stereotypes. """
+import os.path
 
 from rdflib import RDF
 
@@ -63,5 +64,5 @@ def collect_stereotypes_classes_information(source_owl_file_path, dataset_classe
                 class_in_list.stereotype_original = class_inf[class_in_list.name][0]
                 class_in_list.stereotype_gufo = class_inf[class_in_list.name][1]
 
-    dataset = source_owl_file_path.split("\\")[-2]
+    dataset = source_owl_file_path.split(os.path.sep)[-2]
     logger.info(f"Stereotypes information {current}/{catalog_size} collected from dataset {dataset}")

@@ -34,7 +34,7 @@ def build_scior_tester(catalog_path):
     hash_register = pd.DataFrame(columns=["file_name", "file_hash", "source_file_name", "source_file_hash"])
 
     for (current, dataset) in enumerate(datasets):
-        dataset_name = dataset.split("\\")[-2]
+        dataset_name = dataset.split(os.path.sep)[-2]
         if dataset_name not in EXCEPTIONS_LIST:
             dataset_folder = internal_catalog_folder + dataset_name
             logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset_name} ###\n")
@@ -65,9 +65,11 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
     l2 = "c" if is_complete else "n"
     test_name = f"{tname}_{l1}{l2}"
     inconsistencies_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"inconsistencies_{test_name}.csv")
+    divergences_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"divergences_{test_name}.csv")
     if os.path.exists(inconsistencies_file_name):
         os.remove(inconsistencies_file_name)
-
+    if os.path.exists(divergences_file_name):
+        os.remove(divergences_file_name)
 
     prev_dataset_folder = ""
     for (current, taxonomy) in enumerate(taxonomies):
@@ -78,7 +80,6 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
         input_classes = load_baseline_dictionary(taxonomy.replace(taxonomy_filename, data_filename))
         input_graph = load_graph_safely(taxonomy)
 
-
         dataset_folder = taxonomy.rsplit(os.path.sep, 1)[0]
         draft_file_name = data_filename[4:-10] + "_" + test_name + data_filename[-10:]
         test_results_folder = os.path.join(dataset_folder, test_name)
@@ -86,11 +87,11 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
 
         if tname.endswith("1"):
             run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder,
-                            draft_file_name, inconsistencies_file_name)
+                            draft_file_name, inconsistencies_file_name, divergences_file_name)
 
         if tname.endswith("2"):
             run_scior_test2(global_configurations, input_classes, input_graph, test_results_folder,
-                            draft_file_name, inconsistencies_file_name, taxonomy_filename)
+                            draft_file_name, inconsistencies_file_name, divergences_file_name, taxonomy_filename)
 
         if dataset_folder != prev_dataset_folder:
             if prev_dataset_folder:
@@ -99,7 +100,7 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
 
 
 def run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder,
-                    draft_file_name, inconsistencies_file_name):
+                    draft_file_name, inconsistencies_file_name, divergences_file_name):
     # Test 1 for Scior - described in: https://github.com/unibz-core/Scior-Dataset
     tests_total = len(input_classes)
 
@@ -130,7 +131,8 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
                                           f"settings{draft_file_name[:-10]}.csv", software_version)
             create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder,
                                        file_name=f"complete{draft_file_name[:-4]}_ex{execution_number:03d}.yaml")
-            create_classes_results_csv_output(input_classes, ontology_dataclass_list, test_results_folder,
+            create_classes_results_csv_output(input_classes, ontology_dataclass_list,
+                                              test_results_folder, divergences_file_name,
                                               file_name=f"simple{draft_file_name[:-4]}_ex{execution_number:03d}.csv")
             create_matrix_output(knowledge_matrix, test_results_folder,
                                  file_name=f"matrix{draft_file_name[:-4]}_ex{execution_number:03d}.csv")
@@ -141,7 +143,7 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
 
 
 def run_scior_test2(global_configurations, input_classes, input_graph, test_results_folder,
-                    draft_file_name, inconsistencies_file_name, taxonomy_filename):
+                    draft_file_name, inconsistencies_file_name, divergences_file_name, taxonomy_filename):
     # Test 2 for Scior - described in: https://github.com/unibz-core/Scior-Dataset
     model_size = len(input_classes)
     # Consider only datasets that have at least 20 classes. If less, skip.
@@ -185,7 +187,8 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
                                               software_version, env_vars=True)
                 create_classes_yaml_output_t2(sample_list, ontology_dataclass_list, test_results_folder,
                   file_name=f"complete{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.yaml")
-                create_classes_results_csv_output(input_classes, ontology_dataclass_list, test_results_folder,
+                create_classes_results_csv_output(input_classes, ontology_dataclass_list,
+                                                  test_results_folder, divergences_file_name,
                     file_name=f"simple{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
                 create_matrix_output(knowledge_matrix, test_results_folder,
                     file_name=f"matrix{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")

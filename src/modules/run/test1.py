@@ -8,6 +8,7 @@ import psutil
 from src import NAMESPACE_TAXONOMY, NAMESPACE_GUFO, MINIMUM_ALLOWED_NUMBER_CLASSES, PERCENTAGE_INITIAL, \
     PERCENTAGE_FINAL, PERCENTAGE_RATE, NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE
 from src.modules.tester.logger_config import initialize_logger
+from src.modules.tester.utils_general import write_csv_row, write_dictionary
 from src.modules.build.build_directories_structure import create_folder
 
 
@@ -71,18 +72,6 @@ def remaps_to_gufo(class_name, gufo_lower_type: str, no_namespace: bool = False)
     return mapped_stereotype if no_namespace else NAMESPACE_GUFO + mapped_stereotype
 
 
-def write_csv_row(file_name, header_row, row):
-    if os.path.exists(file_name):
-        with open(file_name, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(row)
-    else:
-        with open(file_name, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(header_row)
-            writer.writerow(row)
-
-
 def create_inconsistency_csv_output(inconsistencies_file_name, file_name, execution_number, input_class):
     """ Creates and updates a CSV file with a list of all inconsistent classes and their stereotypes. """
     csv_header = ["taxonomy_name", "execution_number", "inconsistent_class_name", "inconsistent_class_classification"]
@@ -110,18 +99,6 @@ def create_statistics_csv_output(ontology_dataclass_list, consolidated_statistic
 
 def calculate_incompleteness_values(ontology_dataclass_list):
     return sum([1 for dataclass in ontology_dataclass_list if dataclass.incompleteness_info["is_incomplete"]])
-
-
-def write_dictionary(file_name, keys, register):
-    if os.path.exists(file_name):
-        with open(file_name, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=keys)
-            writer.writerow(register)
-    else:
-        with open(file_name, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=keys)
-            writer.writeheader()
-            writer.writerow(register)
 
 
 def create_times_csv_output(time_register, test_results_folder, file_name, execution_number):
@@ -188,24 +165,32 @@ def get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclas
     return final_list
 
 
-def create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, test_folder, file_name):
+def create_classes_results_csv_output(input_classes_list, ontology_dataclass_list, test_folder,
+                                      divergences_file_name, file_name):
     final_row_list = []
+    has_divergency = False
 
     for input_class in input_classes_list:
         class_name_prefixed = NAMESPACE_TAXONOMY + input_class.name
         class_gufo_stereotype = "gufo:" + remaps_to_gufo(input_class.name, input_class.stereotype, True)
         final_list = get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclass_list)
         final_row = [input_class.name, input_class.stereotype, final_list]
+        if final_list == "not":
+            has_divergency = True
         final_row_list.append(final_row)
 
     classes_output_complete_path = os.path.join(test_folder, "results", file_name)
     csv_header = ["class_name", "class_original_classification", "classification_final_list"]
-
     with open(classes_output_complete_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(csv_header)
         for final_row in final_row_list:
             writer.writerow(final_row)
+
+    if has_divergency:
+        write_csv_row(divergences_file_name,
+                      ["taxonomy_name", "result_file"],
+                      [file_name.split("_")[1] + "_" + file_name.split("_")[4][0:5] + ".ttl", file_name])
 
 
 def create_matrix_output(knowledge_matrix, test_folder, file_name):
