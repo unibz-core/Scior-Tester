@@ -60,7 +60,7 @@ def treat_arguments(software_acronym, software_name, software_version, software_
 
     # POSITIONAL ARGUMENT
     arguments_parser.add_argument("-p", "--catalog_path", type=str, action="store",
-                                  help="The path of the catalog in which OntCatOWL is going to be tested.")
+                                  help="The path of the catalog in which Scior is going to be tested.")
 
     # Execute arguments parser
     arguments = arguments_parser.parse_args()

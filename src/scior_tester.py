@@ -15,7 +15,7 @@ from src.modules.build.build_directories_structure import get_list_ttl_files, \
 from src.modules.build.build_information_classes import saves_dataset_csv_classes_data
 from src.modules.build.build_taxonomy_classes_information import collect_taxonomies_information
 from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_files
-from ontcatowl import run_ontcatowl_tester
+from scior import run_scior_tester
 from src.modules.tester.hash_functions import write_sha256_hash_register
 from src.modules.tester.input_arguments import treat_arguments
 from src.modules.tester.logger_config import initialize_logger
@@ -71,7 +71,7 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
 
     prev_dataset_folder = ""
     for (current, taxonomy) in enumerate(taxonomies):
-        logger.info(f"Executing OntCatOWL for taxonomy {current + 1}/{total_taxonomies_number}: {taxonomy}\n")
+        logger.info(f"Executing Scior for taxonomy {current + 1}/{total_taxonomies_number}: {taxonomy}\n")
 
         taxonomy_filename = taxonomy.split(os.path.sep)[-1]
         data_filename = CLASSES_DATA_FILE_NAME + "_" + taxonomy_filename.replace(".ttl", ".csv")
@@ -100,7 +100,7 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
 
 def run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder,
                     draft_file_name, inconsistencies_file_name):
-    # Test 1 for Scior - described in: https://github.com/unibz-core/OntCatOWL-Dataset
+    # Test 1 for Scior - described in: https://github.com/unibz-core/Scior-Dataset
     tests_total = len(input_classes)
 
     # Executions of the test
@@ -116,7 +116,7 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
 
         try:
             ontology_dataclass_list, time_register, consolidated_statistics, knowledge_matrix, software_version = \
-                run_ontcatowl_tester(global_configurations, working_graph)
+                run_scior_tester(global_configurations, working_graph)
         except:
             logger.error(f"INCONSISTENCY found! Test {execution_number}/{tests_total} "
                          f"for input class {input_class.name} interrupted.")
@@ -142,7 +142,7 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
 
 def run_scior_test2(global_configurations, input_classes, input_graph, test_results_folder,
                     draft_file_name, inconsistencies_file_name, taxonomy_filename):
-    # Test 2 for Scior - described in: https://github.com/unibz-core/OntCatOWL-Dataset
+    # Test 2 for Scior - described in: https://github.com/unibz-core/Scior-Dataset
     model_size = len(input_classes)
     # Consider only datasets that have at least 20 classes. If less, skip.
     if model_size < MINIMUM_ALLOWED_NUMBER_CLASSES:
@@ -168,7 +168,7 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
 
             try:
                 ontology_dataclass_list, time_register, consolidated_statistics, knowledge_matrix, software_version =\
-                    run_ontcatowl_tester(global_configurations, working_graph)
+                    run_scior_tester(global_configurations, working_graph)
             except:
                 logger.error(f"INCONSISTENCY found: {taxonomy_filename} "
                              f"- percentage {current_percentage} - excecution {current_execution}. "
