@@ -23,12 +23,18 @@ from src.modules.tester.utils_rdf import load_graph_safely
 
 
 def build_scior_tester(catalog_path):
-    """ Build function for the Scior-Catalog Tester. Generates all the needed data."""
+    """ Build function for the Scior Tester. Generates all the needed data."""
 
     # Building directories structure
     datasets = get_list_ttl_files(catalog_path, name="ontology")  # returns all ttl files we have with full path
+
     catalog_size = len(datasets)
-    logger.info(f"The catalog contains {catalog_size} datasets.\n")
+    catalog_exclusion_list_size = len(EXCEPTIONS_LIST)
+    catalog_used_datasets_size = catalog_size - catalog_exclusion_list_size
+
+    logger.info(f"Building structure for {catalog_used_datasets_size} datasets. "
+                f"Excluded {catalog_exclusion_list_size} from {catalog_size}.\n")
+
     internal_catalog_folder = os.path.join(os.getcwd(), CATALOG_FOLDER) + os.path.sep
     create_internal_catalog_path(internal_catalog_folder)
     hash_register = pd.DataFrame(columns=["file_name", "file_hash", "source_file_name", "source_file_hash"])
@@ -37,19 +43,23 @@ def build_scior_tester(catalog_path):
         dataset_name = dataset.split(os.path.sep)[-2]
         if dataset_name not in EXCEPTIONS_LIST:
             dataset_folder = internal_catalog_folder + dataset_name
-            logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset_name} ###\n")
+            logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset_name} ###")
 
             create_test_directory_folders_structure(dataset_folder, catalog_size, current)
 
             # Building taxonomies files and collecting information from classes
             taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, hash_register)
-            # Builds dataset_classes_information and collects attributes name, prefixed_name, and all taxonomic information
+
+            # Builds dataset_classes_information and collects attributes name, prefixed_name,
+            # and all taxonomic information
             dataset_classes_information = collect_taxonomies_information(taxonomy_files, catalog_size, current)
+
             # Collects stereotype_original and stereotype_gufo for dataset_classes_information
             collect_stereotypes_classes_information(dataset, dataset_classes_information, catalog_size, current)
 
             hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
                                                            catalog_size, current, dataset, hash_register)
+        print("\n")
 
     write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
@@ -218,10 +228,3 @@ if __name__ == '__main__':
 
     if arguments["run2"]:
         run_scior(arguments["is_automatic"], arguments["is_complete"], tname="tt002")
-
-# TODO (@pedropaulofb): VERIFY
-# Are there any classes with more than one stereotype?
-# Try to clean garbage classes for creating better statistics
-# The following datasets don't have any taxonomy and were removed by hand:
-# - chartered-service, experiment2013, gailly2016value, pereira2020ontotrans, zhou2017hazard-ontology-robotic-strolling, zhou2017hazard-ontology-train-control
-# van-ee2021modular - RecursionError: maximum recursion depth exceeded while calling a Python object
