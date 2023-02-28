@@ -38,7 +38,8 @@ def collect_taxonomies_information(taxonomies_paths, catalog_size, current):
             calculate_class_taxonomy_information(taxonomy_graph, taxonomy_prefixed_nodes_list)
         )
 
-    dataset_name = taxonomies_paths[0].split(os.path.sep)[-2]
-    logger.info(f"Taxonomies information {current}/{catalog_size} collected from dataset {dataset_name}")
+    if taxonomies_paths:
+        dataset_name = taxonomies_paths[0].split(os.path.sep)[-2]
+        logger.info(f"Taxonomies information {current}/{catalog_size} collected from dataset {dataset_name}")
 
     return all_classes_information
