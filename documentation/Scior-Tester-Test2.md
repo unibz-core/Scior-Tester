@@ -39,7 +39,7 @@ Test 2 requires the setting variables for its execution. First, the user must in
 
 The other variables to be configured in the same file are:
 
-- `MINIMUM_ALLOWED_NUMBER_CLASSES`: an integer corresponding to the minimum number of classes that a taxonomy must have to be tested. I.e., if the taxonomy does not have this value, it is skipped by Test 1
+- `MINIMUM_ALLOWED_NUMBER_CLASSES`: an integer corresponding to the minimum number of classes that a taxonomy must have to be tested. I.e., if the taxonomy does not have this value, it is skipped by Test 2
 - `PERCENTAGE_INITIAL`: a float number corresponding to the first percentage of classes used as input to be tested (e.g., 10, corresponding to 10% of the classes of a taxonomy)
 - `PERCENTAGE_FINAL`: a float number corresponding to the last percentage of classes used as input to be tested (e.g., 90, corresponding to 90% of the classes of a taxonomy)
 - `PERCENTAGE_RATE`: a float number that represents the rate at which the `PERCENTAGE_INITIAL` is increased up to reach the `PERCENTAGE_FINAL` value (e.g., 10, corresponding to an increase of 10% for each execution round).
