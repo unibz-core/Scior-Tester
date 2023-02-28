@@ -1,6 +1,6 @@
 """ Functions related to Test 2 """
-import csv
 import os
+
 import yaml
 
 import src.modules.run.test1 as test1
@@ -29,7 +29,7 @@ def create_classes_yaml_output_t2(input_class_list, ontology_dataclass_list, tes
 
 def create_times_csv_output_t2(time_register, test_results_folder, file_name, percentage_number, execution_number):
     times_output_complete_path = os.path.join(test_results_folder,
-                                    f"times{file_name[:-4]}_ex{execution_number:03d}_pc{percentage_number:03d}.csv")
+                                              f"times{file_name[:-4]}_ex{execution_number:03d}_pc{percentage_number:03d}.csv")
     time_keys = list(time_register.keys())
     time_keys.sort()
     time_keys = ["percentage", "execution"] + time_keys

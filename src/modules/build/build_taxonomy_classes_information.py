@@ -3,8 +3,8 @@ import os.path
 
 from src import NAMESPACE_TAXONOMY
 from src.modules.build.build_information_classes import InformationStructure
-from src.modules.tester.utils_graph import generates_nodes_lists
 from src.modules.tester.logger_config import initialize_logger
+from src.modules.tester.utils_graph import generates_nodes_lists
 from src.modules.tester.utils_rdf import load_graph_safely
 
 

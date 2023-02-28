@@ -1,7 +1,6 @@
 """ Functions for registering hashes information for all generated files. """
-import csv
 import hashlib
-import os
+
 import pandas as pd
 
 from src import BLOCK_SIZE

@@ -1,16 +1,15 @@
 import os.path
+from copy import deepcopy
 
 from rdflib import RDF, Graph, RDFS, OWL
-from copy import deepcopy
 
 from src import NAMESPACE_TAXONOMY
 from src.modules.build import *
-from src.modules.run.test1 import write_csv_row
 from src.modules.tester.hash_functions import register_sha256_hash_information
 from src.modules.tester.logger_config import initialize_logger
-from src.modules.tester.utils_rdf import load_graph_safely
-from src.modules.tester.utils_graph import generates_nodes_lists, get_all_related_nodes
 from src.modules.tester.utils_general import lists_subtraction
+from src.modules.tester.utils_graph import generates_nodes_lists, get_all_related_nodes
+from src.modules.tester.utils_rdf import load_graph_safely
 
 
 def clean_class_name(class_raw_name: str) -> str:

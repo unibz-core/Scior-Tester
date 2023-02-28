@@ -1,15 +1,16 @@
 """ Baseline dictionary definition. """
 import csv
 import os
-import yaml
 import platform
+
 import psutil
+import yaml
 
 from src import NAMESPACE_TAXONOMY, NAMESPACE_GUFO, MINIMUM_ALLOWED_NUMBER_CLASSES, PERCENTAGE_INITIAL, \
     PERCENTAGE_FINAL, PERCENTAGE_RATE, NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE
+from src.modules.build.build_directories_structure import create_folder
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_general import write_csv_row, write_dictionary
-from src.modules.build.build_directories_structure import create_folder
 
 
 class ClassDef(object):
@@ -102,7 +103,7 @@ def calculate_incompleteness_values(ontology_dataclass_list):
 
 
 def create_times_csv_output(time_register, test_results_folder, file_name, execution_number):
-    times_output_complete_path = os.path.join(test_results_folder,  f"times{file_name}")
+    times_output_complete_path = os.path.join(test_results_folder, f"times{file_name}")
     time_keys = list(time_register.keys())
     time_keys.sort()
     time_keys = ["execution"] + time_keys
@@ -133,13 +134,13 @@ def convert_ontology_dataclass_list_to_dictionary_list(input_class_list, ontolog
     for ontology_dataclass in ontology_dataclass_list:
         short_dataclass_name = ontology_dataclass.uri.removeprefix(NAMESPACE_TAXONOMY)
         ontology_dictionary = {short_dataclass_name: {
-                "input": ontology_dataclass.uri in input_long_names,
-                "is_type": ontology_dataclass.is_type,
-                "can_type": ontology_dataclass.can_type,
-                "not_type": ontology_dataclass.not_type,
-                "is_incomplete": ontology_dataclass.incompleteness_info["is_incomplete"],
-                "detected_in": ontology_dataclass.incompleteness_info["detected_in"]
-            }
+            "input": ontology_dataclass.uri in input_long_names,
+            "is_type": ontology_dataclass.is_type,
+            "can_type": ontology_dataclass.can_type,
+            "not_type": ontology_dataclass.not_type,
+            "is_incomplete": ontology_dataclass.incompleteness_info["is_incomplete"],
+            "detected_in": ontology_dataclass.incompleteness_info["detected_in"]
+        }
         }
         ontology_dictionary_list.append(ontology_dictionary)
 

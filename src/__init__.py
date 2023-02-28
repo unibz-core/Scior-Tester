@@ -1,5 +1,6 @@
-from decouple import config
 from typing import Final
+
+from decouple import config
 
 SOFTWARE_ACRONYM = "Scior Tester"
 SOFTWARE_NAME = "Tester for the Identification of Ontological Categories for OWL Ontologies"

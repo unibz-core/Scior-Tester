@@ -1,21 +1,27 @@
 """ Main module for the OntoCatOWL-Catalog Tester. """
 import os
-import pandas as pd
 import random
-
 from copy import deepcopy
-from rdflib import URIRef, RDF
 
-from src import *
-from modules.run.test1 import *
-from modules.run.test2 import *
+import pandas as pd
+from rdflib import URIRef, RDF
+from scior import run_scior_tester
+
+from src import EXCEPTIONS_LIST, CATALOG_FOLDER, HASH_FILE_NAME, CLASSES_DATA_FILE_NAME, NAMESPACE_TAXONOMY, \
+    NAMESPACE_GUFO, MINIMUM_ALLOWED_NUMBER_CLASSES, PERCENTAGE_INITIAL, PERCENTAGE_FINAL, \
+    NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE, PERCENTAGE_RATE, SOFTWARE_ACRONYM, SOFTWARE_NAME, SOFTWARE_VERSION, \
+    SOFTWARE_URL
 from src.modules.build.build_classes_stereotypes_information import collect_stereotypes_classes_information
 from src.modules.build.build_directories_structure import get_list_ttl_files, \
     create_test_directory_folders_structure, create_test_results_folder, create_internal_catalog_path
 from src.modules.build.build_information_classes import saves_dataset_csv_classes_data
 from src.modules.build.build_taxonomy_classes_information import collect_taxonomies_information
 from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_files
-from scior import run_scior_tester
+from src.modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_inconsistency_csv_output, \
+    save_platform_information, create_classes_yaml_output, create_classes_results_csv_output, create_matrix_output, \
+    create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
+from src.modules.run.test2 import create_inconsistency_csv_output_t2, create_classes_yaml_output_t2, \
+    create_times_csv_output_t2, create_statistics_csv_output_t2
 from src.modules.tester.hash_functions import write_sha256_hash_register
 from src.modules.tester.input_arguments import treat_arguments
 from src.modules.tester.logger_config import initialize_logger
@@ -41,8 +47,12 @@ def build_scior_tester(catalog_path):
 
     for (current, dataset) in enumerate(datasets):
         dataset_name = dataset.split(os.path.sep)[-2]
-        if dataset_name not in EXCEPTIONS_LIST:
+
+        if dataset_name in EXCEPTIONS_LIST:
+            logger.info(f"### Skipping dataset {current}/{catalog_size}: {dataset_name} in EXCEPTIONS_LIST ###\n")
+        else:
             dataset_folder = internal_catalog_folder + dataset_name
+
             logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset_name} ###")
 
             create_test_directory_folders_structure(dataset_folder, catalog_size, current)
@@ -59,13 +69,13 @@ def build_scior_tester(catalog_path):
 
             hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
                                                            catalog_size, current, dataset, hash_register)
-        print("\n")
+
+            logger.info(f"Dataset {dataset_name} concluded \n")
 
     write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
 
 def run_scior(is_automatic: bool, is_complete: bool, tname: str):
-
     # Creating list of taxonomies
     taxonomies = get_list_ttl_files(os.path.join(os.getcwd(), CATALOG_FOLDER))
     total_taxonomies_number = len(taxonomies)
@@ -179,7 +189,7 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
                 working_graph.add((triple_subject, RDF.type, triple_object))
 
             try:
-                ontology_dataclass_list, time_register, consolidated_statistics, knowledge_matrix, software_version =\
+                ontology_dataclass_list, time_register, consolidated_statistics, knowledge_matrix, software_version = \
                     run_scior_tester(global_configurations, working_graph)
             except:
                 logger.error(f"INCONSISTENCY found: {taxonomy_filename} "
@@ -196,12 +206,12 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
                     save_platform_information(test_results_folder, f"settings{draft_file_name[:-10]}.csv",
                                               software_version, env_vars=True)
                 create_classes_yaml_output_t2(sample_list, ontology_dataclass_list, test_results_folder,
-                  file_name=f"complete{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.yaml")
+                                              file_name=f"complete{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.yaml")
                 create_classes_results_csv_output(input_classes, ontology_dataclass_list,
                                                   test_results_folder, divergences_file_name,
-                    file_name=f"simple{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
+                                                  file_name=f"simple{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
                 create_matrix_output(knowledge_matrix, test_results_folder,
-                    file_name=f"matrix{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
+                                     file_name=f"matrix{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
                 create_times_csv_output_t2(time_register, test_results_folder, draft_file_name,
                                            current_percentage, current_execution)
                 create_statistics_csv_output_t2(ontology_dataclass_list, consolidated_statistics,

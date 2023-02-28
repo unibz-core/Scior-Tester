@@ -182,7 +182,7 @@ The rest of the functions are not used anywhere
 def get_related(graph, nodes_list, element, _type: str):
     related = []
     scs = get_superclasses(graph, nodes_list["all"], element) if _type == "roots" else \
-          get_subclasses(graph, nodes_list["all"], element)
+        get_subclasses(graph, nodes_list["all"], element)
 
     for sc in scs:
         if sc in nodes_list[_type]:

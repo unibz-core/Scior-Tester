@@ -1,6 +1,6 @@
 """ Functions related to OS files and strings used for general purposes. """
-import os
 import glob
+import os
 import shutil
 
 from src.modules.tester.logger_config import initialize_logger
