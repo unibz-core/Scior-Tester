@@ -13,6 +13,8 @@ CLASSES_DATA_FILE_NAME = "data"
 HASH_FILE_NAME = "hash_sha256_register.csv"
 BLOCK_SIZE = 65536
 
+EXCEPTIONS_LIST = ["lindeberg2022simple-ontorights", "van-ee2021modular"]
+"""
 EXCEPTIONS_LIST = [
     "ahmad2018aviation",
     "chartered-service",
@@ -41,6 +43,7 @@ EXCEPTIONS_LIST = [
     "zhou2017hazard-ontology-robotic-strolling",
     "zhou2017hazard-ontology-train-control"
 ]
+"""
 
 """
 ------------------------------------------------------------
