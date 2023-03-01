@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from rdflib import RDF, Graph, RDFS, OWL, URIRef
 
-from src import NAMESPACE_TAXONOMY
+from src import NAMESPACE_TAXONOMY, NAMESPACE_GUFO
 from src.modules.build import VOCABULARY_GENERALIZATION_URI, VOCABULARY_GENERAL_URI, VOCABULARY_SPECIFIC_URI, \
     VOCABULARY_CLASS_URI, VOCABULARY_NAME_URI, VOCABULARY_STEREOTYPE_URI, VOCABULARY_URI_STR
 from src.modules.build.build_classes_stereotypes_information import get_gufo_classification, clean_class_name, \
@@ -38,6 +38,8 @@ def create_full_taxonomy_graph(owl_file_path: str, keep_classification: bool):
 
     source_graph = load_graph_safely(owl_file_path)
     taxonomy_graph = Graph()
+
+    taxonomy_graph.bind("",NAMESPACE_TAXONOMY)
 
     # Isolated classes are ignored for the creation of the taxonomy.ttl file.
     for generalization in source_graph.subjects(RDF.type, VOCABULARY_GENERALIZATION_URI):
@@ -75,6 +77,7 @@ def create_full_taxonomy_graph(owl_file_path: str, keep_classification: bool):
 
         # Adding gUFO classifications only if user provided argument
         if keep_classification:
+            taxonomy_graph.bind("gufo", NAMESPACE_GUFO)
             # Getting classes OntoUML stereotypes (full URIRef)
             class_general_stereotype = source_graph.value(class_general, VOCABULARY_STEREOTYPE_URI)
             class_specific_stereotype = source_graph.value(class_specific, VOCABULARY_STEREOTYPE_URI)

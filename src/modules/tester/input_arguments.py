@@ -25,7 +25,7 @@ def treat_arguments(software_acronym, software_name, software_version, software_
     # OPTIONAL ARGUMENTS
 
     # General arguments
-    arguments_parser.add_argument("-b1", "--build", action='store_true',
+    arguments_parser.add_argument("-b", "--build", action='store_true',
                                   help="Build test datasets' taxonomies and files. "
                                        "Keeps classes and generalizations only.")
 
