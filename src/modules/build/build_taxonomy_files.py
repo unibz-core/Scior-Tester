@@ -1,10 +1,13 @@
 import os.path
 from copy import deepcopy
 
-from rdflib import RDF, Graph, RDFS, OWL
+from rdflib import RDF, Graph, RDFS, OWL, URIRef
 
 from src import NAMESPACE_TAXONOMY
-from src.modules.build import *
+from src.modules.build import VOCABULARY_GENERALIZATION_URI, VOCABULARY_GENERAL_URI, VOCABULARY_SPECIFIC_URI, \
+    VOCABULARY_CLASS_URI, VOCABULARY_NAME_URI, VOCABULARY_STEREOTYPE_URI, VOCABULARY_URI_STR
+from src.modules.build.build_classes_stereotypes_information import get_gufo_classification, clean_class_name, \
+    return_gufo_classification_uri
 from src.modules.tester.hash_functions import register_sha256_hash_information
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_general import lists_subtraction
@@ -12,24 +15,7 @@ from src.modules.tester.utils_graph import generates_nodes_lists, get_all_relate
 from src.modules.tester.utils_rdf import load_graph_safely
 
 
-def clean_class_name(class_raw_name: str) -> str:
-    """
-    Clears class name from unnecessary chars
-    :param class_raw_name: Class name as read from model
-    :return: Class name after removing invalid characters
-    """
-
-    class_clean_name = class_raw_name.strip()
-    class_clean_name = class_clean_name.replace(",", "_")
-    class_clean_name = class_clean_name.replace("  ", " ")
-    class_clean_name = class_clean_name.replace(" ", "_")
-    class_clean_name = class_clean_name.replace("\n", "_")
-    class_clean_name = class_clean_name.replace("\"\"", "_")
-
-    return class_clean_name
-
-
-def create_full_taxonomy_graph(owl_file_path):
+def create_full_taxonomy_graph(owl_file_path: str, keep_classification: bool):
     """ Extract the dataset model's taxonomy into a new graph. """
 
     source_graph = load_graph_safely(owl_file_path)
@@ -69,14 +55,41 @@ def create_full_taxonomy_graph(owl_file_path):
         taxonomy_graph.add((uriref_specific, RDF.type, OWL.Class))
         taxonomy_graph.add((uriref_specific, RDFS.subClassOf, uriref_general))
 
+        # Adding gUFO classifications only if user provided argument
+        if keep_classification:
+            # Getting classes OntoUML stereotypes (full URIRef)
+            class_general_stereotype = source_graph.value(class_general, VOCABULARY_STEREOTYPE_URI)
+            class_specific_stereotype = source_graph.value(class_specific, VOCABULARY_STEREOTYPE_URI)
+
+            # Getting classes OntoUML stereotypes (only stereotype string)
+            class_general_ontouml_string = class_general_stereotype.n3().replace(VOCABULARY_URI_STR, "")[1:-1]
+            class_specific_ontouml_string = class_specific_stereotype.n3().replace(VOCABULARY_URI_STR, "")[1:-1]
+
+            # Mapping OntoUML types to gUFO
+            class_general_gufo_string = get_gufo_classification(class_general_ontouml_string)
+            class_specific_gufo_string = get_gufo_classification(class_specific_ontouml_string)
+
+            # skip if mapped classification equals "other"
+            if class_general_gufo_string != "other":
+                class_general_gufo = return_gufo_classification_uri(class_general_gufo_string)
+            if class_specific_gufo_string != "other":
+                class_specific_gufo = return_gufo_classification_uri(class_specific_gufo_string)
+
+            # Adding gUFO categories to taxonomy
+            # taxonomy_graph.add((uriref_general, RDF.type, OWL.Class))
+            # taxonomy_graph.add((uriref_specific, RDF.type, OWL.Class))
+
+            pass
+
     return taxonomy_graph
 
 
-def create_taxonomy_ttl_files(source_owl_file_path, dataset_folder_path, hash_register):
+def create_taxonomy_ttl_files(source_owl_file_path, dataset_folder_path, keep_classification, hash_register):
     """ Generates and saves files taxonomy.ttl - rdf-s graph with the model's taxonomy - for a dataset. """
 
     # get the full graph
-    full_taxonomy_graph = create_full_taxonomy_graph(source_owl_file_path)
+    full_taxonomy_graph = create_full_taxonomy_graph(source_owl_file_path, keep_classification)
+
     # generate isolated files
     taxonomy_files, hash_register = generate_isolated_taxonomy_files(
         full_taxonomy_graph, dataset_folder_path, source_owl_file_path, hash_register)

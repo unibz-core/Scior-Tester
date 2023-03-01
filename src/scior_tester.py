@@ -28,8 +28,13 @@ from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_rdf import load_graph_safely
 
 
-def build_scior_tester(catalog_path):
-    """ Build function for the Scior Tester. Generates all the needed data."""
+def build_scior_tester(catalog_path: str, keep_classification: bool):
+    """ Build function for the Scior Tester. Generates all the needed data.
+
+    :param str catalog_path: path to the OntoUML/UFO Catalog
+    :param bool keep_classification: if True, the resulting taxonomies will have its classes mapped to gUFO concepts
+    (when the mapping differs from "other").
+    """
 
     # Building directories structure
     datasets = get_list_ttl_files(catalog_path, name="ontology")  # returns all ttl files we have with full path
@@ -58,7 +63,8 @@ def build_scior_tester(catalog_path):
             create_test_directory_folders_structure(dataset_folder, catalog_size, current)
 
             # Building taxonomies files and collecting information from classes
-            taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, hash_register)
+            taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, keep_classification,
+                                                                      hash_register)
 
             # Builds dataset_classes_information and collects attributes name, prefixed_name,
             # and all taxonomic information
@@ -229,8 +235,8 @@ if __name__ == '__main__':
     arguments = treat_arguments(SOFTWARE_ACRONYM, SOFTWARE_NAME, SOFTWARE_VERSION, SOFTWARE_URL)
 
     # Execute in BUILD mode.
-    if arguments["build"]:
-        build_scior_tester(arguments["catalog_path"])
+    if arguments["build"] or arguments["build_gufo"]:
+        build_scior_tester(arguments["catalog_path"],arguments["build_gufo"])
 
     # Execute in RUN mode.
     if arguments["run1"]:

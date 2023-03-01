@@ -1,28 +1,86 @@
 """ Functions related to stereotypes. """
 import os.path
 
-from rdflib import RDF
+from rdflib import RDF, URIRef
 
-from src.modules.build import *
-from src.modules.build.build_taxonomy_files import clean_class_name
+from src import NAMESPACE_GUFO
+from src.modules.build import VOCABULARY_CLASS_URI, VOCABULARY_NAME_URI, VOCABULARY_STEREOTYPE_URI
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_rdf import load_graph_safely
 
+def clean_class_name(class_raw_name: str) -> str:
+    """
+    Clears class name from unnecessary chars
+    :param class_raw_name: Class name as read from model
+    :return: Class name after removing invalid characters
+    """
 
-def get_gufo_stereotype(class_stereotype_original):
+    class_clean_name = class_raw_name.strip()
+    class_clean_name = class_clean_name.replace(",", "_")
+    class_clean_name = class_clean_name.replace("  ", " ")
+    class_clean_name = class_clean_name.replace(" ", "_")
+    class_clean_name = class_clean_name.replace("\n", "_")
+    class_clean_name = class_clean_name.replace("\"\"", "_")
+
+    return class_clean_name
+
+
+def get_gufo_classification(class_stereotype_original):
     """ Maps OntoUML serialization in OWL stereotype for the gUFO types used in Scior """
 
     keeped_stereotypes = ("category", "mixin", "phase", "phasemixin", "kind", "subkind", "role", "rolemixin")
     if class_stereotype_original in keeped_stereotypes:
         return class_stereotype_original
 
-    mapped_stereotypes = {"collective": "kind", "quality": "kind", "quantity": "kind", "mode": "kind",
+    mapped_classification = {"collective": "kind", "quality": "kind", "quantity": "kind", "mode": "kind",
                           "relator": "kind", "historicalrole": "role", "historicalrolemixin": "rolemixin"}
-    if class_stereotype_original in mapped_stereotypes:
-        return mapped_stereotypes[class_stereotype_original]
+    if class_stereotype_original in mapped_classification:
+        return mapped_classification[class_stereotype_original]
 
     return "other"
 
+def return_gufo_classification_uri(simple_classification: str) -> URIRef:
+    """ Receives a str with a lowercase gUFO classification and returns the corresponding gUFO classification URIRef"""
+
+    logger = initialize_logger()
+
+    classification_dictionary = {
+    "antirigidtype": "AntiRigidType",
+    "aspect": "Aspect",
+    "category": "Category",
+    "collection": "Collection",
+    "endurant": "Endurant",
+    "enduranttype": "EndurantType",
+    "extrinsicaspect": "ExtrinsicAspect",
+    "extrinsicmode": "ExtrinsicMode",
+    "fixedcollection": "FixedCollection",
+    "functionalcomplex": "FunctionalComplex",
+    "intrinsicaspect": "IntrinsicAspect",
+    "intrinsicmode": "IntrinsicMode",
+    "kind": "Kind",
+    "mixin": "Mixin",
+    "nonrigidtype": "NonRigidType",
+    "nonsortal": "NonSortal",
+    "object": "Object",
+    "phase": "Phase",
+    "phasemixin": "PhaseMixin",
+    "quality": "Quality",
+    "quantity": "Quantity",
+    "relator": "Relator",
+    "rigidtype": "RigidType",
+    "role": "Role",
+    "rolemixin": "RoleMixin",
+    "semirigidtype": "SemiRigidType",
+    "sortal": "Sortal",
+    "subkind": "SubKind",
+    "variablecollection": "VariableCollection"
+    }
+
+    if simple_classification in classification_dictionary:
+        return URIRef(NAMESPACE_GUFO + classification_dictionary[simple_classification])
+    else:
+        logger.error(f"Unexpected classification {simple_classification}. URIRef cannot be returned. Program aborted!")
+        exit(1)
 
 def collect_stereotypes_classes_information(source_owl_file_path, dataset_classes_information, catalog_size, current):
     """ Read all classes information related to stereotypes and updates the catalog_information
@@ -54,7 +112,7 @@ def collect_stereotypes_classes_information(source_owl_file_path, dataset_classe
             else:
                 class_stereotype_original_string = class_stereotype_original.n3()[44:-1]
                 class_stereotype_original_string = class_stereotype_original_string.lower().strip()
-                class_stereotype_gufo = get_gufo_stereotype(class_stereotype_original_string)
+                class_stereotype_gufo = get_gufo_classification(class_stereotype_original_string)
 
             class_inf[class_name] = (class_stereotype_original_string, class_stereotype_gufo)
 

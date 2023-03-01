@@ -15,7 +15,7 @@ def treat_arguments(software_acronym, software_name, software_version, software_
     about_message = software_acronym + " - version " + software_version
 
     # PARSING ARGUMENTS
-    arguments_parser = argparse.ArgumentParser(prog="SciorTester",
+    arguments_parser = argparse.ArgumentParser(prog="Scior-Tester",
                                                description=software_acronym + " - " + software_name,
                                                allow_abbrev=False,
                                                epilog=software_url)
@@ -25,8 +25,13 @@ def treat_arguments(software_acronym, software_name, software_version, software_
     # OPTIONAL ARGUMENTS
 
     # General arguments
-    arguments_parser.add_argument("-b", "--build", action='store_true',
-                                  help="Build test datasets' structure and files.")
+    arguments_parser.add_argument("-b1", "--build", action='store_true',
+                                  help="Build test datasets' taxonomies and files. "
+                                       "Keeps classes and generalizations only.")
+
+    arguments_parser.add_argument("-b2", "--build_gufo", action='store_true',
+                                  help="Build test datasets' taxonomies and files. "
+                                       "Keeps classes, generalizations and mapped gUFO classifications.")
 
     arguments_parser.add_argument("-r1", "--run1", action='store_true',
                                   help="Execute the TEST_1 for the built datasets.")
@@ -72,6 +77,7 @@ def treat_arguments(software_acronym, software_name, software_version, software_
         arguments.complete = COMPLETE
 
     global_configurations = {"build": arguments.build,
+                             "build_gufo": arguments.build_gufo,
                              "run1": arguments.run1,
                              "run2": arguments.run2,
                              "is_automatic": arguments.automatic,
