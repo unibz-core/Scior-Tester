@@ -21,6 +21,8 @@ def clean_class_name(class_raw_name: str) -> str:
     class_clean_name = class_clean_name.replace(" ", "_")
     class_clean_name = class_clean_name.replace("\n", "_")
     class_clean_name = class_clean_name.replace("\"\"", "_")
+    class_clean_name = class_clean_name.replace("<", "_")
+    class_clean_name = class_clean_name.replace(">", "_")
 
     return class_clean_name
 
