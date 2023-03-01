@@ -78,7 +78,7 @@ def build_scior_tester(catalog_path: str, keep_classification: bool):
             hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
                                                            catalog_size, current, dataset, hash_register)
 
-            logger.info(f"Dataset {dataset_name} sucessfully concluded! \n")
+            logger.info(f"Dataset {dataset_name} successfully concluded! \n")
 
     write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
