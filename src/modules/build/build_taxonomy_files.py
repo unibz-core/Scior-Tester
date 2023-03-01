@@ -15,6 +15,24 @@ from src.modules.tester.utils_graph import generates_nodes_lists, get_all_relate
 from src.modules.tester.utils_rdf import load_graph_safely
 
 
+def add_classification_to_graph(taxonomy_graph, class_uri, class_ontouml_stereotype):
+    """ Adds to the taxonomy the class's OntoUML stereotype mapped to gUFO. """
+
+    # There is nothing to do if the class does not have a stereotype
+    if class_ontouml_stereotype != None:
+        # Getting classes OntoUML stereotypes (only stereotype string)
+        class_ontouml_string = class_ontouml_stereotype.n3().replace(VOCABULARY_URI_STR, "")[1:-1]
+
+        # Mapping OntoUML types to gUFO
+        class_gufo_string = get_gufo_classification(class_ontouml_string)
+
+        # skip if mapped classification equals "other"
+        if class_gufo_string != "other":
+            class_general_gufo = return_gufo_classification_uri(class_gufo_string)
+            # Adding gUFO categories to taxonomy
+            taxonomy_graph.add((class_uri, RDF.type, class_general_gufo))
+
+
 def create_full_taxonomy_graph(owl_file_path: str, keep_classification: bool):
     """ Extract the dataset model's taxonomy into a new graph. """
 
@@ -61,25 +79,8 @@ def create_full_taxonomy_graph(owl_file_path: str, keep_classification: bool):
             class_general_stereotype = source_graph.value(class_general, VOCABULARY_STEREOTYPE_URI)
             class_specific_stereotype = source_graph.value(class_specific, VOCABULARY_STEREOTYPE_URI)
 
-            # Getting classes OntoUML stereotypes (only stereotype string)
-            class_general_ontouml_string = class_general_stereotype.n3().replace(VOCABULARY_URI_STR, "")[1:-1]
-            class_specific_ontouml_string = class_specific_stereotype.n3().replace(VOCABULARY_URI_STR, "")[1:-1]
-
-            # Mapping OntoUML types to gUFO
-            class_general_gufo_string = get_gufo_classification(class_general_ontouml_string)
-            class_specific_gufo_string = get_gufo_classification(class_specific_ontouml_string)
-
-            # skip if mapped classification equals "other"
-            if class_general_gufo_string != "other":
-                class_general_gufo = return_gufo_classification_uri(class_general_gufo_string)
-            if class_specific_gufo_string != "other":
-                class_specific_gufo = return_gufo_classification_uri(class_specific_gufo_string)
-
-            # Adding gUFO categories to taxonomy
-            # taxonomy_graph.add((uriref_general, RDF.type, OWL.Class))
-            # taxonomy_graph.add((uriref_specific, RDF.type, OWL.Class))
-
-            pass
+            add_classification_to_graph(taxonomy_graph, uriref_general, class_general_stereotype)
+            add_classification_to_graph(taxonomy_graph, uriref_specific, class_specific_stereotype)
 
     return taxonomy_graph
 

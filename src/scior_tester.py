@@ -50,7 +50,9 @@ def build_scior_tester(catalog_path: str, keep_classification: bool):
     create_internal_catalog_path(internal_catalog_folder)
     hash_register = pd.DataFrame(columns=["file_name", "file_hash", "source_file_name", "source_file_hash"])
 
-    for (current, dataset) in enumerate(datasets):
+    for (current_num, dataset) in enumerate(datasets):
+        current = current_num + 1
+
         dataset_name = dataset.split(os.path.sep)[-2]
 
         if dataset_name in EXCEPTIONS_LIST:
@@ -76,7 +78,7 @@ def build_scior_tester(catalog_path: str, keep_classification: bool):
             hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
                                                            catalog_size, current, dataset, hash_register)
 
-            logger.info(f"Dataset {dataset_name} concluded \n")
+            logger.info(f"Dataset {dataset_name} sucessfully concluded! \n")
 
     write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
