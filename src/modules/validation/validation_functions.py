@@ -61,7 +61,9 @@ def validate_gufo_taxonomies():
             current_taxonomy.problems_bool.append(problems_found)
 
             if problems_found > 0:
-                logger.warning(f"Constraint violated: {validation_query}")
                 current_taxonomy.list_problems.append(validation_query)
+
+        if len(current_taxonomy.list_problems) > 0:
+            logger.warning(f"Constraint violated: {current_taxonomy.list_problems}")
 
     save_csv_validation(QUERIES_LIST, evaluated_taxonomies)
