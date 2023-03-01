@@ -26,61 +26,72 @@ from src.modules.tester.hash_functions import write_sha256_hash_register
 from src.modules.tester.input_arguments import treat_arguments
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_rdf import load_graph_safely
+from src.modules.validation.validation_functions import validate_gufo_taxonomies
 
+# TODO (@pedropaulofb): USED ONLY FOR TEST! DELETE!
+SKIP = 1
 
-def build_scior_tester(catalog_path: str, keep_classification: bool):
+def build_scior_tester(catalog_path: str, taxonomy_mode: str):
     """ Build function for the Scior Tester. Generates all the needed data.
 
     :param str catalog_path: path to the OntoUML/UFO Catalog
-    :param bool keep_classification: if True, the resulting taxonomies will have its classes mapped to gUFO concepts
-    (when the mapping differs from "other").
+    :param str taxonomy_mode:
+        - if "simple", the resulting taxonomies will not contain gUFO classifications
+        - if "gufo", the resulting taxonomies will have its classes mapped to gUFO concepts
+        (when the mapping differs from "other").
+        - if "validate", adds validation to the generated taxonomies
     """
 
-    # Building directories structure
-    datasets = get_list_ttl_files(catalog_path, name="ontology")  # returns all ttl files we have with full path
+    if SKIP == 0:
 
-    catalog_size = len(datasets)
-    catalog_exclusion_list_size = len(EXCEPTIONS_LIST)
-    catalog_used_datasets_size = catalog_size - catalog_exclusion_list_size
+        # Building directories structure
+        datasets = get_list_ttl_files(catalog_path, name="ontology")  # returns all ttl files we have with full path
 
-    logger.info(f"Building structure for {catalog_used_datasets_size} datasets. "
-                f"Excluded {catalog_exclusion_list_size} from {catalog_size}.\n")
+        catalog_size = len(datasets)
+        catalog_exclusion_list_size = len(EXCEPTIONS_LIST)
+        catalog_used_datasets_size = catalog_size - catalog_exclusion_list_size
 
-    internal_catalog_folder = os.path.join(os.getcwd(), CATALOG_FOLDER) + os.path.sep
-    create_internal_catalog_path(internal_catalog_folder)
-    hash_register = pd.DataFrame(columns=["file_name", "file_hash", "source_file_name", "source_file_hash"])
+        logger.info(f"Building structure for {catalog_used_datasets_size} datasets. "
+                    f"Excluded {catalog_exclusion_list_size} from {catalog_size}.\n")
 
-    for (current_num, dataset) in enumerate(datasets):
-        current = current_num + 1
+        internal_catalog_folder = os.path.join(os.getcwd(), CATALOG_FOLDER) + os.path.sep
+        create_internal_catalog_path(internal_catalog_folder)
+        hash_register = pd.DataFrame(columns=["file_name", "file_hash", "source_file_name", "source_file_hash"])
 
-        dataset_name = dataset.split(os.path.sep)[-2]
+        for (current_num, dataset) in enumerate(datasets):
+            current = current_num + 1
 
-        if dataset_name in EXCEPTIONS_LIST:
-            logger.info(f"### Skipping dataset {current}/{catalog_size}: {dataset_name} in EXCEPTIONS_LIST ###\n")
-        else:
-            dataset_folder = internal_catalog_folder + dataset_name
+            dataset_name = dataset.split(os.path.sep)[-2]
 
-            logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset_name} ###")
+            if dataset_name in EXCEPTIONS_LIST:
+                logger.info(f"### Skipping dataset {current}/{catalog_size}: {dataset_name} in EXCEPTIONS_LIST ###\n")
+            else:
+                dataset_folder = internal_catalog_folder + dataset_name
 
-            create_test_directory_folders_structure(dataset_folder, catalog_size, current)
+                logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset_name} ###")
 
-            # Building taxonomies files and collecting information from classes
-            taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, keep_classification,
-                                                                      hash_register)
+                create_test_directory_folders_structure(dataset_folder, catalog_size, current)
 
-            # Builds dataset_classes_information and collects attributes name, prefixed_name,
-            # and all taxonomic information
-            dataset_classes_information = collect_taxonomies_information(taxonomy_files, catalog_size, current)
+                # Building taxonomies files and collecting information from classes
+                taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, taxonomy_mode,
+                                                                          hash_register)
 
-            # Collects stereotype_original and stereotype_gufo for dataset_classes_information
-            collect_stereotypes_classes_information(dataset, dataset_classes_information, catalog_size, current)
+                # Builds dataset_classes_information and collects attributes name, prefixed_name,
+                # and all taxonomic information
+                dataset_classes_information = collect_taxonomies_information(taxonomy_files, catalog_size, current)
 
-            hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
-                                                           catalog_size, current, dataset, hash_register)
+                # Collects stereotype_original and stereotype_gufo for dataset_classes_information
+                collect_stereotypes_classes_information(dataset, dataset_classes_information, catalog_size, current)
 
-            logger.info(f"Dataset {dataset_name} successfully concluded! \n")
+                hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
+                                                               catalog_size, current, dataset, hash_register)
 
-    write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
+                logger.info(f"Dataset {dataset_name} successfully concluded! \n")
+
+    if taxonomy_mode == "validate":
+        validate_gufo_taxonomies()
+
+    # write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
 
 def run_scior(is_automatic: bool, is_complete: bool, tname: str):
@@ -236,9 +247,16 @@ if __name__ == '__main__':
 
     arguments = treat_arguments(SOFTWARE_ACRONYM, SOFTWARE_NAME, SOFTWARE_VERSION, SOFTWARE_URL)
 
+    if arguments["build_gufo_validate"]:
+        taxonomy_mode = "validate"
+    elif arguments["build_gufo"]:
+        taxonomy_mode = "gufo"
+    else:
+        taxonomy_mode = "no_gufo"
+
     # Execute in BUILD mode.
-    if arguments["build"] or arguments["build_gufo"]:
-        build_scior_tester(arguments["catalog_path"],arguments["build_gufo"])
+    if arguments["build"] or arguments["build_gufo"] or arguments["build_gufo_validate"]:
+        build_scior_tester(arguments["catalog_path"],taxonomy_mode)
 
     # Execute in RUN mode.
     if arguments["run1"]:

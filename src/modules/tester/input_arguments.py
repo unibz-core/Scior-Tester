@@ -29,9 +29,14 @@ def treat_arguments(software_acronym, software_name, software_version, software_
                                   help="Build test datasets' taxonomies and files. "
                                        "Keeps classes and generalizations only.")
 
-    arguments_parser.add_argument("-b2", "--build_gufo", action='store_true',
+    arguments_parser.add_argument("-bg", "--build_gufo", action='store_true',
                                   help="Build test datasets' taxonomies and files. "
                                        "Keeps classes, generalizations and mapped gUFO classifications.")
+
+    arguments_parser.add_argument("-bgv", "--build_gufo_validate", action='store_true',
+                                  help="Build test datasets' taxonomies and files. "
+                                       "Keeps classes, generalizations and mapped gUFO classifications. "
+                                       "Performs validation of the generated taxonomies.")
 
     arguments_parser.add_argument("-r1", "--run1", action='store_true',
                                   help="Execute the TEST_1 for the built datasets.")
@@ -78,6 +83,7 @@ def treat_arguments(software_acronym, software_name, software_version, software_
 
     global_configurations = {"build": arguments.build,
                              "build_gufo": arguments.build_gufo,
+                             "build_gufo_validate": arguments.build_gufo_validate,
                              "run1": arguments.run1,
                              "run2": arguments.run2,
                              "is_automatic": arguments.automatic,

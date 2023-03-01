@@ -33,7 +33,7 @@ def add_classification_to_graph(taxonomy_graph, class_uri, class_ontouml_stereot
             taxonomy_graph.add((class_uri, RDF.type, class_general_gufo))
 
 
-def create_full_taxonomy_graph(owl_file_path: str, keep_classification: bool):
+def create_full_taxonomy_graph(owl_file_path: str, taxonomy_mode: str):
     """ Extract the dataset model's taxonomy into a new graph. """
 
     source_graph = load_graph_safely(owl_file_path)
@@ -76,7 +76,7 @@ def create_full_taxonomy_graph(owl_file_path: str, keep_classification: bool):
         taxonomy_graph.add((uriref_specific, RDFS.subClassOf, uriref_general))
 
         # Adding gUFO classifications only if user provided argument
-        if keep_classification:
+        if taxonomy_mode == "gufo" or taxonomy_mode == "validate":
             taxonomy_graph.bind("gufo", NAMESPACE_GUFO)
             # Getting classes OntoUML stereotypes (full URIRef)
             class_general_stereotype = source_graph.value(class_general, VOCABULARY_STEREOTYPE_URI)
@@ -88,11 +88,11 @@ def create_full_taxonomy_graph(owl_file_path: str, keep_classification: bool):
     return taxonomy_graph
 
 
-def create_taxonomy_ttl_files(source_owl_file_path, dataset_folder_path, keep_classification, hash_register):
+def create_taxonomy_ttl_files(source_owl_file_path, dataset_folder_path, taxonomy_mode: str, hash_register):
     """ Generates and saves files taxonomy.ttl - rdf-s graph with the model's taxonomy - for a dataset. """
 
     # get the full graph
-    full_taxonomy_graph = create_full_taxonomy_graph(source_owl_file_path, keep_classification)
+    full_taxonomy_graph = create_full_taxonomy_graph(source_owl_file_path, taxonomy_mode)
 
     # generate isolated files
     taxonomy_files, hash_register = generate_isolated_taxonomy_files(
