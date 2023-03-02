@@ -41,6 +41,29 @@ def get_gufo_classification(class_stereotype_original):
 
     return "other"
 
+def get_gufo_classification_supertypes(gufo_classification):
+    """ Receives a gUFO classification and returns a list of all gUFO classifications (including itself)
+    that are supertypes of it.  """
+
+    gufo_supertypes_dict = {
+        "antirigidtype": ["antirigidtype", "nonrigidtype"],
+        "category": ["category", "rigidtype", "nonsortal"],
+        "kind": ["kind", "rigidtype", "sortal"],
+        "mixin": ["mixin", "semirigidtype", "nonrigidtype", "nonsortal"],
+        "nonrigidtype": ["nonrigidtype"],
+        "nonsortal": ["nonsortal"],
+        "phase": ["phase", "antirigidtype", "nonrigidtype", "sortal"],
+        "phasemixin": ["phasemixin", "antirigidtype", "nonrigidtype", "nonsortal"],
+        "rigidtype": ["rigidtype"],
+        "role": ["role", "antirigidtype", "nonrigidtype", "sortal"],
+        "rolemixin": ["rolemixin", "antirigidtype", "nonrigidtype", "nonsortal"],
+        "semirigidtype": ["semirigidtype", "nonrigidtype"],
+        "sortal": ["sortal"],
+        "subkind": ["subkind", "rigidtype", "sortal"]
+    }
+
+    return gufo_supertypes_dict[gufo_classification]
+
 def return_gufo_classification_uri(simple_classification: str) -> URIRef:
     """ Receives a str with a lowercase gUFO classification and returns the corresponding gUFO classification URIRef"""
 

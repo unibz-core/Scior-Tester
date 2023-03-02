@@ -46,6 +46,7 @@ def validate_gufo_taxonomies():
     evaluated_taxonomies = []
 
     for index, file in enumerate(list_all_files):
+
         current = index + 1
         current_taxonomy = validated_taxonomy(file, [], [])
         evaluated_taxonomies.append(current_taxonomy)

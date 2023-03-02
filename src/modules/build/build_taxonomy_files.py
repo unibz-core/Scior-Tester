@@ -7,7 +7,7 @@ from src import NAMESPACE_TAXONOMY, NAMESPACE_GUFO
 from src.modules.build import VOCABULARY_GENERALIZATION_URI, VOCABULARY_GENERAL_URI, VOCABULARY_SPECIFIC_URI, \
     VOCABULARY_CLASS_URI, VOCABULARY_NAME_URI, VOCABULARY_STEREOTYPE_URI, VOCABULARY_URI_STR
 from src.modules.build.build_classes_stereotypes_information import get_gufo_classification, clean_class_name, \
-    return_gufo_classification_uri
+    return_gufo_classification_uri, get_gufo_classification_supertypes
 from src.modules.tester.hash_functions import register_sha256_hash_information
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_general import lists_subtraction
@@ -25,13 +25,14 @@ def add_classification_to_graph(taxonomy_graph, class_uri, class_ontouml_stereot
 
         # Mapping OntoUML types to gUFO
         class_gufo_string = get_gufo_classification(class_ontouml_string)
+        list_class_types = get_gufo_classification_supertypes(class_gufo_string)
 
-        # skip if mapped classification equals "other"
-        if class_gufo_string != "other":
-            class_general_gufo = return_gufo_classification_uri(class_gufo_string)
-            # Adding gUFO categories to taxonomy
-            taxonomy_graph.add((class_uri, RDF.type, class_general_gufo))
-
+        for class_type in list_class_types:
+            # Skip if mapped classification equals "other"
+            if class_type != "other":
+                class_general_gufo = return_gufo_classification_uri(class_type)
+                # Adding gUFO categories to taxonomy
+                taxonomy_graph.add((class_uri, RDF.type, class_general_gufo))
 
 def create_full_taxonomy_graph(owl_file_path: str, taxonomy_mode: str):
     """ Extract the dataset model's taxonomy into a new graph. """
@@ -82,6 +83,7 @@ def create_full_taxonomy_graph(owl_file_path: str, taxonomy_mode: str):
             class_general_stereotype = source_graph.value(class_general, VOCABULARY_STEREOTYPE_URI)
             class_specific_stereotype = source_graph.value(class_specific, VOCABULARY_STEREOTYPE_URI)
 
+            # Get related mapped gUFO classifications and adds to graph
             add_classification_to_graph(taxonomy_graph, uriref_general, class_general_stereotype)
             add_classification_to_graph(taxonomy_graph, uriref_specific, class_specific_stereotype)
 

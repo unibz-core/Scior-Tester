@@ -7,10 +7,10 @@ import pandas as pd
 from rdflib import URIRef, RDF
 from scior import run_scior_tester
 
-from src import EXCEPTIONS_LIST, CATALOG_FOLDER, HASH_FILE_NAME, CLASSES_DATA_FILE_NAME, NAMESPACE_TAXONOMY, \
+from src import EXCEPTIONS_LIST, CATALOG_FOLDER, CLASSES_DATA_FILE_NAME, NAMESPACE_TAXONOMY, \
     NAMESPACE_GUFO, MINIMUM_ALLOWED_NUMBER_CLASSES, PERCENTAGE_INITIAL, PERCENTAGE_FINAL, \
-    NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE, PERCENTAGE_RATE, SOFTWARE_ACRONYM, SOFTWARE_NAME, SOFTWARE_VERSION, \
-    SOFTWARE_URL
+    NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE, PERCENTAGE_RATE, SOFTWARE_ACRONYM, SOFTWARE_NAME, \
+    SOFTWARE_VERSION, SOFTWARE_URL
 from src.modules.build.build_classes_stereotypes_information import collect_stereotypes_classes_information
 from src.modules.build.build_directories_structure import get_list_ttl_files, \
     create_test_directory_folders_structure, create_test_results_folder, create_internal_catalog_path
@@ -22,14 +22,11 @@ from src.modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, crea
     create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
 from src.modules.run.test2 import create_inconsistency_csv_output_t2, create_classes_yaml_output_t2, \
     create_times_csv_output_t2, create_statistics_csv_output_t2
-from src.modules.tester.hash_functions import write_sha256_hash_register
 from src.modules.tester.input_arguments import treat_arguments
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_rdf import load_graph_safely
 from src.modules.validation.validation_functions import validate_gufo_taxonomies
 
-# TODO (@pedropaulofb): USED ONLY FOR TEST! DELETE!
-SKIP = 1
 
 def build_scior_tester(catalog_path: str, taxonomy_mode: str):
     """ Build function for the Scior Tester. Generates all the needed data.
@@ -42,51 +39,49 @@ def build_scior_tester(catalog_path: str, taxonomy_mode: str):
         - if "validate", adds validation to the generated taxonomies
     """
 
-    if SKIP == 0:
+    # Building directories structure
+    datasets = get_list_ttl_files(catalog_path, name="ontology")  # returns all ttl files we have with full path
 
-        # Building directories structure
-        datasets = get_list_ttl_files(catalog_path, name="ontology")  # returns all ttl files we have with full path
+    catalog_size = len(datasets)
+    catalog_exclusion_list_size = len(EXCEPTIONS_LIST)
+    catalog_used_datasets_size = catalog_size - catalog_exclusion_list_size
 
-        catalog_size = len(datasets)
-        catalog_exclusion_list_size = len(EXCEPTIONS_LIST)
-        catalog_used_datasets_size = catalog_size - catalog_exclusion_list_size
+    logger.info(f"Building structure for {catalog_used_datasets_size} datasets. "
+                f"Excluded {catalog_exclusion_list_size} from {catalog_size}.\n")
 
-        logger.info(f"Building structure for {catalog_used_datasets_size} datasets. "
-                    f"Excluded {catalog_exclusion_list_size} from {catalog_size}.\n")
+    internal_catalog_folder = os.path.join(os.getcwd(), CATALOG_FOLDER) + os.path.sep
+    create_internal_catalog_path(internal_catalog_folder)
+    hash_register = pd.DataFrame(columns=["file_name", "file_hash", "source_file_name", "source_file_hash"])
 
-        internal_catalog_folder = os.path.join(os.getcwd(), CATALOG_FOLDER) + os.path.sep
-        create_internal_catalog_path(internal_catalog_folder)
-        hash_register = pd.DataFrame(columns=["file_name", "file_hash", "source_file_name", "source_file_hash"])
+    for (current_num, dataset) in enumerate(datasets):
+        current = current_num + 1
 
-        for (current_num, dataset) in enumerate(datasets):
-            current = current_num + 1
+        dataset_name = dataset.split(os.path.sep)[-2]
 
-            dataset_name = dataset.split(os.path.sep)[-2]
+        if dataset_name in EXCEPTIONS_LIST:
+            logger.info(f"### Skipping dataset {current}/{catalog_size}: {dataset_name} in EXCEPTIONS_LIST ###\n")
+        else:
+            dataset_folder = internal_catalog_folder + dataset_name
 
-            if dataset_name in EXCEPTIONS_LIST:
-                logger.info(f"### Skipping dataset {current}/{catalog_size}: {dataset_name} in EXCEPTIONS_LIST ###\n")
-            else:
-                dataset_folder = internal_catalog_folder + dataset_name
+            logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset_name} ###")
 
-                logger.info(f"### Starting dataset {current}/{catalog_size}: {dataset_name} ###")
+            create_test_directory_folders_structure(dataset_folder, catalog_size, current)
 
-                create_test_directory_folders_structure(dataset_folder, catalog_size, current)
+            # Building taxonomies files and collecting information from classes
+            taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, taxonomy_mode,
+                                                                      hash_register)
 
-                # Building taxonomies files and collecting information from classes
-                taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, taxonomy_mode,
-                                                                          hash_register)
+            # Builds dataset_classes_information and collects attributes name, prefixed_name,
+            # and all taxonomic information
+            dataset_classes_information = collect_taxonomies_information(taxonomy_files, catalog_size, current)
 
-                # Builds dataset_classes_information and collects attributes name, prefixed_name,
-                # and all taxonomic information
-                dataset_classes_information = collect_taxonomies_information(taxonomy_files, catalog_size, current)
+            # Collects stereotype_original and stereotype_gufo for dataset_classes_information
+            collect_stereotypes_classes_information(dataset, dataset_classes_information, catalog_size, current)
 
-                # Collects stereotype_original and stereotype_gufo for dataset_classes_information
-                collect_stereotypes_classes_information(dataset, dataset_classes_information, catalog_size, current)
+            hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
+                                                           catalog_size, current, dataset, hash_register)
 
-                hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
-                                                               catalog_size, current, dataset, hash_register)
-
-                logger.info(f"Dataset {dataset_name} successfully concluded! \n")
+            logger.info(f"Dataset {dataset_name} successfully concluded! \n")
 
     if taxonomy_mode == "validate":
         validate_gufo_taxonomies()
@@ -212,13 +207,13 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
                     run_scior_tester(global_configurations, working_graph)
             except:
                 logger.error(f"INCONSISTENCY found: {taxonomy_filename} "
-                             f"- percentage {current_percentage} - excecution {current_execution}. "
+                             f"- percentage {current_percentage} - execution {current_execution}. "
                              f"Current execution interrupted.{end}")
                 create_inconsistency_csv_output_t2(inconsistencies_file_name, draft_file_name, current_percentage,
                                                    current_execution)
             else:
                 logger.info(f"Test dataset {taxonomy_filename} - percentage {current_percentage} - "
-                            f"excecution {current_execution} successfully executed "
+                            f"execution {current_execution} successfully executed "
                             f"({number_of_input_classes} input classes).{end}")
                 # Creating resulting files
                 if (current_execution == 1) and (current_percentage == PERCENTAGE_INITIAL):
@@ -256,7 +251,7 @@ if __name__ == '__main__':
 
     # Execute in BUILD mode.
     if arguments["build"] or arguments["build_gufo"] or arguments["build_gufo_validate"]:
-        build_scior_tester(arguments["catalog_path"],taxonomy_mode)
+        build_scior_tester(arguments["catalog_path"], taxonomy_mode)
 
     # Execute in RUN mode.
     if arguments["run1"]:

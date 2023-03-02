@@ -8,7 +8,6 @@ These queries are used for validating the generated taxonomies with gUFO classif
 QUERY_L12 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#> 
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
     select distinct ?type where { { 
     select ?type (count(?type) as ?n)  
     where { 
@@ -19,9 +18,9 @@ QUERY_L12 = """
         union { ?type rdf:type gufo:Kind . } 
         union { ?type rdf:type gufo:SubKind . } 
         union { ?type rdf:type gufo:Role . } 
-        union { ?type rdf:type gufo:Phase . } 
-    } group by ?type 
-    } filter (?n > 1)}
+        union { ?type rdf:type gufo:Phase . }} 
+    group by ?type} 
+    filter (?n > 1)}
 """
 
 QUERY_L13 = """
