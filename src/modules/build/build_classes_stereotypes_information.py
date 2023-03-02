@@ -62,7 +62,10 @@ def get_gufo_classification_supertypes(gufo_classification):
         "subkind": ["subkind", "rigidtype", "sortal"]
     }
 
-    return gufo_supertypes_dict[gufo_classification]
+    if gufo_classification == "other":
+        return "other"
+    else:
+        return gufo_supertypes_dict[gufo_classification]
 
 def return_gufo_classification_uri(simple_classification: str) -> URIRef:
     """ Receives a str with a lowercase gUFO classification and returns the corresponding gUFO classification URIRef"""
