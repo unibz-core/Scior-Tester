@@ -23,6 +23,10 @@ def save_csv_validation(queries_list, evaluated_taxonomies):
 
     file_name = 'validation.csv'
 
+    # if previous validation.csv file exists, it is deleted
+    if os.path.exists(file_name):
+        os.remove(file_name)
+
     # Creating header
     csv_header = [i for i in queries_list]
     csv_header.insert(0, "file_name")
@@ -52,7 +56,7 @@ def validate_gufo_taxonomies():
         evaluated_taxonomies.append(current_taxonomy)
 
         # Loading file
-        logger.info(f"Loading taxonomy {current}/{len(list_all_files)}: {file}")
+        logger.info(f"Validating taxonomy {current}/{len(list_all_files)}: {file}")
         taxonomy_graph = load_graph_safely(file)
 
         # Performing queries
@@ -65,6 +69,6 @@ def validate_gufo_taxonomies():
                 current_taxonomy.list_problems.append(validation_query)
 
         if len(current_taxonomy.list_problems) > 0:
-            logger.warning(f"Constraint violated: {current_taxonomy.list_problems}")
+            logger.warning(f"Identified violation(s) of constraint(s): {current_taxonomy.list_problems}")
 
     save_csv_validation(QUERIES_LIST, evaluated_taxonomies)
