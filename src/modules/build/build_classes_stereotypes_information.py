@@ -63,7 +63,7 @@ def get_gufo_classification_supertypes(gufo_classification):
     }
 
     if gufo_classification == "other":
-        return "other"
+        return ["other"]
     else:
         return gufo_supertypes_dict[gufo_classification]
 
