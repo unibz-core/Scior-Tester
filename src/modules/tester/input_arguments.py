@@ -24,25 +24,28 @@ def treat_arguments(software_acronym, software_name, software_version, software_
 
     # OPTIONAL ARGUMENTS
 
-    # General arguments
-    arguments_parser.add_argument("-b", "--build", action='store_true',
-                                  help="Build test datasets' taxonomies and files. "
-                                       "Keeps classes and generalizations only.")
-
-    arguments_parser.add_argument("-bg", "--build_gufo", action='store_true',
-                                  help="Build test datasets' taxonomies and files. "
-                                       "Keeps classes, generalizations and mapped gUFO classifications.")
-
-    arguments_parser.add_argument("-bgv", "--build_gufo_validate", action='store_true',
-                                  help="Build test datasets' taxonomies and files. "
-                                       "Keeps classes, generalizations and mapped gUFO classifications. "
-                                       "Performs validation of the generated taxonomies.")
-
+    # Run arguments
     arguments_parser.add_argument("-r1", "--run1", action='store_true',
                                   help="Execute the TEST_1 for the built datasets.")
 
     arguments_parser.add_argument("-r2", "--run2", action='store_true',
                                   help="Execute the TEST_2 for the built datasets.")
+
+    # Build arguments
+    build_exclusive_group = arguments_parser.add_mutually_exclusive_group()
+
+    build_exclusive_group.add_argument("-b", "--build", action='store_true',
+                                  help="Build test datasets' taxonomies and files. "
+                                       "Keeps classes and generalizations only.")
+
+    build_exclusive_group.add_argument("-bg", "--build_gufo", action='store_true',
+                                  help="Build test datasets' taxonomies and files. "
+                                       "Keeps classes, generalizations and mapped gUFO classifications.")
+
+    build_exclusive_group.add_argument("-bgv", "--build_gufo_validate", action='store_true',
+                                  help="Build test datasets' taxonomies and files. "
+                                       "Keeps classes, generalizations and mapped gUFO classifications. "
+                                       "Performs validation of the generated taxonomies.")
 
     # Automation level
 
