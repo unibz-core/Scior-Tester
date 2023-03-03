@@ -4,7 +4,7 @@ from decouple import config
 
 SOFTWARE_ACRONYM = "Scior Tester"
 SOFTWARE_NAME = "Tester for the Identification of Ontological Categories for OWL Ontologies"
-SOFTWARE_VERSION = "0.22.11.25"
+SOFTWARE_VERSION = "0.23.03.03"
 SOFTWARE_URL = "https://github.com/unibz-core/Scior-Tester"
 
 NAMESPACE_GUFO = "http://purl.org/nemo/gufo#"

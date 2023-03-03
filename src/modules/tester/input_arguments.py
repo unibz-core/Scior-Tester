@@ -22,7 +22,18 @@ def treat_arguments(software_acronym, software_name, software_version, software_
 
     arguments_parser.version = about_message
 
-    # OPTIONAL ARGUMENTS
+    # BUILD ARGUMENTS
+
+    arguments_parser.add_argument("-b", "--build", action='store_true',
+                                  help="Create all the files for the test dataset.")
+
+    arguments_parser.add_argument("-g", "--gufo", action='store_true',
+                                  help="Include gUFO classifications in all generated taxonomy files.")
+
+    arguments_parser.add_argument("-q", "--validate", action='store_true',
+                                  help="Perform validation of all generated taxonomies.")
+
+    # TESTS ARGUMENTS
 
     # Run arguments
     arguments_parser.add_argument("-r1", "--run1", action='store_true',
@@ -30,22 +41,6 @@ def treat_arguments(software_acronym, software_name, software_version, software_
 
     arguments_parser.add_argument("-r2", "--run2", action='store_true',
                                   help="Execute the TEST_2 for the built datasets.")
-
-    # Build arguments
-    build_exclusive_group = arguments_parser.add_mutually_exclusive_group()
-
-    build_exclusive_group.add_argument("-b", "--build", action='store_true',
-                                  help="Build test datasets' taxonomies and files. "
-                                       "Keeps classes and generalizations only.")
-
-    build_exclusive_group.add_argument("-bg", "--build_gufo", action='store_true',
-                                  help="Build test datasets' taxonomies and files. "
-                                       "Keeps classes, generalizations and mapped gUFO classifications.")
-
-    build_exclusive_group.add_argument("-bgv", "--build_gufo_validate", action='store_true',
-                                  help="Build test datasets' taxonomies and files. "
-                                       "Keeps classes, generalizations and mapped gUFO classifications. "
-                                       "Performs validation of the generated taxonomies.")
 
     # Automation level
 
@@ -85,8 +80,8 @@ def treat_arguments(software_acronym, software_name, software_version, software_
         arguments.complete = COMPLETE
 
     global_configurations = {"build": arguments.build,
-                             "build_gufo": arguments.build_gufo,
-                             "build_gufo_validate": arguments.build_gufo_validate,
+                             "gufo": arguments.gufo,
+                             "validate": arguments.validate,
                              "run1": arguments.run1,
                              "run2": arguments.run2,
                              "is_automatic": arguments.automatic,

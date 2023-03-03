@@ -1,3 +1,4 @@
+import glob
 import os.path
 from copy import deepcopy
 
@@ -16,43 +17,79 @@ from src.modules.tester.utils_rdf import load_graph_safely
 
 
 def add_classification_to_graph(taxonomy_graph, class_uri, class_ontouml_stereotype):
-    """ Adds to the taxonomy the class's OntoUML stereotype mapped to gUFO. """
+    """ Adds to the graph the class's OntoUML stereotype mapped to gUFO. """
 
-    # There is nothing to do if the class does not have a stereotype
-    if class_ontouml_stereotype != None:
-        # Getting classes OntoUML stereotypes (only stereotype string)
-        class_ontouml_string = class_ontouml_stereotype.n3().replace(VOCABULARY_URI_STR, "")[1:-1]
+    # Getting classes OntoUML stereotypes (only stereotype string)
+    class_ontouml_string = class_ontouml_stereotype.n3().replace(VOCABULARY_URI_STR, "")[1:-1]
 
-        # Mapping OntoUML types to gUFO
-        class_gufo_string = get_gufo_classification(class_ontouml_string)
+    # Mapping OntoUML types to gUFO
+    class_gufo_string = get_gufo_classification(class_ontouml_string)
+
+    # Tagging out-of-scope classes for future removal
+    if class_gufo_string == "other":
+        taxonomy_graph.add((class_uri, RDFS.label, URIRef("OUT-OF-SCOPE")))
+    # For all in-scope classes
+    else:
+        # Getting all types to be added to the class
         list_class_types = get_gufo_classification_supertypes(class_gufo_string)
-
         for class_type in list_class_types:
-            # Skip if mapped classification equals "other"
-            if class_type != "other":
-                class_general_gufo = return_gufo_classification_uri(class_type)
-                # Adding gUFO categories to taxonomy
-                taxonomy_graph.add((class_uri, RDF.type, class_general_gufo))
+            class_general_gufo = return_gufo_classification_uri(class_type)
+            # Adding gUFO categories to graph
+            taxonomy_graph.add((class_uri, RDF.type, class_general_gufo))
 
-def create_full_taxonomy_graph(owl_file_path: str, taxonomy_mode: str):
-    """ Extract the dataset model's taxonomy into a new graph. """
+
+def remove_out_of_scope_classes(taxonomical_graph):
+    """ Removes all classes tagged as OUT-OF-SCOPE and all their subclasses. """
+
+    identify_subclasses_query = """
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT DISTINCT ?subject
+    WHERE {
+    ?invalid rdfs:label <OUT-OF-SCOPE> . 
+    ?subject rdfs:subClassOf* ?invalid
+    }
+    """
+
+    query_answer = taxonomical_graph.query(identify_subclasses_query)
+    for row in query_answer:
+        taxonomical_graph.remove((row.subject, None, None))
+        taxonomical_graph.remove((None, None, row.subject))
+
+
+def create_full_taxonomy_graph(owl_file_path: str):
+    """ Extract the dataset model's taxonomy into a new graph. This function:
+    1. Loads ontology.ttl file into graph
+    2. Copies to a new graph only classes and generalizations
+    3. Converts OntoUML  stereotypes into gUFO classifications
+    4. Removes classes that have out-of-scope classifications and their subclasses
+    5. Returns the resulting graph
+    """
 
     source_graph = load_graph_safely(owl_file_path)
-    taxonomy_graph = Graph()
+    taxonomical_graph = Graph()
 
-    taxonomy_graph.bind("",NAMESPACE_TAXONOMY)
+    taxonomical_graph.bind("", NAMESPACE_TAXONOMY)
 
     # Isolated classes are ignored for the creation of the taxonomy.ttl file.
+    # Classes without stereotype are not added to the graph.
     for generalization in source_graph.subjects(RDF.type, VOCABULARY_GENERALIZATION_URI):
         # Getting uri of the general and specific participants in the generalization
         class_general = source_graph.value(generalization, VOCABULARY_GENERAL_URI)
         class_specific = source_graph.value(generalization, VOCABULARY_SPECIFIC_URI)
 
-        # continue if general and specific are classes
+        # CONTINUE ONLY IF BOTH GENERAL AND SPECIFIC ARE CLASSES
         type_of_general = source_graph.value(class_general, RDF.type)
         type_of_specific = source_graph.value(class_specific, RDF.type)
 
         if (type_of_general != VOCABULARY_CLASS_URI) or (type_of_specific != VOCABULARY_CLASS_URI):
+            continue
+
+        # Getting OntoUML stereotypes of general and specific participants in the generalization (full URIRef)
+        class_general_stereotype = source_graph.value(class_general, VOCABULARY_STEREOTYPE_URI)
+        class_specific_stereotype = source_graph.value(class_specific, VOCABULARY_STEREOTYPE_URI)
+
+        # CONTINUE ONLY IF BOTH GENERAL AND SPECIFIC HAVE STEREOTYPES
+        if (class_general_stereotype == None) or (class_specific_stereotype == None):
             continue
 
         # Getting classes names
@@ -72,29 +109,29 @@ def create_full_taxonomy_graph(owl_file_path: str, taxonomy_mode: str):
         uriref_specific = URIRef(class_specific_full_name)
 
         # Including classes and generalization into the new graph
-        taxonomy_graph.add((uriref_general, RDF.type, OWL.Class))
-        taxonomy_graph.add((uriref_specific, RDF.type, OWL.Class))
-        taxonomy_graph.add((uriref_specific, RDFS.subClassOf, uriref_general))
+        taxonomical_graph.add((uriref_general, RDF.type, OWL.Class))
+        taxonomical_graph.add((uriref_specific, RDF.type, OWL.Class))
+        taxonomical_graph.add((uriref_specific, RDFS.subClassOf, uriref_general))
 
-        # Adding gUFO classifications only if user provided argument
-        if taxonomy_mode == "gufo" or taxonomy_mode == "validate":
-            taxonomy_graph.bind("gufo", NAMESPACE_GUFO)
-            # Getting classes OntoUML stereotypes (full URIRef)
-            class_general_stereotype = source_graph.value(class_general, VOCABULARY_STEREOTYPE_URI)
-            class_specific_stereotype = source_graph.value(class_specific, VOCABULARY_STEREOTYPE_URI)
+        # Adding gUFO classifications
+        taxonomical_graph.bind("gufo", NAMESPACE_GUFO)
 
-            # Get related mapped gUFO classifications and adds to graph
-            add_classification_to_graph(taxonomy_graph, uriref_general, class_general_stereotype)
-            add_classification_to_graph(taxonomy_graph, uriref_specific, class_specific_stereotype)
+        # Get related mapped gUFO classifications and adds to graph
+        add_classification_to_graph(taxonomical_graph, uriref_general, class_general_stereotype)
+        add_classification_to_graph(taxonomical_graph, uriref_specific, class_specific_stereotype)
 
-    return taxonomy_graph
+    # Removing all classes tagged as out-of-scope and their subclasses
+    remove_out_of_scope_classes(taxonomical_graph)
+
+    return taxonomical_graph
 
 
-def create_taxonomy_ttl_files(source_owl_file_path, dataset_folder_path, taxonomy_mode: str, hash_register):
+def create_taxonomy_ttl_files(source_owl_file_path, dataset_folder_path, hash_register):
     """ Generates and saves files taxonomy.ttl - rdf-s graph with the model's taxonomy - for a dataset. """
 
-    # get the full graph
-    full_taxonomy_graph = create_full_taxonomy_graph(source_owl_file_path, taxonomy_mode)
+    # Load ontology.ttl file into graph,
+    # converting their OntoUML stereotypes to gUFO classifications and removing out-of-scope classes
+    full_taxonomy_graph = create_full_taxonomy_graph(source_owl_file_path)
 
     # generate isolated files
     taxonomy_files, hash_register = generate_isolated_taxonomy_files(
@@ -159,3 +196,60 @@ def generate_isolated_taxonomy_files(source_taxonomy_graph, saving_path, source_
         idx += 1
 
     return files, hash_register
+
+
+def remove_gufo_classifications():
+    """ Removes all gUFO classifications from all generated taxonomies. """
+
+    logger = initialize_logger()
+
+    list_gufo_classifications = [
+        "AntiRigidType",
+        "Aspect",
+        "Category",
+        "Collection",
+        "Endurant",
+        "EndurantType",
+        "ExtrinsicAspect",
+        "ExtrinsicMode",
+        "FixedCollection",
+        "FunctionalComplex",
+        "IntrinsicAspect",
+        "IntrinsicMode",
+        "Kind",
+        "Mixin",
+        "NonRigidType",
+        "NonSortal",
+        "Object",
+        "Phase",
+        "PhaseMixin",
+        "Quality",
+        "Quantity",
+        "Relator",
+        "RigidType",
+        "Role",
+        "RoleMixin",
+        "SemiRigidType",
+        "Sortal",
+        "SubKind",
+        "VariableCollection",
+    ]
+
+    # Iterate over all taxonomy files
+    list_all_files = glob.glob("**/*.ttl", recursive=True)
+
+    logger.info(f"### Removing gUFO classifications from {len(list_all_files)} taxonomies ###\n")
+
+    for index, file in enumerate(list_all_files):
+
+        current = index + 1
+
+        # Loading file
+        logger.info(f"Removing gUFO classifications of {current}/{len(list_all_files)}: {file}")
+        taxonomy_graph = load_graph_safely(file)
+
+        for gufo_classification in list_gufo_classifications:
+            taxonomy_graph.remove((None, RDF.type, URIRef(NAMESPACE_GUFO + gufo_classification)))
+
+        safe_save_taxonomy_graph(taxonomy_graph, file)
+    logger.info(f"gUFO classifications successfully removed from {len(list_all_files)} taxonomies\n")

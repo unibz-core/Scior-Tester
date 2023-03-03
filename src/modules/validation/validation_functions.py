@@ -46,7 +46,7 @@ def validate_gufo_taxonomies():
     os.chdir("catalog")
     list_all_files = glob.glob("**/*.ttl", recursive=True)
 
-    logger.info(f"Starting validation of {len(list_all_files)} taxonomies.\n")
+    logger.info(f"### Starting validation of {len(list_all_files)} taxonomies ###\n")
     evaluated_taxonomies = []
 
     for index, file in enumerate(list_all_files):
@@ -71,4 +71,5 @@ def validate_gufo_taxonomies():
         if len(current_taxonomy.list_problems) > 0:
             logger.warning(f"Identified violation(s) of constraint(s): {current_taxonomy.list_problems}")
 
+    logger.info(f"Validation of {len(list_all_files)} taxonomies successfully concluded\n")
     save_csv_validation(QUERIES_LIST, evaluated_taxonomies)

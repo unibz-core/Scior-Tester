@@ -10,34 +10,27 @@ from scior import run_scior_tester
 from src import EXCEPTIONS_LIST, CATALOG_FOLDER, CLASSES_DATA_FILE_NAME, NAMESPACE_TAXONOMY, \
     NAMESPACE_GUFO, MINIMUM_ALLOWED_NUMBER_CLASSES, PERCENTAGE_INITIAL, PERCENTAGE_FINAL, \
     NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE, PERCENTAGE_RATE, SOFTWARE_ACRONYM, SOFTWARE_NAME, \
-    SOFTWARE_VERSION, SOFTWARE_URL
+    SOFTWARE_VERSION, SOFTWARE_URL, HASH_FILE_NAME
 from src.modules.build.build_classes_stereotypes_information import collect_stereotypes_classes_information
 from src.modules.build.build_directories_structure import get_list_ttl_files, \
     create_test_directory_folders_structure, create_test_results_folder, create_internal_catalog_path
 from src.modules.build.build_information_classes import saves_dataset_csv_classes_data
 from src.modules.build.build_taxonomy_classes_information import collect_taxonomies_information
-from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_files
+from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_files, remove_gufo_classifications
 from src.modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_inconsistency_csv_output, \
     save_platform_information, create_classes_yaml_output, create_classes_results_csv_output, create_matrix_output, \
     create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
 from src.modules.run.test2 import create_inconsistency_csv_output_t2, create_classes_yaml_output_t2, \
     create_times_csv_output_t2, create_statistics_csv_output_t2
+from src.modules.tester.hash_functions import write_sha256_hash_register
 from src.modules.tester.input_arguments import treat_arguments
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_rdf import load_graph_safely
 from src.modules.validation.validation_functions import validate_gufo_taxonomies
 
 
-def build_scior_tester(catalog_path: str, taxonomy_mode: str):
-    """ Build function for the Scior Tester. Generates all the needed data.
-
-    :param str catalog_path: path to the OntoUML/UFO Catalog
-    :param str taxonomy_mode:
-        - if "simple", the resulting taxonomies will not contain gUFO classifications
-        - if "gufo", the resulting taxonomies will have its classes mapped to gUFO concepts
-        (when the mapping differs from "other").
-        - if "validate", adds validation to the generated taxonomies
-    """
+def build_scior_tester(catalog_path, validate_argument: bool, gufo_argument: bool):
+    """ Build function for the Scior Tester. Generates all files for the dataset that will receive the tests. """
 
     # Building directories structure
     datasets = get_list_ttl_files(catalog_path, name="ontology")  # returns all ttl files we have with full path
@@ -68,8 +61,7 @@ def build_scior_tester(catalog_path: str, taxonomy_mode: str):
             create_test_directory_folders_structure(dataset_folder, catalog_size, current)
 
             # Building taxonomies files and collecting information from classes
-            taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, taxonomy_mode,
-                                                                      hash_register)
+            taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, hash_register)
 
             # Builds dataset_classes_information and collects attributes name, prefixed_name,
             # and all taxonomic information
@@ -81,12 +73,19 @@ def build_scior_tester(catalog_path: str, taxonomy_mode: str):
             hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
                                                            catalog_size, current, dataset, hash_register)
 
-            logger.info(f"Dataset {dataset_name} successfully concluded! \n")
+            logger.info(f"Dataset {dataset_name} successfully concluded!\n")
 
-    if taxonomy_mode == "validate":
+    logger.info(f"Generation of taxonomies successfully concluded for all {catalog_size} datasets\n")
+
+    # Validate all taxonomies (optional)
+    if validate_argument:
         validate_gufo_taxonomies()
 
-    # write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
+    # # Keep gUFO classifications in all taxonomies (optional)
+    if not gufo_argument:
+        remove_gufo_classifications()
+
+    write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
 
 def run_scior(is_automatic: bool, is_complete: bool, tname: str):
@@ -242,16 +241,9 @@ if __name__ == '__main__':
 
     arguments = treat_arguments(SOFTWARE_ACRONYM, SOFTWARE_NAME, SOFTWARE_VERSION, SOFTWARE_URL)
 
-    if arguments["build_gufo_validate"]:
-        taxonomy_mode = "validate"
-    elif arguments["build_gufo"]:
-        taxonomy_mode = "gufo"
-    else:
-        taxonomy_mode = "no_gufo"
-
     # Execute in BUILD mode.
-    if arguments["build"] or arguments["build_gufo"] or arguments["build_gufo_validate"]:
-        build_scior_tester(arguments["catalog_path"], taxonomy_mode)
+    if arguments["build"]:
+        build_scior_tester(arguments["catalog_path"], arguments["validate"], arguments["gufo"])
 
     # Execute in RUN mode.
     if arguments["run1"]:
