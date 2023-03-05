@@ -61,16 +61,16 @@ def build_scior_tester(catalog_path, validate_argument: bool, gufo_argument: boo
             create_test_directory_folders_structure(dataset_folder, catalog_size, current)
 
             # Building taxonomies files and collecting information from classes
-            taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, hash_register)
+            list_taxonomy_hashes, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, hash_register)
 
             # Builds dataset_classes_information and collects attributes name, prefixed_name,
             # and all taxonomic information
-            dataset_classes_information = collect_taxonomies_information(taxonomy_files, catalog_size, current)
+            dataset_classes_information = collect_taxonomies_information(dataset_folder, dataset_name, list_taxonomy_hashes, catalog_size, current)
 
             # Collects stereotype_original and stereotype_gufo for dataset_classes_information
             collect_stereotypes_classes_information(dataset, dataset_classes_information, catalog_size, current)
 
-            hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
+            hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder, list_taxonomy_hashes,
                                                            catalog_size, current, dataset, hash_register)
 
             logger.info(f"Dataset {dataset_name} successfully concluded!\n")

@@ -1,4 +1,5 @@
 import glob
+import hashlib
 import os.path
 from copy import deepcopy
 
@@ -180,8 +181,7 @@ def generate_isolated_taxonomy_files(source_taxonomy_graph, saving_path, source_
     source_taxonomy_roots.sort()
     dataset_name = saving_path.split(os.path.sep)[-1]
 
-    files = []
-    idx = 0
+    list_taxonomy_hashes = []
     while len(source_taxonomy_roots) > 0:
         related_classes = get_all_related_nodes(source_taxonomy_graph, source_taxonomy_nodes,
                                                 source_taxonomy_roots[0], remove_itself=False)
@@ -189,13 +189,13 @@ def generate_isolated_taxonomy_files(source_taxonomy_graph, saving_path, source_
         reduced_graph = remove_classes_from_graph(source_taxonomy_graph, not_related_classes)
         source_taxonomy_roots = lists_subtraction(source_taxonomy_roots, related_classes)
 
-        taxonomy_file_path = os.path.join(saving_path, f"{dataset_name}_tx{idx + 1:03d}.ttl")
+        graph_hash = create_taxonomy_hash(reduced_graph)
+        taxonomy_file_path = os.path.join(saving_path, f"{dataset_name}_tx{graph_hash}.ttl")
         safe_save_taxonomy_graph(reduced_graph, taxonomy_file_path)
         hash_register = register_sha256_hash_information(hash_register, taxonomy_file_path, source_owl_file_path)
-        files.append(taxonomy_file_path)
-        idx += 1
+        list_taxonomy_hashes.append(graph_hash)
 
-    return files, hash_register
+    return list_taxonomy_hashes, hash_register
 
 
 def remove_gufo_classifications():
@@ -253,3 +253,23 @@ def remove_gufo_classifications():
 
         safe_save_taxonomy_graph(taxonomy_graph, file)
     logger.info(f"gUFO classifications successfully removed from {len(list_all_files)} taxonomies\n")
+
+def create_taxonomy_hash(taxonomical_graph) -> str:
+    """ Receives a graph and calculates a 4 chars hash considering its classes' names. """
+
+    list_of_classes = []
+    taxonomical_graph_classes = ""
+
+    for graph_class in taxonomical_graph.subjects(RDF.type, OWL.Class):
+        class_name = graph_class.n3()[1:-1]
+        class_name = class_name.replace(NAMESPACE_TAXONOMY,"")
+        list_of_classes.append(class_name)
+
+    list_of_classes.sort()
+
+    for list_item in list_of_classes:
+        taxonomical_graph_classes = taxonomical_graph_classes + list_item
+
+    hash_value = hashlib.shake_256(taxonomical_graph_classes.encode()).hexdigest(2)
+
+    return hash_value

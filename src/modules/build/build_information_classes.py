@@ -46,15 +46,19 @@ class InformationStructure(object):
         self.number_subclasses = len(get_all_subclasses(taxonomy_graph, taxonomy_nodes, self.prefixed_name))
 
 
-def saves_dataset_csv_classes_data(catalog_information, dataset_path, catalog_size, current,
+def saves_dataset_csv_classes_data(catalog_information, dataset_path, list_taxonomy_hashes, catalog_size, current,
                                    source_owl_file_path, hash_register):
     """ Saves dataset classes information in CSV format. """
 
     logger = initialize_logger()
-    csv_header = ["class_name", "ontouml_stereotype", "gufo_classification", "is_root", "is_leaf",
+
+    taxonomies_csv_header = ["taxonomy_name", "dataset_name", "num_classes"]
+    data_csv_header = ["class_name", "ontouml_stereotype", "gufo_classification", "is_root", "is_leaf",
                   "is_intermediate", "number_superclasses", "number_subclasses"]
-    taxonomies_file_name = os.path.join(dataset_path.rsplit(os.path.sep, 1)[0], f"taxonomies.csv")
-    taxonomies_header = ["taxonomy_name", "dataset_name", "num_mapped_classes", "num_other_classes", "num_classes"]
+
+
+    final_taxonomies_csv_name = "taxonomies.csv"
+    path_taxonomies_csv_name = os.path.join(dataset_path.rsplit(os.path.sep, 1)[0], final_taxonomies_csv_name)
 
     for idx, sublist in enumerate(catalog_information):
         dataset_name = dataset_path.split(os.path.sep)[-1]
@@ -62,23 +66,18 @@ def saves_dataset_csv_classes_data(catalog_information, dataset_path, catalog_si
 
         sorted_catalog_information = sorted(sublist, key=operator.attrgetter('name'))
 
-        num_other_classes = 0
-        num_mapped_classes = 0
+        num_classes = 0
         try:
             with open(csv_file_full_path, 'w', encoding='utf-8', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow(csv_header)
+                writer.writerow(data_csv_header)
 
                 for class_information in sorted_catalog_information:
                     writer.writerow(class_information.convert_to_row())
-                    if class_information.stereotype_gufo == 'other':
-                        num_other_classes += 1
-                    else:
-                        num_mapped_classes += 1
+                    num_classes += 1
 
-            taxonomies_row = [f"{dataset_name}_tx{idx + 1:03d}.ttl", dataset_name,
-                              num_mapped_classes, num_other_classes, num_mapped_classes + num_other_classes]
-            write_csv_row(taxonomies_file_name, taxonomies_header, taxonomies_row)
+            taxonomies_row = [f"{dataset_name}_tx{idx + 1:03d}.ttl", dataset_name, num_classes]
+            write_csv_row(path_taxonomies_csv_name, taxonomies_csv_header, taxonomies_row)
 
             logger.info(f"CSV file {current}/{catalog_size} saved: {csv_file_full_path}")
         except OSError as error:

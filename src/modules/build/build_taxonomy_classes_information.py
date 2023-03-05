@@ -25,11 +25,15 @@ def calculate_class_taxonomy_information(taxonomy_graph, taxonomy_nodes):
     return list_classes_statistics
 
 
-def collect_taxonomies_information(taxonomies_paths, catalog_size, current):
+def collect_taxonomies_information(dataset_folder, dataset_name, list_taxonomy_hashes, catalog_size, current):
     """ Populates the statistics lists with taxonomy information. """
 
     logger = initialize_logger()
     all_classes_information = []
+    taxonomies_paths = []
+
+    for taxonomy_hash in list_taxonomy_hashes:
+        taxonomies_paths.append(dataset_folder+"\\"+dataset_name+"_tx"+taxonomy_hash+".ttl")
 
     for path in taxonomies_paths:
         taxonomy_graph = load_graph_safely(path)
