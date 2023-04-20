@@ -102,6 +102,17 @@ QUERY_L18 = """
         ?nonSortal rdfs:subClassOf+ ?otherNonSortal . }}}
 """
 
+# This query was added because the queries available in Guizzardi (2021) do not concern relational dependency.
+QUERY_EXTRA = """
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+SELECT (COUNT(?class_y) AS ?count)
+WHERE {
+    {   ?class_y rdfs:subClassOf+ ?class_x . } .
+    {   { ?class_x rdf:type gufo:Role } UNION { ?class_x rdf:type gufo:RoleMixin }  } .
+    {   { ?class_y rdf:type gufo:Phase } UNION { ?class_y rdf:type gufo:PhaseMixin }  } .
+}
+"""
+
 QUERIES_LIST = {
     "L12": QUERY_L12,
     "L13": QUERY_L13,
@@ -109,5 +120,6 @@ QUERIES_LIST = {
     "L15": QUERY_L15,
     "L16": QUERY_L16,
     "L17": QUERY_L17,
-    "L18": QUERY_L18
+    "L18": QUERY_L18,
+    "EXTRA": QUERY_EXTRA,
 }
