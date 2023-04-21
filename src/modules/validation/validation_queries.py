@@ -41,7 +41,7 @@ QUERY_L14 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    select distinct ?ultimateSortal 
+    select distinct ?ultimateSortal
     where {
         ?ultimateSortal rdf:type gufo:Kind .
     filter exists {
@@ -59,8 +59,8 @@ QUERY_L15 = """
         union { ?sortal rdf:type gufo:Phase . }
         union { ?sortal rdf:type gufo:Role . }
         ?sortal rdfs:subClassOf+ ?ultimateSortal .
-        ?ultimateSortal rdf:type gufo:Kind . } 
-    group by ?sortal } 
+        ?ultimateSortal rdf:type gufo:Kind . }
+    group by ?sortal }
     filter(?n > 1)}
 """
 
@@ -68,7 +68,7 @@ QUERY_L16 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    select distinct ?type 
+    select distinct ?type
     where {
         { ?type rdf:type/rdfs:subClassOf* gufo:RigidType . }
         union { ?type rdf:type/rdfs:subClassOf* gufo:SemiRigidType . }
@@ -80,7 +80,7 @@ QUERY_L17 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    select distinct ?nonSortal 
+    select distinct ?nonSortal
     where {
         ?nonSortal rdf:type/rdfs:subClassOf* gufo:NonSortal .
         ?nonSortal rdfs:subClassOf+ ?sortal .
@@ -91,7 +91,7 @@ QUERY_L18 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    select distinct ?nonSortal 
+    select distinct ?nonSortal
     where {
         ?nonSortal rdf:type/rdfs:subClassOf* gufo:NonSortal .
     filter not exists {{
@@ -103,15 +103,30 @@ QUERY_L18 = """
 """
 
 # This query was added because the queries available in Guizzardi (2021) do not concern relational dependency.
-QUERY_EXTRA = """
+QUERY_R32_R33_R34 = """
 PREFIX gufo: <http://purl.org/nemo/gufo#>
-SELECT (COUNT(?class_y) AS ?count)
+SELECT (COUNT(DISTINCT ?class_y) AS ?count)
 WHERE {
     {   ?class_y rdfs:subClassOf+ ?class_x . } .
     {   { ?class_x rdf:type gufo:Role } UNION { ?class_x rdf:type gufo:RoleMixin }  } .
     {   { ?class_y rdf:type gufo:Phase } UNION { ?class_y rdf:type gufo:PhaseMixin }  } .
 }
 """
+
+QUERY_R35 = """
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+SELECT (COUNT(DISTINCT ?class_x) AS ?count)
+WHERE {
+    ?class_x rdf:type owl:Class , gufo:Phase .
+    FILTER NOT EXISTS {
+        ?class_y rdf:type owl:Class , gufo:Phase .
+        ?class_z rdf:type owl:Class , gufo:Kind .
+        ?class_x rdfs:subClassOf+ ?class_z .
+        ?class_y rdfs:subClassOf+ ?class_z .
+        MINUS { ?class_x rdfs:subClassOf+ ?class_y . }
+        MINUS { ?class_y rdfs:subClassOf+ ?class_x . }
+    }
+} """
 
 QUERIES_LIST = {
     "L12": QUERY_L12,
@@ -121,5 +136,6 @@ QUERIES_LIST = {
     "L16": QUERY_L16,
     "L17": QUERY_L17,
     "L18": QUERY_L18,
-    "EXTRA": QUERY_EXTRA
+    "R32-R34": QUERY_R32_R33_R34,
+    "R35": QUERY_R35
 }

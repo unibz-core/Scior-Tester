@@ -55,7 +55,8 @@ def create_valid_lists(evaluated_taxonomies):
         if not taxonomy.list_problems_queries:
             list_valid_c.append(taxonomy.file_name)
             list_valid_n.append(taxonomy.file_name)
-        elif taxonomy.list_problems_queries == ["L13"]:
+        # Below are the rules that can only be applied to OWA
+        elif taxonomy.list_problems_queries == ["L13"] or taxonomy.list_problems_queries == ["R35"]:
             list_valid_n.append(taxonomy.file_name)
 
     logger.info(f"Writing {valid_taxonomies_c_file}")
