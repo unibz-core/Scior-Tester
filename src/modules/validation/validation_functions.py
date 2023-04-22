@@ -6,7 +6,7 @@ import os
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_general import write_csv_row
 from src.modules.tester.utils_rdf import load_graph_safely
-from src.modules.validation.validation_queries import QUERIES_LIST
+from src.modules.validation.validation_queries import QUERIES_OWA_DICT_LIST, QUERIES_CWA_LIST
 
 
 class validated_taxonomy:
@@ -55,8 +55,8 @@ def create_valid_lists(evaluated_taxonomies):
         if not taxonomy.list_problems_queries:
             list_valid_c.append(taxonomy.file_name)
             list_valid_n.append(taxonomy.file_name)
-        # Below are the rules that can only be applied to OWA
-        elif taxonomy.list_problems_queries == ["L13"] or taxonomy.list_problems_queries == ["R35"]:
+        # Below are the rules that can only be applied to OWA. I.e., that cannot be applied to CWA.
+        elif taxonomy.list_problems_queries in QUERIES_CWA_LIST:
             list_valid_n.append(taxonomy.file_name)
 
     logger.info(f"Writing {valid_taxonomies_c_file}")
@@ -91,8 +91,8 @@ def validate_gufo_taxonomies():
         taxonomy_graph = load_graph_safely(file)
 
         # Performing queries
-        for validation_query in QUERIES_LIST:
-            query_result = taxonomy_graph.query(QUERIES_LIST[validation_query])
+        for validation_query in QUERIES_OWA_DICT_LIST:
+            query_result = taxonomy_graph.query(QUERIES_OWA_DICT_LIST[validation_query])
             number_problems_found = len(query_result)
             current_taxonomy.list_problems_count.append(number_problems_found)
 
@@ -105,6 +105,6 @@ def validate_gufo_taxonomies():
     logger.info(f"Validation of {len(list_all_files)} taxonomies successfully concluded\n")
 
     # Creating file validation.csv
-    save_csv_validation(QUERIES_LIST, evaluated_taxonomies)
+    save_csv_validation(QUERIES_OWA_DICT_LIST, evaluated_taxonomies)
     # Creating files valid_taxonomies_c.csv and valid_taxonomies_n.csv
     create_valid_lists(evaluated_taxonomies)

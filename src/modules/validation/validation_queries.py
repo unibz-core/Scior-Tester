@@ -128,7 +128,22 @@ WHERE {
     }
 } """
 
-QUERIES_LIST = {
+QUERY_R37 = """
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+SELECT (COUNT(DISTINCT ?class_x) AS ?count)
+WHERE {
+    ?class_x rdf:type owl:Class , gufo:Phase .
+    FILTER NOT EXISTS {
+        ?class_y rdf:type owl:Class , gufo:Phase .
+        ?class_z rdf:type owl:Class , gufo:Kind .
+        ?class_x rdfs:subClassOf+ ?class_z .
+        ?class_y rdfs:subClassOf+ ?class_z .
+        MINUS { ?class_x rdfs:subClassOf+ ?class_y . }
+        MINUS { ?class_y rdfs:subClassOf+ ?class_x . }
+    }
+} """
+
+QUERIES_OWA_DICT_LIST = {
     "L12": QUERY_L12,
     "L13": QUERY_L13,
     "L14": QUERY_L14,
@@ -137,5 +152,8 @@ QUERIES_LIST = {
     "L17": QUERY_L17,
     "L18": QUERY_L18,
     "R32-R34": QUERY_R32_R33_R34,
-    "R35": QUERY_R35
+    "R35": QUERY_R35,
+    "R37": QUERY_R37
 }
+
+QUERIES_CWA_LIST = ["L13", "R35", "R37"]
