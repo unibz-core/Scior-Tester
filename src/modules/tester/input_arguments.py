@@ -57,10 +57,10 @@ def treat_arguments(software_acronym, software_name, software_version, software_
 
     completeness_group = arguments_parser.add_mutually_exclusive_group()
 
-    completeness_group.add_argument("-n", "--incomplete", action='store_true',
+    completeness_group.add_argument("-owa", "--incomplete", action='store_true',
                                     help="The loaded ontology is an incomplete model (default).")
 
-    completeness_group.add_argument("-c", "--complete", action='store_true',
+    completeness_group.add_argument("-cwa", "--complete", action='store_true',
                                     help="The loaded ontology is a complete model.")
 
     # Automatic arguments

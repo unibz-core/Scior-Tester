@@ -135,19 +135,19 @@ def collect_stereotypes_classes_information(source_owl_file_path, dataset_classe
         class_name = class_name.n3()[1:-(len(class_name.language) + 2)]
         class_name = clean_class_name(class_name)
 
+        class_stereotype_original = None
         if class_name != "string" and class_name != "int" and class_name != "char":
             # Getting classes' stereotypes
             class_stereotype_original = ontology_graph.value(owl_class, VOCABULARY_STEREOTYPE_URI)
 
-            if not class_stereotype_original:
-                class_stereotype_original_string = "none"
-                class_stereotype_gufo = "other"
-            else:
-                class_stereotype_original_string = class_stereotype_original.n3()[44:-1]
-                class_stereotype_original_string = class_stereotype_original_string.lower().strip()
-                class_stereotype_gufo = get_gufo_classification(class_stereotype_original_string)
+        class_stereotype_original_string = "none"
+        class_stereotype_gufo = "other"
+        if class_stereotype_original:
+            class_stereotype_original_string = class_stereotype_original.n3().split("#")[-1][:-1]
+            class_stereotype_original_string = class_stereotype_original_string.lower().strip()
+            class_stereotype_gufo = get_gufo_classification(class_stereotype_original_string)
 
-            class_inf[class_name] = (class_stereotype_original_string, class_stereotype_gufo)
+        class_inf[class_name] = (class_stereotype_original_string, class_stereotype_gufo)
 
     for sublist in dataset_classes_information:
         for class_in_list in sublist:
