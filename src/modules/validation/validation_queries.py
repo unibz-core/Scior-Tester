@@ -105,7 +105,7 @@ QUERY_L18 = """
 # This query was added because the queries available in Guizzardi (2021) do not concern relational dependency.
 QUERY_R32_R33_R34 = """
 PREFIX gufo: <http://purl.org/nemo/gufo#>
-SELECT (COUNT(DISTINCT ?class_y) AS ?count)
+SELECT DISTINCT ?class_y
 WHERE {
     {   ?class_y rdfs:subClassOf+ ?class_x . } .
     {   { ?class_x rdf:type gufo:Role } UNION { ?class_x rdf:type gufo:RoleMixin }  } .
@@ -115,7 +115,7 @@ WHERE {
 
 QUERY_R35 = """
 PREFIX gufo: <http://purl.org/nemo/gufo#>
-SELECT (COUNT(DISTINCT ?class_x) AS ?count)
+SELECT DISTINCT ?class_x
 WHERE {
     ?class_x rdf:type owl:Class , gufo:Phase .
     FILTER NOT EXISTS {
@@ -130,12 +130,12 @@ WHERE {
 
 QUERY_R37 = """
 PREFIX gufo: <http://purl.org/nemo/gufo#>
-SELECT (COUNT(DISTINCT ?class_x) AS ?count)
+SELECT DISTINCT ?class_x
 WHERE {
-    ?class_x rdf:type owl:Class , gufo:Phase .
+    ?class_x rdf:type owl:Class , gufo:PhaseMixin .
     FILTER NOT EXISTS {
-        ?class_y rdf:type owl:Class , gufo:Phase .
-        ?class_z rdf:type owl:Class , gufo:Kind .
+        ?class_y rdf:type owl:Class , gufo:PhaseMixin .
+        ?class_z rdf:type owl:Class , gufo:Category .
         ?class_x rdfs:subClassOf+ ?class_z .
         ?class_y rdfs:subClassOf+ ?class_z .
         MINUS { ?class_x rdfs:subClassOf+ ?class_y . }
@@ -150,10 +150,10 @@ QUERIES_OWA_DICT_LIST = {
     "L15": QUERY_L15,
     "L16": QUERY_L16,
     "L17": QUERY_L17,
-    "L18": QUERY_L18
-    #"R32-R34": QUERY_R32_R33_R34,
-    #"R35": QUERY_R35,
-    #"R37": QUERY_R37
+    "L18": QUERY_L18,
+    "R32-R34": QUERY_R32_R33_R34,
+    "R35": QUERY_R35,
+    "R37": QUERY_R37
 }
 
-QUERIES_CWA_LIST = ["L13"] #, "R35", "R37"]
+QUERIES_CWA_LIST = ["L13", "R35", "R37"]

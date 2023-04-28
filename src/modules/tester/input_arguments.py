@@ -42,6 +42,9 @@ def treat_arguments(software_acronym, software_name, software_version, software_
     arguments_parser.add_argument("-r2", "--run2", action='store_true',
                                   help="Execute the TEST_2 for the built datasets.")
 
+    arguments_parser.add_argument("-r3", "--run3", action='store_true',
+                                  help="Execute the TEST_3 for the built datasets.")
+
     # Automation level
 
     automation_group = arguments_parser.add_mutually_exclusive_group()
@@ -84,6 +87,7 @@ def treat_arguments(software_acronym, software_name, software_version, software_
                              "validate": arguments.validate,
                              "run1": arguments.run1,
                              "run2": arguments.run2,
+                             "run3": arguments.run3,
                              "is_automatic": arguments.automatic,
                              "is_complete": arguments.complete,
                              "catalog_path": arguments.catalog_path}

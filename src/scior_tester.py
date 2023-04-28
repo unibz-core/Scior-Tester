@@ -109,18 +109,27 @@ def create_arguments(is_automatic: bool, is_complete: bool):
 def run_scior(is_automatic: bool, is_complete: bool, tname: str):
     # Creating list of taxonomies
     taxonomies = get_list_ttl_files(os.path.join(os.getcwd(), CATALOG_FOLDER))
-    total_taxonomies_number = len(taxonomies)
 
     global_configurations = create_arguments(is_automatic, is_complete)
     l1 = "a" if is_automatic else "i"
     l2 = "c" if is_complete else "n"
     test_name = f"{tname}_{l1}{l2}"
     inconsistencies_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"inconsistencies_{test_name}.csv")
+    consistencies_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"consistencies_{test_name}.csv")
     divergences_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"divergences_{test_name}.csv")
+
+    valid_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"valid_taxonomies_{l2}.txt")
+    with open(valid_file_name) as f:
+        valid_taxonomies = [line.rstrip() for line in f]
+    taxonomies = [t for t in taxonomies if '\\'.join(t.split('\\')[-2:]) in valid_taxonomies]
+    total_taxonomies_number = len(taxonomies)
+
     if os.path.exists(inconsistencies_file_name):
         os.remove(inconsistencies_file_name)
     if os.path.exists(divergences_file_name):
         os.remove(divergences_file_name)
+    if os.path.exists(consistencies_file_name):
+        os.remove(consistencies_file_name)
 
     prev_dataset_folder = ""
     for (current, taxonomy) in enumerate(taxonomies):
@@ -134,7 +143,8 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
         dataset_folder = taxonomy.rsplit(os.path.sep, 1)[0]
         draft_file_name = data_filename[4:-10] + "_" + test_name + data_filename[-10:]
         test_results_folder = os.path.join(dataset_folder, test_name)
-        create_test_results_folder(test_results_folder, dataset_folder != prev_dataset_folder)
+        if not tname.endswith("3"):
+            create_test_results_folder(test_results_folder, dataset_folder != prev_dataset_folder)
 
         if tname.endswith("1"):
             run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder,
@@ -143,6 +153,10 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
         if tname.endswith("2"):
             run_scior_test2(global_configurations, input_classes, input_graph, test_results_folder,
                             draft_file_name, inconsistencies_file_name, divergences_file_name, taxonomy_filename)
+
+        if tname.endswith("3"):
+            run_scior_test3(global_configurations, input_classes, input_graph, draft_file_name,
+                            inconsistencies_file_name, consistencies_file_name, taxonomy_filename)
 
         if dataset_folder != prev_dataset_folder:
             if prev_dataset_folder:
@@ -176,10 +190,6 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
         else:
             logger.info(f"Test {execution_number}/{tests_total} "
                         f"for input class {input_class.name} successfully executed.")
-            # Creating resulting files
-            #if execution_number == 1:
-            #    save_platform_information(test_results_folder,
-            #                              f"settings{draft_file_name[:-10]}.csv", software_version)
             create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder,
                                        file_name=f"complete{draft_file_name[:-4]}_ex{execution_number:03d}.yaml")
             create_classes_results_csv_output(input_classes, ontology_dataclass_list,
@@ -189,9 +199,6 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
                                  file_name=f"class_matrix{draft_file_name[:-4]}_ex{execution_number:03d}.csv")
             create_matrix_output(leaves_matrix, test_results_folder,
                                  file_name=f"leaves_matrix{draft_file_name[:-4]}_ex{execution_number:03d}.csv")
-            #create_times_csv_output(time_register, test_results_folder, draft_file_name, execution_number)
-            #create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
-            #                             draft_file_name, execution_number)
             create_summary_csv_output(test_results_folder, draft_file_name, execution_number, input_class)
 
 
@@ -234,25 +241,43 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
                 logger.info(f"Test dataset {taxonomy_filename} - percentage {current_percentage} - "
                             f"execution {current_execution} successfully executed "
                             f"({number_of_input_classes} input classes).{end}")
-                # Creating resulting files
-                if (current_execution == 1) and (current_percentage == PERCENTAGE_INITIAL):
-                    save_platform_information(test_results_folder, f"settings{draft_file_name[:-10]}.csv",
-                                              software_version, env_vars=True)
                 create_classes_yaml_output_t2(sample_list, ontology_dataclass_list, test_results_folder,
                                               file_name=f"complete{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.yaml")
                 create_classes_results_csv_output(input_classes, ontology_dataclass_list,
                                                   test_results_folder, divergences_file_name,
                                                   file_name=f"simple{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
-                create_matrix_output(knowledge_matrix, test_results_folder,
-                                     file_name=f"matrix{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
-                create_times_csv_output_t2(time_register, test_results_folder, draft_file_name,
-                                           current_percentage, current_execution)
-                create_statistics_csv_output_t2(ontology_dataclass_list, consolidated_statistics,
-                                                test_results_folder, draft_file_name, current_percentage,
-                                                current_execution)
+                create_matrix_output(classifications_matrix, test_results_folder,
+                                     file_name=f"class_matrix{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
+                create_matrix_output(leaves_matrix, test_results_folder,
+                                     file_name=f"leaves_matrix{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
             current_execution += 1
 
         current_percentage += PERCENTAGE_RATE
+
+
+def run_scior_test3(global_configurations, input_classes, input_graph, draft_file_name,
+                    inconsistencies_file_name, consistencies_file_name, taxonomy_filename):
+    model_size = len(input_classes)
+    if model_size < MINIMUM_ALLOWED_NUMBER_CLASSES:
+        logger.warning(f"The dataset has only {model_size} classes (less than minimum number) and was skipped.\n")
+        return
+
+    working_graph = deepcopy(input_graph)
+    working_graph.bind("gufo", NAMESPACE_GUFO)
+    for input_class in input_classes:
+        triple_subject = URIRef(NAMESPACE_TAXONOMY + input_class.name)
+        class_gufo_type = remaps_to_gufo(input_class.name, input_class.stereotype)
+        triple_object = URIRef(class_gufo_type)
+        working_graph.add((triple_subject, RDF.type, triple_object))
+
+    try:
+        run_scior_tester(global_configurations, working_graph)
+    except:
+        logger.error(f"INCONSISTENCY found: {taxonomy_filename} Current execution interrupted.\n")
+        create_inconsistency_csv_output_t2(inconsistencies_file_name, draft_file_name, 100, 1)
+    else:
+        create_inconsistency_csv_output_t2(consistencies_file_name, draft_file_name, 100, 1)
+        logger.info(f"Test dataset {taxonomy_filename} successfully executed.\n")
 
 
 if __name__ == '__main__':
@@ -271,3 +296,6 @@ if __name__ == '__main__':
 
     if arguments["run2"]:
         run_scior(arguments["is_automatic"], arguments["is_complete"], tname="tt002")
+
+    if arguments["run3"]:
+        run_scior(arguments["is_automatic"], arguments["is_complete"], tname="tt003")
