@@ -89,12 +89,29 @@ def build_scior_tester(catalog_path, validate_argument: bool, gufo_argument: boo
     write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
 
+def create_arguments(is_automatic: bool, is_complete: bool):
+    arguments_dictionary = {
+        "is_automatic": is_automatic,
+        "is_interactive": not is_automatic,
+        "is_cwa": is_complete,
+        "is_owa": not is_complete,
+        "gufo_results": False,
+        "gufo_import": False,
+        "gufo_write": False,
+        "is_silent": False,
+        "is_verbose": True,
+        "is_debug": False,
+        "ontology_path": ""
+    }
+    return arguments_dictionary
+
+
 def run_scior(is_automatic: bool, is_complete: bool, tname: str):
     # Creating list of taxonomies
     taxonomies = get_list_ttl_files(os.path.join(os.getcwd(), CATALOG_FOLDER))
     total_taxonomies_number = len(taxonomies)
 
-    global_configurations = {"is_automatic": is_automatic, "is_complete": is_complete}
+    global_configurations = create_arguments(is_automatic, is_complete)
     l1 = "a" if is_automatic else "i"
     l2 = "c" if is_complete else "n"
     test_name = f"{tname}_{l1}{l2}"

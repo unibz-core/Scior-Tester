@@ -142,9 +142,7 @@ def convert_ontology_dataclass_list_to_dictionary_list(input_class_list, ontolog
             "input": ontology_dataclass.uri in input_long_names,
             "is_type": ontology_dataclass.is_type,
             "can_type": ontology_dataclass.can_type,
-            "not_type": ontology_dataclass.not_type,
-            "is_incomplete": ontology_dataclass.incompleteness_info["is_incomplete"],
-            "detected_in": ontology_dataclass.incompleteness_info["detected_in"]
+            "not_type": ontology_dataclass.not_type
         }
         }
         ontology_dictionary_list.append(ontology_dictionary)
@@ -155,6 +153,7 @@ def convert_ontology_dataclass_list_to_dictionary_list(input_class_list, ontolog
 def get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclass_list):
     final_list = "undeclared"
     logger = initialize_logger()
+    class_gufo_stereotype = class_gufo_stereotype.split(":")[1]
 
     for dataclass in ontology_dataclass_list:
         if dataclass.uri == class_name_prefixed:
