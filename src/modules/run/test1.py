@@ -32,8 +32,9 @@ def load_baseline_dictionary(csv_file_name):
     return list_input_classes
 
 
+"""
 def save_platform_information(dataset_folder, file_name, software_version, env_vars=False):
-    """ Saves platform information into the file """
+    # Saves platform information into the file
     csv_header = ["scior_version", "python_version", "operating_system", "processor", "installed_ram"]
     csv_row = [software_version,
                platform.python_version(),
@@ -50,6 +51,7 @@ def save_platform_information(dataset_folder, file_name, software_version, env_v
         writer = csv.writer(f)
         writer.writerow(csv_header)
         writer.writerow(csv_row)
+"""
 
 
 def remaps_to_gufo(class_name, gufo_lower_type: str, no_namespace: bool = False):
@@ -70,8 +72,8 @@ def remaps_to_gufo(class_name, gufo_lower_type: str, no_namespace: bool = False)
         logger.error(f"Unknown gufo_lower_type {gufo_lower_type} in class {class_name}. Program aborted.")
         exit(1)
 
-    return mapped_stereotype if no_namespace else NAMESPACE_GUFO + mapped_stereotype
 
+    return mapped_stereotype if no_namespace else NAMESPACE_GUFO + mapped_stereotype
 
 def create_inconsistency_csv_output(inconsistencies_file_name, file_name, execution_number, input_class):
     """ Creates and updates a CSV file with a list of all inconsistent classes and their stereotypes. """
@@ -89,6 +91,7 @@ def create_summary_csv_output(test_results_folder, file_name, execution_number, 
     write_csv_row(statistics, csv_header, csv_row)
 
 
+"""
 def create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
                                  file_name, execution_number):
     csv_header = create_csv_header()
@@ -96,12 +99,13 @@ def create_statistics_csv_output(ontology_dataclass_list, consolidated_statistic
     csv_row = populate_csv_row(consolidated_statistics, execution_number, number_incomplete_classes)
     statistics = os.path.join(test_results_folder, f"statistics{file_name}")
     write_csv_row(statistics, csv_header, csv_row)
+"""
 
 
 def calculate_incompleteness_values(ontology_dataclass_list):
     return sum([1 for dataclass in ontology_dataclass_list if dataclass.incompleteness_info["is_incomplete"]])
 
-
+"""
 def create_times_csv_output(time_register, test_results_folder, file_name, execution_number):
     times_output_complete_path = os.path.join(test_results_folder, f"times{file_name}")
     time_keys = list(time_register.keys())
@@ -109,6 +113,7 @@ def create_times_csv_output(time_register, test_results_folder, file_name, execu
     time_keys = ["execution"] + time_keys
     time_register["execution"] = execution_number
     write_dictionary(times_output_complete_path, time_keys, time_register)
+"""
 
 
 def create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder, file_name):
@@ -137,9 +142,7 @@ def convert_ontology_dataclass_list_to_dictionary_list(input_class_list, ontolog
             "input": ontology_dataclass.uri in input_long_names,
             "is_type": ontology_dataclass.is_type,
             "can_type": ontology_dataclass.can_type,
-            "not_type": ontology_dataclass.not_type,
-            "is_incomplete": ontology_dataclass.incompleteness_info["is_incomplete"],
-            "detected_in": ontology_dataclass.incompleteness_info["detected_in"]
+            "not_type": ontology_dataclass.not_type
         }
         }
         ontology_dictionary_list.append(ontology_dictionary)
@@ -150,6 +153,7 @@ def convert_ontology_dataclass_list_to_dictionary_list(input_class_list, ontolog
 def get_final_list(class_name_prefixed, class_gufo_stereotype, ontology_dataclass_list):
     final_list = "undeclared"
     logger = initialize_logger()
+    class_gufo_stereotype = class_gufo_stereotype.split(":")[1]
 
     for dataclass in ontology_dataclass_list:
         if dataclass.uri == class_name_prefixed:

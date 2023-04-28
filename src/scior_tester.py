@@ -18,8 +18,9 @@ from src.modules.build.build_information_classes import saves_dataset_csv_classe
 from src.modules.build.build_taxonomy_classes_information import collect_taxonomies_information
 from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_files, remove_gufo_classifications
 from src.modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_inconsistency_csv_output, \
-    save_platform_information, create_classes_yaml_output, create_classes_results_csv_output, create_matrix_output, \
-    create_times_csv_output, create_statistics_csv_output, create_summary_csv_output
+    create_classes_yaml_output, create_classes_results_csv_output, create_matrix_output, \
+    create_summary_csv_output
+    #create_times_csv_output, create_statistics_csv_output, save_platform_information
 from src.modules.run.test2 import create_inconsistency_csv_output_t2, create_classes_yaml_output_t2, \
     create_times_csv_output_t2, create_statistics_csv_output_t2
 from src.modules.tester.hash_functions import write_sha256_hash_register
@@ -88,12 +89,29 @@ def build_scior_tester(catalog_path, validate_argument: bool, gufo_argument: boo
     write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
 
+def create_arguments(is_automatic: bool, is_complete: bool):
+    arguments_dictionary = {
+        "is_automatic": is_automatic,
+        "is_interactive": not is_automatic,
+        "is_cwa": is_complete,
+        "is_owa": not is_complete,
+        "gufo_results": False,
+        "gufo_import": False,
+        "gufo_write": False,
+        "is_silent": False,
+        "is_verbose": True,
+        "is_debug": False,
+        "ontology_path": ""
+    }
+    return arguments_dictionary
+
+
 def run_scior(is_automatic: bool, is_complete: bool, tname: str):
     # Creating list of taxonomies
     taxonomies = get_list_ttl_files(os.path.join(os.getcwd(), CATALOG_FOLDER))
     total_taxonomies_number = len(taxonomies)
 
-    global_configurations = {"is_automatic": is_automatic, "is_complete": is_complete}
+    global_configurations = create_arguments(is_automatic, is_complete)
     l1 = "a" if is_automatic else "i"
     l2 = "c" if is_complete else "n"
     test_name = f"{tname}_{l1}{l2}"
@@ -149,7 +167,7 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
         working_graph.bind("gufo", NAMESPACE_GUFO)
 
         try:
-            ontology_dataclass_list, time_register, consolidated_statistics, knowledge_matrix, software_version = \
+            ontology_dataclass_list, classifications_matrix, leaves_matrix = \
                 run_scior_tester(global_configurations, working_graph)
         except:
             logger.error(f"INCONSISTENCY found! Test {execution_number}/{tests_total} "
@@ -159,19 +177,21 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
             logger.info(f"Test {execution_number}/{tests_total} "
                         f"for input class {input_class.name} successfully executed.")
             # Creating resulting files
-            if execution_number == 1:
-                save_platform_information(test_results_folder,
-                                          f"settings{draft_file_name[:-10]}.csv", software_version)
+            #if execution_number == 1:
+            #    save_platform_information(test_results_folder,
+            #                              f"settings{draft_file_name[:-10]}.csv", software_version)
             create_classes_yaml_output(input_class, ontology_dataclass_list, test_results_folder,
                                        file_name=f"complete{draft_file_name[:-4]}_ex{execution_number:03d}.yaml")
             create_classes_results_csv_output(input_classes, ontology_dataclass_list,
                                               test_results_folder, divergences_file_name,
                                               file_name=f"simple{draft_file_name[:-4]}_ex{execution_number:03d}.csv")
-            create_matrix_output(knowledge_matrix, test_results_folder,
-                                 file_name=f"matrix{draft_file_name[:-4]}_ex{execution_number:03d}.csv")
-            create_times_csv_output(time_register, test_results_folder, draft_file_name, execution_number)
-            create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
-                                         draft_file_name, execution_number)
+            create_matrix_output(classifications_matrix, test_results_folder,
+                                 file_name=f"class_matrix{draft_file_name[:-4]}_ex{execution_number:03d}.csv")
+            create_matrix_output(leaves_matrix, test_results_folder,
+                                 file_name=f"leaves_matrix{draft_file_name[:-4]}_ex{execution_number:03d}.csv")
+            #create_times_csv_output(time_register, test_results_folder, draft_file_name, execution_number)
+            #create_statistics_csv_output(ontology_dataclass_list, consolidated_statistics, test_results_folder,
+            #                             draft_file_name, execution_number)
             create_summary_csv_output(test_results_folder, draft_file_name, execution_number, input_class)
 
 
@@ -202,7 +222,7 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
                 working_graph.add((triple_subject, RDF.type, triple_object))
 
             try:
-                ontology_dataclass_list, time_register, consolidated_statistics, knowledge_matrix, software_version = \
+                ontology_dataclass_list, classifications_matrix, leaves_matrix = \
                     run_scior_tester(global_configurations, working_graph)
             except:
                 logger.error(f"INCONSISTENCY found: {taxonomy_filename} "
