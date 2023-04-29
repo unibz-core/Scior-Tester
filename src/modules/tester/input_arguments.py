@@ -2,7 +2,7 @@
 
 import argparse
 
-from src import AUTOMATIC, COMPLETE
+from src import COMPLETE
 from src.modules.tester.logger_config import initialize_logger
 
 
@@ -65,9 +65,6 @@ def treat_arguments(software_acronym, software_name, software_version, software_
     # Execute arguments parser
     arguments = arguments_parser.parse_args()
 
-    if (not arguments.automatic) and (not arguments.interactive):
-        arguments.automatic = AUTOMATIC
-
     if (not arguments.incomplete) and (not arguments.complete):
         arguments.complete = COMPLETE
 
@@ -77,7 +74,6 @@ def treat_arguments(software_acronym, software_name, software_version, software_
                              "run1": arguments.run1,
                              "run2": arguments.run2,
                              "run3": arguments.run3,
-                             "is_automatic": arguments.automatic,
                              "is_complete": arguments.complete,
                              "catalog_path": arguments.catalog_path}
 
