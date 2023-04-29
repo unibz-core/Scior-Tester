@@ -1,5 +1,5 @@
 """ Main module for the OntoCatOWL-Catalog Tester. Call all functionalities (build and tests). """
-
+import glob
 import os
 import random
 from copy import deepcopy
@@ -105,7 +105,6 @@ def create_arguments(is_complete: bool) -> dict:
 
 
 def run_scior(is_complete: bool, tname: str) -> None:
-
     # Creating list of taxonomies
     taxonomies = get_list_ttl_files(os.path.join(os.getcwd(), CATALOG_FOLDER))
 
@@ -113,16 +112,25 @@ def run_scior(is_complete: bool, tname: str) -> None:
     l1 = "a"
     l2 = "c" if is_complete else "n"
     test_name = f"{tname}_{l1}{l2}"
+
+    # Creating name for output files
     inconsistencies_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"inconsistencies_{test_name}.csv")
     consistencies_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"consistencies_{test_name}.csv")
     divergences_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"divergences_{test_name}.csv")
 
-    valid_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"valid_taxonomies_{l2}.txt")
-    with open(valid_file_name) as f:
-        valid_taxonomies = [line.rstrip() for line in f]
-    taxonomies = [t for t in taxonomies if '\\'.join(t.split('\\')[-2:]) in valid_taxonomies]
+    if tname != "tt003":
+        # For Test 1 and Test 2: test only taxonomies that are valid (validation generated in build function)
+        valid_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"valid_taxonomies_{l2}.txt")
+        with open(valid_file_name) as f:
+            valid_taxonomies = [line.rstrip() for line in f]
+        taxonomies = [t for t in taxonomies if '\\'.join(t.split('\\')[-2:]) in valid_taxonomies]
+    else:
+        # For Test 3, use all taxonomies
+        taxonomies = glob.glob('catalog/**/*.ttl')
+
     total_taxonomies_number = len(taxonomies)
 
+    # Delete files if they exist from previous executions
     if os.path.exists(inconsistencies_file_name):
         os.remove(inconsistencies_file_name)
     if os.path.exists(divergences_file_name):
@@ -132,6 +140,7 @@ def run_scior(is_complete: bool, tname: str) -> None:
 
     prev_dataset_folder = ""
     for current, taxonomy in enumerate(taxonomies):
+
         logger.info(f"Executing Scior for taxonomy {current + 1}/{total_taxonomies_number}: {taxonomy}\n")
 
         taxonomy_filename = taxonomy.split(os.path.sep)[-1]
@@ -142,6 +151,7 @@ def run_scior(is_complete: bool, tname: str) -> None:
         dataset_folder = taxonomy.rsplit(os.path.sep, 1)[0]
         draft_file_name = data_filename[4:-10] + "_" + test_name + data_filename[-10:]
         test_results_folder = os.path.join(dataset_folder, test_name)
+
         if not tname.endswith("3"):
             create_test_results_folder(test_results_folder, dataset_folder != prev_dataset_folder)
 

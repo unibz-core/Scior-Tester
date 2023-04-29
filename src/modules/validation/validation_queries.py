@@ -5,29 +5,31 @@ Data & Knowledge Engineering, 134, 101891.
 These queries are used for validating the generated taxonomies with gUFO classifications.
 """
 
+# Listing 12: Detects violations of the constraint onlyOneOntoUMLStereotype.
 QUERY_L12 = """
-    PREFIX gufo: <http://purl.org/nemo/gufo#> 
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-    select distinct ?type where { { 
-    select ?type (count(?type) as ?n)  
-    where { 
-        { ?type rdf:type gufo:Category . } 
-        union { ?type rdf:type gufo:RoleMixin . } 
-        union { ?type rdf:type gufo:PhaseMixin . } 
-        union { ?type rdf:type gufo:Mixin . } 
-        union { ?type rdf:type gufo:Kind . } 
-        union { ?type rdf:type gufo:SubKind . } 
-        union { ?type rdf:type gufo:Role . } 
-        union { ?type rdf:type gufo:Phase . }} 
-    group by ?type} 
+    PREFIX gufo: <http://purl.org/nemo/gufo#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    select distinct ?type where { {
+    select ?type (count(?type) as ?n)
+    where {
+        { ?type rdf:type gufo:Category . }
+        union { ?type rdf:type gufo:RoleMixin . }
+        union { ?type rdf:type gufo:PhaseMixin . }
+        union { ?type rdf:type gufo:Mixin . }
+        union { ?type rdf:type gufo:Kind . }
+        union { ?type rdf:type gufo:SubKind . }
+        union { ?type rdf:type gufo:Role . }
+        union { ?type rdf:type gufo:Phase . }}
+    group by ?type}
     filter (?n > 1)}
 """
 
+# Listing 13: Detects violations of the constraint sortalMustSpecializeUltimateSortal.
 QUERY_L13 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    select distinct ?sortal 
+    select distinct ?sortal
     where {
         { ?sortal rdf:type gufo:SubKind . }
         union { ?sortal rdf:type gufo:Phase . }
@@ -37,6 +39,7 @@ QUERY_L13 = """
     ?ultimateSortal rdf:type gufo:Kind . }}
 """
 
+# Listing 14: Detects violations of the constraint ultimateSortalCantSpecializeAnother.
 QUERY_L14 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -48,6 +51,7 @@ QUERY_L14 = """
     ?ultimateSortal rdfs:subClassOf+/rdf:type gufo:Kind . }}
 """
 
+# Listing 15: Detects violations of the constraint cantSpecializeMoreThanOneUltimateSortal.
 QUERY_L15 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -64,6 +68,8 @@ QUERY_L15 = """
     filter(?n > 1)}
 """
 
+# Listing 16: Detects violations of the constraints:
+#   rigidSortalCantSpecializeAntiRigid, rigidNonSortalCantSpecializeAntiRigid, and semiRigidCantSpecializeAntiRigid.
 QUERY_L16 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -76,6 +82,7 @@ QUERY_L16 = """
         ?antiRigidType rdf:type/rdfs:subClassOf* gufo:AntiRigidType . }
 """
 
+# Listing 17: Detects violations of the constraint nonSortalCantSpecializeSortal.
 QUERY_L17 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -87,6 +94,7 @@ QUERY_L17 = """
         ?sortal rdf:type/rdfs:subClassOf* gufo:Sortal . }
 """
 
+# Listing 18: Detects violations of the constraint nonSortalMustHaveSortalSpecialization.
 QUERY_L18 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
