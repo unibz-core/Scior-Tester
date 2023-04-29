@@ -75,6 +75,7 @@ def remaps_to_gufo(class_name, gufo_lower_type: str, no_namespace: bool = False)
 
     return mapped_stereotype if no_namespace else NAMESPACE_GUFO + mapped_stereotype
 
+
 def create_inconsistency_csv_output(inconsistencies_file_name, file_name, execution_number, input_class):
     """ Creates and updates a CSV file with a list of all inconsistent classes and their stereotypes. """
     csv_header = ["taxonomy_name", "execution_number", "inconsistent_class_name", "inconsistent_class_classification"]
@@ -143,8 +144,7 @@ def convert_ontology_dataclass_list_to_dictionary_list(input_class_list, ontolog
             "is_type": ontology_dataclass.is_type,
             "can_type": ontology_dataclass.can_type,
             "not_type": ontology_dataclass.not_type
-        }
-        }
+        }}
         ontology_dictionary_list.append(ontology_dictionary)
 
     return ontology_dictionary_list
