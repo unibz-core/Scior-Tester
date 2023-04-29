@@ -131,3 +131,5 @@ dmypy.json
 .pyre/
 /catalog*/
 /logs/
+/src/catalog/
+/src/logs/

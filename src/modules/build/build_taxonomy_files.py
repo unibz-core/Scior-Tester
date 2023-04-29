@@ -9,7 +9,6 @@ from src.modules.build import VOCABULARY_GENERALIZATION_URI, VOCABULARY_GENERAL_
     VOCABULARY_CLASS_URI, VOCABULARY_NAME_URI, VOCABULARY_STEREOTYPE_URI, VOCABULARY_URI_STR
 from src.modules.build.build_classes_stereotypes_information import get_gufo_classification, clean_class_name, \
     return_gufo_classification_uri, get_gufo_classification_supertypes
-from src.modules.tester.hash_functions import register_sha256_hash_information
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_general import lists_subtraction
 from src.modules.tester.utils_graph import generates_nodes_lists, get_all_related_nodes
@@ -126,7 +125,7 @@ def create_full_taxonomy_graph(owl_file_path: str):
     return taxonomical_graph
 
 
-def create_taxonomy_ttl_files(source_owl_file_path, dataset_folder_path, hash_register):
+def create_taxonomy_ttl_files(source_owl_file_path, dataset_folder_path):
     """ Generates and saves files taxonomy.ttl - rdf-s graph with the model's taxonomy - for a dataset. """
 
     # Load ontology.ttl file into graph,
@@ -134,10 +133,9 @@ def create_taxonomy_ttl_files(source_owl_file_path, dataset_folder_path, hash_re
     full_taxonomy_graph = create_full_taxonomy_graph(source_owl_file_path)
 
     # generate isolated files
-    taxonomy_files, hash_register = generate_isolated_taxonomy_files(
-        full_taxonomy_graph, dataset_folder_path, source_owl_file_path, hash_register)
+    taxonomy_files = generate_isolated_taxonomy_files(full_taxonomy_graph, dataset_folder_path, source_owl_file_path)
 
-    return taxonomy_files, hash_register
+    return taxonomy_files
 
 
 def safe_save_taxonomy_graph(taxonomy_graph, complete_taxonomy_file_path):
@@ -169,7 +167,7 @@ def remove_classes_from_graph(source_graph, classes_to_remove_list):
     return reduced_graph
 
 
-def generate_isolated_taxonomy_files(source_taxonomy_graph, saving_path, source_owl_file_path, hash_register):
+def generate_isolated_taxonomy_files(source_taxonomy_graph, saving_path, source_owl_file_path):
     """ Uses recursion for isolate all separated taxonomies inside a single graph
         and saves each one of them as a separated file with the name taxonomy_X.ttl,
         where X is the number of the taxonomy.
@@ -191,11 +189,10 @@ def generate_isolated_taxonomy_files(source_taxonomy_graph, saving_path, source_
 
         taxonomy_file_path = os.path.join(saving_path, f"{dataset_name}_tx{idx + 1:03d}.ttl")
         safe_save_taxonomy_graph(reduced_graph, taxonomy_file_path)
-        hash_register = register_sha256_hash_information(hash_register, taxonomy_file_path, source_owl_file_path)
         files.append(taxonomy_file_path)
         idx += 1
 
-    return files, hash_register
+    return files
 
 
 def remove_gufo_classifications():

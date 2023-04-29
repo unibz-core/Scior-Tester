@@ -1,16 +1,13 @@
 """ Baseline dictionary definition. """
 import csv
 import os
-import platform
 
-import psutil
 import yaml
 
-from src import NAMESPACE_TAXONOMY, NAMESPACE_GUFO, MINIMUM_ALLOWED_NUMBER_CLASSES, PERCENTAGE_INITIAL, \
-    PERCENTAGE_FINAL, PERCENTAGE_RATE, NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE
+from src import NAMESPACE_TAXONOMY, NAMESPACE_GUFO
 from src.modules.build.build_directories_structure import create_folder
 from src.modules.tester.logger_config import initialize_logger
-from src.modules.tester.utils_general import write_csv_row, write_dictionary
+from src.modules.tester.utils_general import write_csv_row
 
 
 class ClassDef(object):
@@ -72,7 +69,6 @@ def remaps_to_gufo(class_name, gufo_lower_type: str, no_namespace: bool = False)
         logger.error(f"Unknown gufo_lower_type {gufo_lower_type} in class {class_name}. Program aborted.")
         exit(1)
 
-
     return mapped_stereotype if no_namespace else NAMESPACE_GUFO + mapped_stereotype
 
 
@@ -105,6 +101,7 @@ def create_statistics_csv_output(ontology_dataclass_list, consolidated_statistic
 
 def calculate_incompleteness_values(ontology_dataclass_list):
     return sum([1 for dataclass in ontology_dataclass_list if dataclass.incompleteness_info["is_incomplete"]])
+
 
 """
 def create_times_csv_output(time_register, test_results_folder, file_name, execution_number):

@@ -1,16 +1,16 @@
-""" Main module for the OntoCatOWL-Catalog Tester. """
+""" Main module for the OntoCatOWL-Catalog Tester. Call all functionalities (build and tests). """
+
 import os
 import random
 from copy import deepcopy
 
-import pandas as pd
 from rdflib import URIRef, RDF
 from scior import run_scior_tester
 
 from src import EXCEPTIONS_LIST, CATALOG_FOLDER, CLASSES_DATA_FILE_NAME, NAMESPACE_TAXONOMY, \
     NAMESPACE_GUFO, MINIMUM_ALLOWED_NUMBER_CLASSES, PERCENTAGE_INITIAL, PERCENTAGE_FINAL, \
     NUMBER_OF_EXECUTIONS_PER_DATASET_PER_PERCENTAGE, PERCENTAGE_RATE, SOFTWARE_ACRONYM, SOFTWARE_NAME, \
-    SOFTWARE_VERSION, SOFTWARE_URL, HASH_FILE_NAME
+    SOFTWARE_VERSION, SOFTWARE_URL
 from src.modules.build.build_classes_stereotypes_information import collect_stereotypes_classes_information
 from src.modules.build.build_directories_structure import get_list_ttl_files, \
     create_test_directory_folders_structure, create_test_results_folder, create_internal_catalog_path
@@ -20,21 +20,20 @@ from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_files, re
 from src.modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_inconsistency_csv_output, \
     create_classes_yaml_output, create_classes_results_csv_output, create_matrix_output, \
     create_summary_csv_output
-    #create_times_csv_output, create_statistics_csv_output, save_platform_information
-from src.modules.run.test2 import create_inconsistency_csv_output_t2, create_classes_yaml_output_t2, \
-    create_times_csv_output_t2, create_statistics_csv_output_t2
-from src.modules.tester.hash_functions import write_sha256_hash_register
+from src.modules.run.test2 import create_inconsistency_csv_output_t2, create_classes_yaml_output_t2
 from src.modules.tester.input_arguments import treat_arguments
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_rdf import load_graph_safely
 from src.modules.validation.validation_functions import validate_gufo_taxonomies
 
 
-def build_scior_tester(catalog_path, validate_argument: bool, gufo_argument: bool):
+def build_scior_tester(catalog_path: str, validate_argument: bool, gufo_argument: bool):
     """ Build function for the Scior Tester. Generates all files for the dataset that will receive the tests. """
 
-    # Building directories structure
-    datasets = get_list_ttl_files(catalog_path, name="ontology")  # returns all ttl files we have with full path
+    # Building directories structure.
+
+    # Returns all ttl files we have with full path
+    datasets = get_list_ttl_files(catalog_path, name="ontology")
 
     catalog_size = len(datasets)
     catalog_exclusion_list_size = len(EXCEPTIONS_LIST)
@@ -45,9 +44,8 @@ def build_scior_tester(catalog_path, validate_argument: bool, gufo_argument: boo
 
     internal_catalog_folder = os.path.join(os.getcwd(), CATALOG_FOLDER) + os.path.sep
     create_internal_catalog_path(internal_catalog_folder)
-    hash_register = pd.DataFrame(columns=["file_name", "file_hash", "source_file_name", "source_file_hash"])
 
-    for (current_num, dataset) in enumerate(datasets):
+    for current_num, dataset in enumerate(datasets):
         current = current_num + 1
 
         dataset_name = dataset.split(os.path.sep)[-2]
@@ -62,17 +60,15 @@ def build_scior_tester(catalog_path, validate_argument: bool, gufo_argument: boo
             create_test_directory_folders_structure(dataset_folder, catalog_size, current)
 
             # Building taxonomies files and collecting information from classes
-            taxonomy_files, hash_register = create_taxonomy_ttl_files(dataset, dataset_folder, hash_register)
+            taxonomy_files = create_taxonomy_ttl_files(dataset, dataset_folder)
 
-            # Builds dataset_classes_information and collects attributes name, prefixed_name,
-            # and all taxonomic information
+            # Builds dataset_classes_information and collects attributes name, prefixed_name, all taxonomic information
             dataset_classes_information = collect_taxonomies_information(taxonomy_files, catalog_size, current)
 
             # Collects stereotype_original and stereotype_gufo for dataset_classes_information
             collect_stereotypes_classes_information(dataset, dataset_classes_information, catalog_size, current)
 
-            hash_register = saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder,
-                                                           catalog_size, current, dataset, hash_register)
+            saves_dataset_csv_classes_data(dataset_classes_information, dataset_folder, catalog_size, current, dataset)
 
             logger.info(f"Dataset {dataset_name} successfully concluded!\n")
 
@@ -86,13 +82,15 @@ def build_scior_tester(catalog_path, validate_argument: bool, gufo_argument: boo
     if not gufo_argument:
         remove_gufo_classifications()
 
-    write_sha256_hash_register(hash_register, internal_catalog_folder + HASH_FILE_NAME)
 
+def create_arguments(is_complete: bool) -> dict:
+    """ Set Scior's arguments for the implemented Tests.
+        It is important to not that these are not the Tester's arguments.
+    """
 
-def create_arguments(is_automatic: bool, is_complete: bool):
     arguments_dictionary = {
-        "is_automatic": is_automatic,
-        "is_interactive": not is_automatic,
+        "is_automatic": True,
+        "is_interactive": False,
         "is_cwa": is_complete,
         "is_owa": not is_complete,
         "gufo_results": False,
@@ -106,12 +104,14 @@ def create_arguments(is_automatic: bool, is_complete: bool):
     return arguments_dictionary
 
 
-def run_scior(is_automatic: bool, is_complete: bool, tname: str):
+def run_scior(is_complete: bool, tname: str) -> None:
+    """ Receives the
+    """
     # Creating list of taxonomies
     taxonomies = get_list_ttl_files(os.path.join(os.getcwd(), CATALOG_FOLDER))
 
-    global_configurations = create_arguments(is_automatic, is_complete)
-    l1 = "a" if is_automatic else "i"
+    global_configurations = create_arguments(is_complete)
+    l1 = "a"
     l2 = "c" if is_complete else "n"
     test_name = f"{tname}_{l1}{l2}"
     inconsistencies_file_name = os.path.join(os.getcwd(), CATALOG_FOLDER, f"inconsistencies_{test_name}.csv")
@@ -132,7 +132,7 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
         os.remove(consistencies_file_name)
 
     prev_dataset_folder = ""
-    for (current, taxonomy) in enumerate(taxonomies):
+    for current, taxonomy in enumerate(taxonomies):
         logger.info(f"Executing Scior for taxonomy {current + 1}/{total_taxonomies_number}: {taxonomy}\n")
 
         taxonomy_filename = taxonomy.split(os.path.sep)[-1]
@@ -165,7 +165,7 @@ def run_scior(is_automatic: bool, is_complete: bool, tname: str):
 
 
 def run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder,
-                    draft_file_name, inconsistencies_file_name, divergences_file_name):
+                    draft_file_name, inconsistencies_file_name, divergences_file_name) -> None:
     # Test 1 for Scior - described in: https://github.com/unibz-core/Scior-Dataset
     tests_total = len(input_classes)
 
@@ -243,8 +243,8 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
                             f"({number_of_input_classes} input classes).{end}")
                 create_classes_yaml_output_t2(sample_list, ontology_dataclass_list, test_results_folder,
                                               file_name=f"complete{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.yaml")
-                create_classes_results_csv_output(input_classes, ontology_dataclass_list,
-                                                  test_results_folder, divergences_file_name,
+                create_classes_results_csv_output(input_classes, ontology_dataclass_list, test_results_folder,
+                                                  divergences_file_name,
                                                   file_name=f"simple{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
                 create_matrix_output(classifications_matrix, test_results_folder,
                                      file_name=f"class_matrix{draft_file_name[:-4]}_ex{current_execution:03d}_pc{current_percentage:03d}.csv")
@@ -257,6 +257,10 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
 
 def run_scior_test3(global_configurations, input_classes, input_graph, draft_file_name,
                     inconsistencies_file_name, consistencies_file_name, taxonomy_filename):
+    """ Implements Scior-Tester's Test 3: all information of a model is provided to Scior
+        so it can evaluate which models are valid and which are not.
+    """
+
     model_size = len(input_classes)
     if model_size < MINIMUM_ALLOWED_NUMBER_CLASSES:
         logger.warning(f"The dataset has only {model_size} classes (less than minimum number) and was skipped.\n")
@@ -292,10 +296,10 @@ if __name__ == '__main__':
 
     # Execute in RUN mode.
     if arguments["run1"]:
-        run_scior(arguments["is_automatic"], arguments["is_complete"], tname="tt001")
+        run_scior(arguments["is_complete"], tname="tt001")
 
     if arguments["run2"]:
-        run_scior(arguments["is_automatic"], arguments["is_complete"], tname="tt002")
+        run_scior(arguments["is_complete"], tname="tt002")
 
     if arguments["run3"]:
-        run_scior(arguments["is_automatic"], arguments["is_complete"], tname="tt003")
+        run_scior(arguments["is_complete"], tname="tt003")

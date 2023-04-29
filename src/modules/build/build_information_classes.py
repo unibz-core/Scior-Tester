@@ -4,7 +4,6 @@ import operator
 import os.path
 
 from src import CLASSES_DATA_FILE_NAME, NAMESPACE_TAXONOMY
-from src.modules.tester.hash_functions import register_sha256_hash_information
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_general import write_csv_row
 from src.modules.tester.utils_graph import get_all_superclasses, get_all_subclasses
@@ -47,7 +46,7 @@ class InformationStructure(object):
 
 
 def saves_dataset_csv_classes_data(catalog_information, dataset_path, catalog_size, current,
-                                   source_owl_file_path, hash_register):
+                                   source_owl_file_path):
     """ Saves dataset classes information in CSV format. """
 
     logger = initialize_logger()
@@ -85,7 +84,3 @@ def saves_dataset_csv_classes_data(catalog_information, dataset_path, catalog_si
             logger.error(f"Could not save {csv_file_full_path} csv file. Exiting program."
                          f"System error reported: {error}")
             exit(1)
-
-        hash_register = register_sha256_hash_information(hash_register, csv_file_full_path, source_owl_file_path)
-
-    return hash_register
