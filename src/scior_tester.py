@@ -105,8 +105,7 @@ def create_arguments(is_complete: bool) -> dict:
 
 
 def run_scior(is_complete: bool, tname: str) -> None:
-    """ Receives the
-    """
+
     # Creating list of taxonomies
     taxonomies = get_list_ttl_files(os.path.join(os.getcwd(), CATALOG_FOLDER))
 
@@ -166,7 +165,8 @@ def run_scior(is_complete: bool, tname: str) -> None:
 
 def run_scior_test1(global_configurations, input_classes, input_graph, test_results_folder,
                     draft_file_name, inconsistencies_file_name, divergences_file_name) -> None:
-    # Test 1 for Scior - described in: https://github.com/unibz-core/Scior-Dataset
+    """ Implements Test 1 for Scior - described in: https://github.com/unibz-core/Scior-Dataset """
+
     tests_total = len(input_classes)
 
     # Executions of the test
@@ -204,7 +204,8 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
 
 def run_scior_test2(global_configurations, input_classes, input_graph, test_results_folder,
                     draft_file_name, inconsistencies_file_name, divergences_file_name, taxonomy_filename):
-    # Test 2 for Scior - described in: https://github.com/unibz-core/Scior-Dataset
+    """ Implements Test 2 for Scior - described in: https://github.com/unibz-core/Scior-Dataset """
+
     model_size = len(input_classes)
     # Consider only datasets that have at least 20 classes. If less, skip.
     if model_size < MINIMUM_ALLOWED_NUMBER_CLASSES:
