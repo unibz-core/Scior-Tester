@@ -45,17 +45,6 @@ def treat_arguments(software_acronym, software_name, software_version, software_
     arguments_parser.add_argument("-r3", "--run3", action='store_true',
                                   help="Execute the TEST_3 for the built datasets.")
 
-    # Automation level
-
-    automation_group = arguments_parser.add_mutually_exclusive_group()
-
-    automation_group.add_argument("-i", "--interactive", action='store_true',
-                                  help="Execute automatic rules whenever possible. "
-                                       "Execute interactive rules only if necessary (default).")
-
-    automation_group.add_argument("-a", "--automatic", action='store_true',
-                                  help="Execute only automatic rules. Interactive rules are not performed.")
-
     # Ontology completeness arguments
 
     completeness_group = arguments_parser.add_mutually_exclusive_group()
