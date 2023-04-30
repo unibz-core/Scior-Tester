@@ -18,14 +18,14 @@ QUERY_L12 = """
     select ?type (count(?type) as ?n)
     where {
         { ?type rdf:type gufo:Category . }
-        union { ?type rdf:type gufo:RoleMixin . }
-        union { ?type rdf:type gufo:PhaseMixin . }
-        union { ?type rdf:type gufo:Mixin . }
         union { ?type rdf:type gufo:Kind . }
-        union { ?type rdf:type gufo:SubKind . }
+        union { ?type rdf:type gufo:Mixin . }
+        union { ?type rdf:type gufo:Phase . }
+        union { ?type rdf:type gufo:PhaseMixin . }
         union { ?type rdf:type gufo:Role . }
-        union { ?type rdf:type gufo:Phase . }}
-    group by ?type}
+        union { ?type rdf:type gufo:RoleMixin . }
+        union { ?type rdf:type gufo:SubKind . }}
+    group by ?type }
     filter (?n > 1)}
 """
 
@@ -168,6 +168,7 @@ WHERE {
         ?class_y rdfs:subClassOf+ ?class_z .
         MINUS { ?class_x rdfs:subClassOf+ ?class_y . }
         MINUS { ?class_y rdfs:subClassOf+ ?class_x . }
+        FILTER (?class_x != ?class_y)
     }
 } """
 
