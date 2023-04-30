@@ -74,12 +74,20 @@ def calculate_resulting_matrix(test_type: bool, matrix_type: str) -> list[list]:
     """ Receives information about the test and matrix type and calculate the final average matrix. """
 
     test_type_info = "CWA" if test_type else "OWA"
-    LOGGER.info(f"Generating {matrix_type} for {test_type_info}.")
-
     test_type = "c" if test_type else "n"
+
+    if matrix_type == "Class":
+        matrix_type_info = "Classifications"
+    elif matrix_type == "Leaves":
+        matrix_type_info = "Leaves"
+    else:
+        LOGGER.error("Unknown matrix type. Program aborted.")
+        exit(1)
 
     # get all matrix files for the received argument test
     list_all_matrix_files = glob.glob(f'./catalog/**/**/**/{matrix_type}_matrix_*_a{test_type}_*.csv')
+
+    LOGGER.info(f"Generating {matrix_type_info} for {test_type_info} using {len(list_all_matrix_files)} files.")
 
     list_normalized_matrices = []
 
