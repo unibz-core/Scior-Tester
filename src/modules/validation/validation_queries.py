@@ -190,16 +190,16 @@ WHERE {
 } """
 
 # RESULTING DICTIONARY
-QUERIES_OWA_DICT_LIST = {   "L12": QUERY_L12,
-                            "L13": QUERY_L13,
-                            "L14": QUERY_L14,
-                            "L15": QUERY_L15,
-                            "L16": QUERY_L16,
-                            "L17": QUERY_L17,
-                            "L18": QUERY_L18,
-                            "R32-R34": QUERY_R32_R33_R34,
-                            "R35": QUERY_R35,
-                            "R37": QUERY_R37}
+QUERIES_OWA_DICT_LIST = {"L12": QUERY_L12,
+                         "L13": QUERY_L13,
+                         "L14": QUERY_L14,
+                         "L15": QUERY_L15,
+                         "L16": QUERY_L16,
+                         "L17": QUERY_L17,
+                         "L18": QUERY_L18,
+                         "R32-R34": QUERY_R32_R33_R34,
+                         "R35": QUERY_R35,
+                         "R37": QUERY_R37}
 
 # Queries that apply to CWA
 QUERIES_EXCLUSIVE_TO_CWA = ["L13", "L18", "R35", "R37"]

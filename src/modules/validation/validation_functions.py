@@ -6,7 +6,7 @@ import os
 from src.modules.tester.logger_config import initialize_logger
 from src.modules.tester.utils_general import write_csv_row
 from src.modules.tester.utils_rdf import load_graph_safely
-from src.modules.validation.validation_queries import QUERIES_OWA_DICT_LIST, QUERIES_CWA_LIST
+from src.modules.validation.validation_queries import QUERIES_EXCLUSIVE_TO_CWA, QUERIES_OWA_DICT_LIST
 
 
 class validated_taxonomy:
@@ -52,11 +52,12 @@ def create_valid_lists(evaluated_taxonomies):
     list_valid_n = []
 
     for taxonomy in evaluated_taxonomies:
+        # If no problems were found, write in both OWA and CWA lists
         if not taxonomy.list_problems_queries:
             list_valid_c.append(taxonomy.file_name)
             list_valid_n.append(taxonomy.file_name)
-        # Below are the rules that can only be applied to OWA. I.e., that cannot be applied to CWA.
-        elif taxonomy.list_problems_queries in QUERIES_CWA_LIST:
+        # Else, if problems were found but were only related to CWA, write to OWA list.
+        elif taxonomy.list_problems_queries in QUERIES_EXCLUSIVE_TO_CWA:
             list_valid_n.append(taxonomy.file_name)
 
     logger.info(f"Writing {valid_taxonomies_c_file}")
