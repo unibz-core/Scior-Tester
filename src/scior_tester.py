@@ -174,7 +174,7 @@ def run_scior_test1(global_configurations, input_classes, input_graph, test_resu
                     inconsistencies_file_name, divergences_file_name) -> None:
     """ Implements Test 1 for Scior - described in: https://github.com/unibz-core/Scior-Dataset """
 
-    test_type = "OWA" if global_configurations["is_complete"] else "CWA"
+    test_type = "OWA" if global_configurations["is_owa"] else "CWA"
     logger.info(f"Starting Test 1 for {test_type}\n")
 
     tests_total = len(input_classes)
@@ -216,7 +216,7 @@ def run_scior_test2(global_configurations, input_classes, input_graph, test_resu
                     inconsistencies_file_name, divergences_file_name, taxonomy_filename):
     """ Implements Test 2 for Scior - described in: https://github.com/unibz-core/Scior-Dataset """
 
-    test_type = "OWA" if global_configurations["is_complete"] else "CWA"
+    test_type = "OWA" if global_configurations["is_owa"] else "CWA"
     logger.info(f"Starting Test 2 for {test_type}\n")
 
     model_size = len(input_classes)
