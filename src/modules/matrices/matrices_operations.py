@@ -85,7 +85,7 @@ def calculate_resulting_matrix(test_type: bool, matrix_type: str, test_number:st
         exit(1)
 
     # get all matrix files for the received argument test
-    list_all_matrix_files = glob.glob(f'./catalog/**/**/**/{matrix_type}_matrix_*_a{test_type}_{test_number}*.csv')
+    list_all_matrix_files = glob.glob(f'./catalog/**/**/**/{matrix_type}_matrix_*{test_number}_a{test_type}_*.csv')
 
     LOGGER.info(f"Generating {matrix_type_info} for {test_type_info} using {len(list_all_matrix_files)} files.")
 
