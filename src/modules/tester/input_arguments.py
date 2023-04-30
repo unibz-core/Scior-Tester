@@ -62,6 +62,10 @@ def treat_arguments(software_acronym, software_name, software_version, software_
     arguments_parser.add_argument("-p", "--catalog_path", type=str, action="store",
                                   help="The path of the catalog in which Scior is going to be tested.")
 
+    # CALCULATE MATRIX
+    arguments_parser.add_argument("-m", "--matrices", action='store_true',
+                                  help="Calculate average resulting matrices.")
+
     # Execute arguments parser
     arguments = arguments_parser.parse_args()
 
@@ -75,7 +79,8 @@ def treat_arguments(software_acronym, software_name, software_version, software_
                              "run2": arguments.run2,
                              "run3": arguments.run3,
                              "is_complete": arguments.complete,
-                             "catalog_path": arguments.catalog_path}
+                             "catalog_path": arguments.catalog_path,
+                             "matrices": arguments.matrices}
 
     logger.debug(f"Arguments Parsed. Obtained values are: {global_configurations}")
 

@@ -17,6 +17,7 @@ from src.modules.build.build_directories_structure import get_list_ttl_files, cr
 from src.modules.build.build_information_classes import saves_dataset_csv_classes_data
 from src.modules.build.build_taxonomy_classes_information import collect_taxonomies_information
 from src.modules.build.build_taxonomy_files import create_taxonomy_ttl_files, remove_gufo_classifications
+from src.modules.matrices.matrices_operations import calculate_resulting_matrix
 from src.modules.run.test1 import load_baseline_dictionary, remaps_to_gufo, create_inconsistency_csv_output, \
     create_classes_yaml_output, create_classes_results_csv_output, create_matrix_output, create_summary_csv_output
 from src.modules.run.test2 import create_inconsistency_csv_output_t2, create_classes_yaml_output_t2
@@ -133,6 +134,10 @@ def run_scior(is_complete: bool, tname: str) -> None:
 
     prev_dataset_folder = ""
     for current, taxonomy in enumerate(taxonomies):
+
+        # TODO: TEST ONLY! REMOVE!
+        if current > 5:
+            break
 
         logger.info(f"Executing Scior for taxonomy {current + 1}/{total_taxonomies_number}: {taxonomy}\n")
 
@@ -312,3 +317,11 @@ if __name__ == '__main__':
 
     if arguments["run3"]:
         run_scior(arguments["is_complete"], tname="tt003")
+
+    # Calculate resulting matrices
+
+    if arguments["matrices"]:
+        classifications_matrix = calculate_resulting_matrix(arguments["is_complete"], "class")
+        leaves_matrix = calculate_resulting_matrix(arguments["is_complete"], "leaves")
+        print(f"{classifications_matrix = }")
+        print(f"{leaves_matrix = }")
