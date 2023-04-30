@@ -86,7 +86,6 @@ def calculate_resulting_matrix(test_type: bool, matrix_type: str, test_number:st
 
     final_matrix_total = []
     percentage = 10
-    row = 0
     while percentage <= 90:
 
         # get all matrix files for the received argument test
@@ -107,9 +106,8 @@ def calculate_resulting_matrix(test_type: bool, matrix_type: str, test_number:st
 
         final_matrix_percentage = normalize_matrix(resulting_matrix)
 
-        final_matrix_total[row] = final_matrix_percentage[0]
+        final_matrix_total.append(final_matrix_percentage[0])
 
         percentage += 10
-        row += 1
 
     return final_matrix_total
