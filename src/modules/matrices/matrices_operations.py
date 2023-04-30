@@ -70,7 +70,7 @@ def adds_two_matrices(matrix_a: list[list], matrix_b: list[list]) -> list[list]:
     return resulting_matrix
 
 
-def calculate_resulting_matrix(test_type: bool, matrix_type: str, test_number:str):
+def calculate_resulting_matrix(test_type: bool, matrix_type: str, test_number:str)->list[list]:
     """ Receives information about the test and matrix type and calculate the final average matrix. """
 
     test_type_info = "CWA" if test_type else "OWA"
@@ -84,11 +84,13 @@ def calculate_resulting_matrix(test_type: bool, matrix_type: str, test_number:st
         LOGGER.error("Unknown matrix type. Program aborted.")
         exit(1)
 
+    final_matrix_total = []
     percentage = 10
+    row = 0
     while percentage <= 90:
 
         # get all matrix files for the received argument test
-        list_all_matrix_files = glob.glob(f'./catalog/**/**/**/{matrix_type}_matrix_*{test_number}_a{test_type}_*_pc{percentage}.csv')
+        list_all_matrix_files = glob.glob(f'./catalog/**/**/**/{matrix_type}_matrix_*{test_number}_a{test_type}_*_pc0{percentage}.csv')
 
         LOGGER.info(f"Generating {matrix_type_info} for {test_type_info} using {len(list_all_matrix_files)} files.")
 
@@ -103,8 +105,11 @@ def calculate_resulting_matrix(test_type: bool, matrix_type: str, test_number:st
         for matrix in list_normalized_matrices:
             resulting_matrix = adds_two_matrices(resulting_matrix, matrix)
 
-        final_matrix = normalize_matrix(resulting_matrix)
+        final_matrix_percentage = normalize_matrix(resulting_matrix)
 
-        print(f"{final_matrix = }")
+        final_matrix_total[row] = final_matrix_percentage[0]
 
         percentage += 10
+        row += 1
+
+    return final_matrix_total
