@@ -321,7 +321,7 @@ if __name__ == '__main__':
     # Calculate resulting matrices
 
     if arguments["matrices"]:
-        classifications_matrix = calculate_resulting_matrix(arguments["is_complete"], "class", "tt002")
-        print(f"{classifications_matrix = }")
-        leaves_matrix = calculate_resulting_matrix(arguments["is_complete"], "leaves", "tt002")
-        print(f"{leaves_matrix = }")
+        calculate_resulting_matrix(True, "class", "tt002")
+        calculate_resulting_matrix(True, "leaves", "tt002")
+        calculate_resulting_matrix(False, "class", "tt002")
+        calculate_resulting_matrix(False, "leaves", "tt002")
