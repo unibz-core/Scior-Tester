@@ -185,6 +185,7 @@ WHERE {
         ?class_y rdfs:subClassOf+ ?class_z .
         MINUS { ?class_x rdfs:subClassOf+ ?class_y . }
         MINUS { ?class_y rdfs:subClassOf+ ?class_x . }
+        FILTER (?class_x != ?class_y)
     }
 } """
 
