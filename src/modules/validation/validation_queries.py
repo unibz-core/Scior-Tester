@@ -123,20 +123,25 @@ QUERY_L17 = """
     both N and S.
 """
 # Listing 18: Detects violations of the constraint nonSortalMustHaveSortalSpecialization.
+# Fixed to include that ?otherNonSortal must be different from ?nonSortal
 QUERY_L18 = """
     PREFIX gufo: <http://purl.org/nemo/gufo#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    select distinct ?nonSortal
-    where {
-        ?nonSortal rdf:type/rdfs:subClassOf* gufo:NonSortal .
-    filter not exists {{
-        ?sortal rdf:type/rdfs:subClassOf* gufo:Sortal .
-        ?sortal rdfs:subClassOf* ?nonSortal .}
-        union{?otherNonSortal rdf:type/rdfs:subClassOf* gufo:NonSortal .
-        ?sortal rdf:type/rdfs:subClassOf* gufo:Sortal .
-        ?sortal rdfs:subClassOf+ ?otherNonSortal .
-        ?nonSortal rdfs:subClassOf+ ?otherNonSortal . }}}
+    SELECT DISTINCT ?nonSortal
+    WHERE {
+        ?nonSortal rdf:type gufo:NonSortal .
+        FILTER NOT EXISTS {
+                { ?sortal rdf:type gufo:Sortal .
+                ?sortal rdfs:subClassOf* ?nonSortal . }
+            UNION
+                {?otherNonSortal rdf:type gufo:NonSortal .
+                ?sortal rdf:type gufo:Sortal .
+                ?sortal rdfs:subClassOf+ ?otherNonSortal .
+                ?nonSortal rdfs:subClassOf+ ?otherNonSortal . }
+            FILTER (?otherNonSortal != ?nonSortal)
+        }
+    }
 """
 
 
