@@ -144,7 +144,6 @@ QUERY_L18 = """
     }
 """
 
-
 # This query was added because the queries available in Guizzardi (2021) do not concern relational dependency.
 QUERY_R32_R33_R34 = """
 PREFIX gufo: <http://purl.org/nemo/gufo#>
@@ -188,21 +187,17 @@ WHERE {
     }
 } """
 
-# RESULTING DICTIONARIES
+# RESULTING DICTIONARY
+QUERIES_OWA_DICT_LIST = {   "L12": QUERY_L12,
+                            "L13": QUERY_L13,
+                            "L14": QUERY_L14,
+                            "L15": QUERY_L15,
+                            "L16": QUERY_L16,
+                            "L17": QUERY_L17,
+                            "L18": QUERY_L18,
+                            "R32-R34": QUERY_R32_R33_R34,
+                            "R35": QUERY_R35,
+                            "R37": QUERY_R37}
 
-# Queries that only apply to OWA
-QUERIES_OWA_DICT_LIST = {
-    "L12": QUERY_L12,
-    "L13": QUERY_L13,
-    "L14": QUERY_L14,
-    "L15": QUERY_L15,
-    "L16": QUERY_L16,
-    "L17": QUERY_L17,
-    "L18": QUERY_L18,
-    "R32-R34": QUERY_R32_R33_R34,
-    "R35": QUERY_R35,
-    "R37": QUERY_R37
-}
-
-# Queries that apply to both OWA and CWA
-QUERIES_CWA_LIST = ["L13", "R35", "R37"]
+# Queries that apply to CWA
+QUERIES_EXCLUSIVE_TO_CWA = ["L13", "L18", "R35", "R37"]
