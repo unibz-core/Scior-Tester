@@ -76,9 +76,9 @@ def calculate_resulting_matrix(test_type: bool, matrix_type: str) -> list[list]:
     test_type_info = "CWA" if test_type else "OWA"
     test_type = "c" if test_type else "n"
 
-    if matrix_type == "Class":
+    if matrix_type == "class":
         matrix_type_info = "Classifications"
-    elif matrix_type == "Leaves":
+    elif matrix_type == "leaves":
         matrix_type_info = "Leaves"
     else:
         LOGGER.error("Unknown matrix type. Program aborted.")
