@@ -138,8 +138,8 @@ QUERY_L18 = """
                 {?otherNonSortal rdf:type gufo:NonSortal .
                 ?sortal rdf:type gufo:Sortal .
                 ?sortal rdfs:subClassOf+ ?otherNonSortal .
-                ?nonSortal rdfs:subClassOf+ ?otherNonSortal . }
-            FILTER (?otherNonSortal != ?nonSortal)
+                ?nonSortal rdfs:subClassOf+ ?otherNonSortal .
+            }
         }
     }
 """
