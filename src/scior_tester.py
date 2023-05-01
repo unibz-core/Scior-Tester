@@ -135,10 +135,6 @@ def run_scior(is_complete: bool, tname: str) -> None:
     prev_dataset_folder = ""
     for current, taxonomy in enumerate(taxonomies):
 
-        # TODO: TEST ONLY! REMOVE!
-        if current > 5:
-            break
-
         logger.info(f"Executing Scior for taxonomy {current + 1}/{total_taxonomies_number}: {taxonomy}\n")
 
         taxonomy_filename = taxonomy.split(os.path.sep)[-1]
