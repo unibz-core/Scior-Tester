@@ -18,6 +18,12 @@ class validated_taxonomy:
         self.list_problems_count = list_problems_count
 
 
+def intersection(lst1, lst2):
+    """ Simple function that returns the intersection elements of two lists. """
+    lst3 = [value for value in lst1 if value in lst2]
+    return lst3
+
+
 def save_csv_validation(queries_list, evaluated_taxonomies):
     """ Saves the results of the validation of the taxonomies into a csv file. """
 
@@ -52,21 +58,33 @@ def create_valid_lists(evaluated_taxonomies):
     list_valid_n = []
 
     for taxonomy in evaluated_taxonomies:
-        # If no problems were found, write in both OWA and CWA lists
-        if not taxonomy.list_problems_queries:
+
+        # Getting number of problems for each taxonomy
+        number_of_problems_both = len(taxonomy.list_problems_queries)
+        number_of_problems_cwa = len(intersection(taxonomy.list_problems_queries, QUERIES_EXCLUSIVE_TO_CWA))
+
+        # If there are no problems, write as valid in both lists.
+        if number_of_problems_both == 0:
             list_valid_c.append(taxonomy.file_name)
             list_valid_n.append(taxonomy.file_name)
-        # Else, if problems were found but were only related to CWA, write to OWA list.
-        elif taxonomy.list_problems_queries in QUERIES_EXCLUSIVE_TO_CWA:
+        # If there is at least one CWA problem, write as valid for OWA.
+        elif number_of_problems_cwa > 0:
             list_valid_n.append(taxonomy.file_name)
+        # If there are OWA problems, it means that it is invalid for both OWA and CWA. Hence, do not write in lists.
+        else:
+            continue
 
+    # Writing list of valid taxonomies for CWA
     logger.info(f"Writing {valid_taxonomies_c_file}")
     with open(valid_taxonomies_c_file, 'w') as tfile:
         tfile.write('\n'.join(list_valid_c))
+
+    # Writing list of valid taxonomies for OWA
     logger.info(f"Writing {valid_taxonomies_n_file}")
     with open(valid_taxonomies_n_file, 'w') as tfile:
         tfile.write('\n'.join(list_valid_n))
-    logger.info(f"List of valid taxonomies successfully written")
+
+    logger.info(f"Lists of valid taxonomies for OWA and CWA successfully written.")
 
 
 def validate_gufo_taxonomies():
